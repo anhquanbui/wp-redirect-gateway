@@ -1,0 +1,737 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2026-03-06 05:55-0600\n"
+"PO-Revision-Date: 2026-03-06 06:17-0600\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: vi_VN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.8\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-KeywordsList: __;_e;esc_html__;esc_html_e;esc_attr__;esc_attr_e\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: admin/class-admin-menu.php:17 admin/class-admin-menu.php:18
+msgid "Gateway Redirect"
+msgstr "Chuyển hướng qua Gateway"
+
+#: admin/class-admin-menu.php:26
+msgid "Dashboard"
+msgstr "Bảng điều khiển"
+
+#: admin/class-admin-menu.php:27
+msgid "Quản lý Link"
+msgstr "Quản lý Link"
+
+#: admin/class-admin-menu.php:28
+msgid "Shortcodes"
+msgstr "Shortcodes"
+
+#: admin/class-admin-menu.php:29
+msgid "Cài đặt"
+msgstr "Cài đặt"
+
+#: admin/class-admin-menu.php:30
+msgid "Logs"
+msgstr "Nhật ký"
+
+#: admin/class-links-table.php:21 admin/views/dashboard.php:70
+#: admin/views/logs-manager.php:182
+msgid "Tên Link"
+msgstr "Tên Link"
+
+#: admin/class-links-table.php:22
+msgid "Link Gốc"
+msgstr "Link Gốc"
+
+#: admin/class-links-table.php:23
+msgid "Link Chia sẻ (Mạng xã hội)"
+msgstr "Link Chia sẻ (Mạng xã hội)"
+
+#: admin/class-links-table.php:24
+msgid "Mã chèn Bài viết (Inline)"
+msgstr "Mã chèn Bài viết (Inline)"
+
+#: admin/class-links-table.php:25
+msgid "Số QC"
+msgstr "Số quảng cáo"
+
+#: admin/class-links-table.php:26 admin/views/logs-manager.php:180
+msgid "Thời gian"
+msgstr "Thời gian"
+
+#: admin/class-links-table.php:27
+msgid "Ngày tạo"
+msgstr "Ngày tạo"
+
+#: admin/class-links-table.php:33 admin/class-links-table.php:82
+#: admin/views/shortcodes-manager.php:121
+msgid "Xóa"
+msgstr "Xóa"
+
+#: admin/class-links-table.php:52
+msgid "Tất cả số QC"
+msgstr "Tất cả số quảng cáo"
+
+#: admin/class-links-table.php:61
+msgid "Tất cả các tháng"
+msgstr "Tất cả các tháng"
+
+#: admin/class-links-table.php:71
+msgid "Lọc"
+msgstr "Lọc"
+
+#: admin/class-links-table.php:80
+msgid "Sửa"
+msgstr "Sửa"
+
+#: admin/class-links-table.php:81
+msgid "Nhân bản"
+msgstr "Nhân bản"
+
+#: admin/class-links-table.php:82
+msgid "Bạn có chắc chắn muốn xóa link này?"
+msgstr "Bạn có chắc chắn muốn xóa link này?"
+
+#: admin/class-links-table.php:108
+msgid "Mặc định"
+msgstr "Mặc định"
+
+#: admin/views/dashboard.php:44
+msgid "Thống kê Tổng quan (Dashboard)"
+msgstr "Thống kê tổng quan (Bảng điều khiển)"
+
+#: admin/views/dashboard.php:49
+msgid "Tổng số Link đã tạo"
+msgstr "Tổng số Link đã tạo"
+
+#: admin/views/dashboard.php:53
+msgid "Tổng lượt Click hệ thống"
+msgstr "Tổng lượt Click hệ thống"
+
+#: admin/views/dashboard.php:59
+msgid "Biểu đồ lượt Click theo giờ trong ngày (Giờ Server)"
+msgstr "Biểu đồ lượt Click theo giờ trong ngày (Giờ Server)"
+
+#: admin/views/dashboard.php:67
+msgid "Top 20 Link nhấp nhiều nhất"
+msgstr "Top 20 Link được nhấp nhiều nhất"
+
+#: admin/views/dashboard.php:70 admin/views/dashboard.php:91
+msgid "Số lượt Click"
+msgstr "Số lượt Click"
+
+#: admin/views/dashboard.php:73 admin/views/dashboard.php:94
+msgid "Chưa có dữ liệu."
+msgstr "Chưa có dữ liệu."
+
+#: admin/views/dashboard.php:77 admin/views/logs-manager.php:206
+msgid "Link đã xóa"
+msgstr "Link đã xóa"
+
+#: admin/views/dashboard.php:88
+msgid "Top 20 IP nhấp nhiều nhất"
+msgstr "Top 20 IP nhấp liên kết nhiều nhất"
+
+#: admin/views/dashboard.php:91
+msgid "Địa chỉ IP"
+msgstr "Địa chỉ IP"
+
+#: admin/views/dashboard.php:122
+msgid "Số lượt nhấp link"
+msgstr "Số lượt nhấp link"
+
+#: admin/views/dashboard.php:143
+msgid "Khung giờ: "
+msgstr "Khung giờ: "
+
+#: admin/views/links-manager.php:12
+msgid "Đã xóa link thành công."
+msgstr "Đã xóa link thành công."
+
+#: admin/views/links-manager.php:23
+msgid "(Copy)"
+msgstr "(Sao chép)"
+
+#: admin/views/links-manager.php:30
+msgid "Đã nhân bản link thành công."
+msgstr "Đã nhân bản link thành công."
+
+#: admin/views/links-manager.php:40
+#, php-format
+msgid "Đã xóa %d link thành công."
+msgstr "Đã xóa %d link thành công."
+
+#: admin/views/links-manager.php:57
+msgid "Đã tạo link thành công!"
+msgstr "Đã tạo link thành công!"
+
+#: admin/views/links-manager.php:74
+msgid "Đã cập nhật link thành công!"
+msgstr "Đã cập nhật link thành công!"
+
+#: admin/views/links-manager.php:94
+msgid "Quản lý Link Redirect"
+msgstr "Quản lý Link Chuyển Hướng (Redirect)"
+
+#: admin/views/links-manager.php:96 admin/views/links-manager.php:165
+msgid "Tạo Link Mới"
+msgstr "Tạo Link Mới"
+
+#: admin/views/links-manager.php:98
+msgid "Quay lại danh sách"
+msgstr "Quay lại danh sách"
+
+#: admin/views/links-manager.php:108
+msgid "Chỉnh sửa Link"
+msgstr "Chỉnh sửa Link"
+
+#: admin/views/links-manager.php:114 admin/views/links-manager.php:170
+msgid "Tên hiển thị"
+msgstr "Tên hiển thị"
+
+#: admin/views/links-manager.php:118 admin/views/links-manager.php:174
+msgid "Link Gốc (Đích đến)"
+msgstr "Link Gốc (Đích đến)"
+
+#: admin/views/links-manager.php:122
+msgid "Chọn Gateway"
+msgstr "Chọn Gateway"
+
+#: admin/views/links-manager.php:125 admin/views/links-manager.php:181
+msgid "-- Chọn một Gateway --"
+msgstr "-- Chọn một Gateway --"
+
+#: admin/views/links-manager.php:133 admin/views/links-manager.php:190
+msgid "Số lượng quảng cáo"
+msgstr "Số lượng quảng cáo"
+
+#: admin/views/links-manager.php:136 admin/views/links-manager.php:193
+msgid ""
+"Nhập 0 để lấy link ngay lập tức (không đếm ngược). Số lượng tối đa được giới "
+"hạn bằng số Link Affiliate bạn đã cài đặt."
+msgstr ""
+"Nhập 0 để lấy link ngay lập tức (bỏ qua nút xem quảng cáo). Số lượng tối đa "
+"được giới hạn bằng số Link Affiliate bạn đã cài đặt."
+
+#: admin/views/links-manager.php:140 admin/views/links-manager.php:197
+msgid "Thời gian chờ riêng (Tùy chọn)"
+msgstr "Thời gian chờ riêng (Tùy chọn)"
+
+#: admin/views/links-manager.php:143 admin/views/links-manager.php:200
+msgid ""
+"Nhập chuỗi thời gian nếu muốn GHI ĐÈ cài đặt của Gateway. Để trống hệ thống "
+"sẽ tự dùng thời gian mặc định."
+msgstr ""
+"Nhập chuỗi thời gian nếu muốn GHI ĐÈ cài đặt đếm ngược của Gateway. Để trống "
+"hệ thống sẽ tự dùng thời gian mặc định."
+
+#: admin/views/links-manager.php:148
+msgid "Cập Nhật Link"
+msgstr "Cập Nhật Link"
+
+#: admin/views/links-manager.php:149
+msgid "Hủy"
+msgstr "Hủy"
+
+#: admin/views/links-manager.php:157
+msgid "Tìm Link"
+msgstr "Tìm Link"
+
+#: admin/views/links-manager.php:178
+msgid "Chọn Gateway (Bắt buộc)"
+msgstr "Chọn Gateway (Bắt buộc)"
+
+#: admin/views/links-manager.php:186
+msgid "Link này sẽ được chuyển hướng về trang Gateway bạn chọn."
+msgstr "Link này sẽ được chuyển hướng về trang Gateway bạn chọn."
+
+#: admin/views/links-manager.php:205
+msgid "Lưu Link Mới"
+msgstr "Lưu Link Mới"
+
+#: admin/views/logs-manager.php:37
+msgid "Đã xóa sạch toàn bộ Log!"
+msgstr "Đã xóa sạch toàn bộ Nhật ký!"
+
+#: admin/views/logs-manager.php:41
+#, php-format
+msgid "Đã xóa log của tháng %s thành công."
+msgstr "Đã xóa log của tháng %s thành công."
+
+#: admin/views/logs-manager.php:99
+msgid "Thống kê & Lịch sử Click"
+msgstr "Thống kê & Lịch sử Click"
+
+#: admin/views/logs-manager.php:104
+msgid "Tổng Truy Cập / Hoàn Thành"
+msgstr "Tổng Truy Cập / Hoàn Thành"
+
+#: admin/views/logs-manager.php:111
+msgid "Link Nhấp Nhiều Nhất"
+msgstr "Link Được Nhấp Nhiều Nhất"
+
+#: admin/views/logs-manager.php:116
+msgid "Chưa có dữ liệu"
+msgstr "Chưa có dữ liệu"
+
+#: admin/views/logs-manager.php:121
+msgid "Top 3 Nguồn Truy Cập (Referrer)"
+msgstr "Top 3 Nguồn Truy Cập (Referrer)"
+
+#: admin/views/logs-manager.php:132
+msgid "Chưa có nguồn truy cập ngoại"
+msgstr "Chưa có nguồn truy cập ngoại"
+
+#: admin/views/logs-manager.php:139
+msgid "Lọc hiển thị"
+msgstr "Lọc hiển thị"
+
+#: admin/views/logs-manager.php:143
+msgid "-- Tất cả các tháng --"
+msgstr "-- Tất cả các tháng --"
+
+#: admin/views/logs-manager.php:146
+msgid "Tháng "
+msgstr "Tháng "
+
+#: admin/views/logs-manager.php:150
+msgid "Lọc Log"
+msgstr "Lọc Nhật Ký"
+
+#: admin/views/logs-manager.php:155
+msgid "Dọn dẹp Database"
+msgstr "Dọn dẹp Database"
+
+#: admin/views/logs-manager.php:156
+msgid "Hành động này không thể hoàn tác. Bạn chắc chắn chứ?"
+msgstr "Hành động này không thể hoàn tác. Bạn chắc chắn chứ?"
+
+#: admin/views/logs-manager.php:160
+msgid "-- Chọn kiểu xóa --"
+msgstr "-- Chọn kiểu xóa --"
+
+#: admin/views/logs-manager.php:162
+#, php-format
+msgid "Xóa Log tháng %s"
+msgstr "Xóa Log tháng %s"
+
+#: admin/views/logs-manager.php:164
+msgid "Xóa sạch toàn bộ Log"
+msgstr "Xóa sạch toàn bộ Nhật Ký"
+
+#: admin/views/logs-manager.php:171
+msgid "Thực thi Xóa"
+msgstr "Thực thi lệnh Xóa"
+
+#: admin/views/logs-manager.php:181
+msgid "Trạng thái"
+msgstr "Trạng thái"
+
+#: admin/views/logs-manager.php:183
+msgid "Sub-ID"
+msgstr "Sub-ID"
+
+#: admin/views/logs-manager.php:184
+msgid "Tham số khác"
+msgstr "Tham số khác"
+
+#: admin/views/logs-manager.php:185
+msgid "IP"
+msgstr "IP"
+
+#: admin/views/logs-manager.php:186
+msgid "Nguồn (Referrer)"
+msgstr "Nguồn (Referrer)"
+
+#: admin/views/logs-manager.php:187
+msgid "Thiết bị"
+msgstr "Loại thiết bị"
+
+#: admin/views/logs-manager.php:192
+msgid "Chưa có dữ liệu log nào."
+msgstr "Chưa có dữ liệu nhật ký nào."
+
+#: admin/views/logs-manager.php:200
+msgid "Hoàn thành"
+msgstr "Hoàn thành"
+
+#: admin/views/logs-manager.php:202
+msgid "Truy cập"
+msgstr "Đã truy cập"
+
+#: admin/views/logs-manager.php:227
+msgid "Trực tiếp"
+msgstr "Trực tiếp"
+
+#: admin/views/logs-manager.php:241
+msgid "Đang hiển thị tối đa 500 click mới nhất."
+msgstr "Đang hiển thị tối đa 500 click mới nhất."
+
+#: admin/views/settings.php:20
+msgid "Đã lưu cài đặt thành công."
+msgstr "Đã lưu cài đặt thành công."
+
+#: admin/views/settings.php:37
+msgid "Cài đặt Hệ thống Gateway"
+msgstr "Cài đặt Hệ thống Gateway"
+
+#: admin/views/settings.php:43
+msgid "1. Cấu hình Link Affiliate (Dùng cho Watch Ad)"
+msgstr "1. Cấu hình Link Affiliate (Dùng cho nhấp Watch Ad)"
+
+#: admin/views/settings.php:46
+msgid "Danh sách Link Xoay vòng<br><small>(Mỗi link 1 dòng)</small>"
+msgstr "Danh sách Link Xoay vòng<br><small>(Mỗi link 1 dòng)</small>"
+
+#: admin/views/settings.php:54
+msgid "Quảng cáo cho Click Đệm"
+msgstr "Quảng cáo cho Click Đệm"
+
+#: admin/views/settings.php:58
+msgid "Bật tính năng Click Đệm (Mở tab khi click \"Click here to continue\")"
+msgstr "Bật tính năng Click Đệm (Mở tab khi click \"Click here to continue\")"
+
+#: admin/views/settings.php:81
+msgid "2. Thiết lập Trải nghiệm Người dùng (Phần D)"
+msgstr "2. Thiết lập Trải nghiệm Người dùng (Phần D)"
+
+#: admin/views/settings.php:84
+msgid "Bắt buộc ở lại Tab <br>(Active Tab)"
+msgstr "Bắt buộc ở lại Tab <br>(Active Tab)"
+
+#: admin/views/settings.php:88
+msgid "Bật (Nếu người dùng chuyển sang tab khác, thời gian sẽ ngừng đếm)"
+msgstr "Bật (Nếu người dùng chuyển sang tab khác, thời gian sẽ ngừng đếm)"
+
+#: admin/views/settings.php:93
+msgid "Giới hạn mở Link"
+msgstr "Giới hạn mở Link"
+
+#: admin/views/settings.php:97
+msgid ""
+"Chỉ cho phép mở 1 link cùng lúc (Đang lấy link A thì không được mở link B)"
+msgstr ""
+"Chỉ cho phép mở 1 link cùng lúc (Đang lấy link A thì không được mở link B)"
+
+#: admin/views/settings.php:105
+msgid "3. Thiết lập Google reCAPTCHA v3 (Chống Bot)"
+msgstr "3. Thiết lập Google reCAPTCHA v3 (Chống Bot)"
+
+#: admin/views/settings.php:108
+msgid "Site Key"
+msgstr "Site Key"
+
+#: admin/views/settings.php:112
+msgid "Secret Key"
+msgstr "Secret Key"
+
+#: admin/views/settings.php:119
+msgid "4. Dữ liệu & Gỡ cài đặt"
+msgstr "4. Dữ liệu & Gỡ cài đặt"
+
+#: admin/views/settings.php:122
+msgid "Xóa dữ liệu"
+msgstr "Xóa dữ liệu"
+
+#: admin/views/settings.php:126
+msgid "Xóa toàn bộ dữ liệu (bảng liên kết, cài đặt) khi xóa plugin này"
+msgstr "Xóa toàn bộ dữ liệu (bảng liên kết, cài đặt) khi xóa plugin này"
+
+#: admin/views/settings.php:128
+msgid ""
+"Cẩn thận: Nếu đánh dấu mục này, mọi dữ liệu của plugin sẽ bị xóa sạch khi "
+"bạn thao tác \"Xóa\" plugin trong trang quản trị."
+msgstr ""
+"Cẩn thận: Nếu đánh dấu mục này, mọi dữ liệu của plugin sẽ bị xóa sạch khi "
+"bạn thao tác \"Xóa\" plugin trong trang quản trị."
+
+#: admin/views/settings.php:134
+msgid "Lưu Cài Đặt"
+msgstr "Lưu Cài Đặt"
+
+#: admin/views/shortcodes-manager.php:21
+msgid "Đã tạo Shortcode thành công!"
+msgstr "Đã tạo Shortcode thành công!"
+
+#: admin/views/shortcodes-manager.php:30
+msgid "Đã xóa Shortcode."
+msgstr "Đã xóa Shortcode."
+
+#: admin/views/shortcodes-manager.php:38
+msgid "Quản lý Shortcodes (Gateway)"
+msgstr "Quản lý Shortcodes (Gateway)"
+
+#: admin/views/shortcodes-manager.php:55
+msgid "Tạo Shortcode Mới"
+msgstr "Tạo Shortcode Mới"
+
+#: admin/views/shortcodes-manager.php:60
+msgid "Tên nhận diện"
+msgstr "Tên nhận diện"
+
+#: admin/views/shortcodes-manager.php:61
+msgid "Ví dụ: Gateway Game Hành Động"
+msgstr "Ví dụ: Gateway Game Hành Động"
+
+#: admin/views/shortcodes-manager.php:64
+msgid "Thời gian chờ (giây)"
+msgstr "Thời gian chờ (giây)"
+
+#: admin/views/shortcodes-manager.php:67
+msgid ""
+"Thời gian đếm ngược để hiện nút đi tiếp. Bạn có thể nhập 1 số cho tất cả "
+"bước xem quảng cáo (VD: 10) hoặc nhập nhiều số cách nhau bằng dấu phẩy để "
+"thiết lập thời gian cho từng bước quảng cáo (VD: 15,5,3 nếu số quảng cáo là "
+"3)."
+msgstr ""
+"Thời gian đếm ngược để hiện nút đi tiếp. Bạn có thể nhập 1 số cho tất cả "
+"bước xem quảng cáo (VD: 10) hoặc nhập nhiều số cách nhau bằng dấu phẩy để "
+"thiết lập thời gian cho từng bước quảng cáo (VD: 15,5,3 nếu số quảng cáo là "
+"3)."
+
+#: admin/views/shortcodes-manager.php:71
+msgid "Chọn Trang (Page) đặt Shortcode"
+msgstr "Chọn Trang (Page) đặt Shortcode"
+
+#: admin/views/shortcodes-manager.php:74
+msgid "-- Chọn một trang --"
+msgstr "-- Chọn một trang --"
+
+#: admin/views/shortcodes-manager.php:82
+msgid ""
+"Điều này giúp hệ thống biết cần chuyển hướng link /go/ về gateway nào của "
+"bạn (trang trung chuyển)"
+msgstr ""
+"Điều này giúp hệ thống biết cần chuyển hướng link /go/ về gateway nào của "
+"bạn (trang trung chuyển)"
+
+#: admin/views/shortcodes-manager.php:88
+msgid "Tạo Shortcode"
+msgstr "Tạo Shortcode"
+
+#: admin/views/shortcodes-manager.php:94
+msgid "Danh sách Shortcode đã tạo"
+msgstr "Danh sách Shortcode đã tạo"
+
+#: admin/views/shortcodes-manager.php:98
+msgid "Tên Gateway"
+msgstr "Tên Gateway"
+
+#: admin/views/shortcodes-manager.php:99
+msgid "Shortcode"
+msgstr "Shortcode"
+
+#: admin/views/shortcodes-manager.php:100
+msgid "Thời gian chờ"
+msgstr "Thời gian chờ"
+
+#: admin/views/shortcodes-manager.php:101
+msgid "Trang đích (URL)"
+msgstr "Trang đích (URL)"
+
+#: admin/views/shortcodes-manager.php:102
+msgid "Hành động"
+msgstr "Hành động"
+
+#: admin/views/shortcodes-manager.php:107
+msgid "Chưa có shortcode nào."
+msgstr "Chưa có shortcode nào."
+
+#: admin/views/shortcodes-manager.php:113
+msgid "giây"
+msgstr "giây"
+
+#: admin/views/shortcodes-manager.php:117
+msgid "Xem trang"
+msgstr "Xem trang"
+
+#: admin/views/shortcodes-manager.php:121
+msgid "Xóa shortcode này?"
+msgstr "Xóa shortcode này?"
+
+#: public/class-shortcode.php:24
+msgid "Bạn không có quyền truy cập trực tiếp trang này!"
+msgstr "Bạn không có quyền truy cập trực tiếp trang này!"
+
+#: public/class-shortcode.php:30
+msgid "Lỗi: Gateway không tồn tại."
+msgstr "Lỗi: Gateway không tồn tại."
+
+#: public/class-shortcode.php:37
+msgid "Lỗi: Link không tồn tại hoặc đã bị xóa."
+msgstr "Lỗi: Link không tồn tại hoặc đã bị xóa."
+
+#: public/class-shortcode.php:68 public/class-shortcode.php:161
+msgid "Vui lòng đợi..."
+msgstr "Vui lòng đợi..."
+
+#: public/class-shortcode.php:69 public/class-shortcode.php:162
+msgid "Xem quảng cáo"
+msgstr "Xem quảng cáo"
+
+#: public/class-shortcode.php:70 public/class-shortcode.php:163
+msgid "Link đã sẵn sàng! Bấm để nhận"
+msgstr "Link đã sẵn sàng! Bấm để nhận"
+
+#: public/class-shortcode.php:71 public/class-shortcode.php:72
+#: public/class-shortcode.php:164 public/class-shortcode.php:165
+msgid "Đang lấy link..."
+msgstr "Đang lấy link..."
+
+#: public/class-shortcode.php:73 public/class-shortcode.php:166
+msgid "Bạn đang có 1 link đang hoạt động!"
+msgstr "Bạn đang có 1 link đang hoạt động!"
+
+#: public/class-shortcode.php:74 public/class-shortcode.php:167
+msgid "Hãy hoàn thành link kia, hoặc chờ hệ thống tự mở khóa sau 5 phút."
+msgstr "Hãy hoàn thành link kia, hoặc chờ hệ thống tự mở khóa sau 5 phút."
+
+#: public/class-shortcode.php:75 public/class-shortcode.php:168
+msgid "Lỗi:"
+msgstr "Lỗi:"
+
+#: public/class-shortcode.php:76 public/class-shortcode.php:169
+msgid "Không thể lấy link đích!"
+msgstr "Không thể lấy link đích!"
+
+#: public/class-shortcode.php:77 public/class-shortcode.php:170
+msgid "Lỗi kết nối mạng, vui lòng thử lại!"
+msgstr "Lỗi kết nối mạng, vui lòng thử lại!"
+
+#: public/class-shortcode.php:78 public/class-shortcode.php:171
+msgid "Thử lại"
+msgstr "Thử lại"
+
+#: public/class-shortcode.php:79 public/class-shortcode.php:172
+msgid "Bạn đã hoàn thành các bước."
+msgstr "Bạn đã hoàn thành các bước."
+
+#: public/class-shortcode.php:80 public/class-shortcode.php:173
+msgid "Đang đếm ngược..."
+msgstr "Đang đếm ngược..."
+
+#: public/class-shortcode.php:81 public/class-shortcode.php:174
+msgid "Bấm để tiếp tục xem quảng cáo"
+msgstr "Bấm để tiếp tục xem quảng cáo"
+
+#: public/class-shortcode.php:82 public/class-shortcode.php:175
+msgid "⚠️ Đã dừng đếm. Bạn phải quay lại tab này!"
+msgstr "⚠️ Đã dừng đếm. Bạn phải quay lại tab này!"
+
+#: public/class-shortcode.php:83 public/class-shortcode.php:176
+msgid "🔍 Xác minh bảo mật"
+msgstr "🔍 Xác minh bảo mật"
+
+#: public/class-shortcode.php:84 public/class-shortcode.php:177
+msgid "Đang chạy xác minh..."
+msgstr "Đang chạy xác minh..."
+
+#: public/class-shortcode.php:85 public/class-shortcode.php:178
+msgid "Hệ thống cần kiểm tra để đảm bảo bạn không phải Robot."
+msgstr "Hệ thống cần kiểm tra để đảm bảo bạn không phải Robot."
+
+#: public/class-shortcode.php:86 public/class-shortcode.php:179
+msgid "CLICK HERE TO CONTINUE"
+msgstr "NHẤN ĐỂ TIẾP TỤC"
+
+#: public/class-shortcode.php:87 public/class-shortcode.php:180
+msgid "Vui lòng nhấn nút bên dưới để bắt đầu"
+msgstr "Vui lòng nhấn nút bên dưới để bắt đầu"
+
+#: public/class-shortcode.php:88 public/class-shortcode.php:181
+msgid "reCAPTCHA bị lỗi. Vui lòng tải lại trang."
+msgstr "reCAPTCHA bị lỗi. Vui lòng tải lại trang."
+
+#: public/class-shortcode.php:89 public/class-shortcode.php:182
+msgid "Script bảo mật bị chặn. Vui lòng tắt trình chặn quảng cáo để đi tiếp."
+msgstr "Script bảo mật bị chặn. Vui lòng tắt trình chặn quảng cáo để đi tiếp."
+
+#: public/class-shortcode.php:90 public/class-shortcode.php:183
+msgid ""
+"⚠️ Trình duyệt đang chặn Cửa sổ bật lên (Popup).\n"
+"\n"
+"Vui lòng cấp quyền mở Popup để tiếp tục!"
+msgstr ""
+"⚠️ Trình duyệt đang chặn Cửa sổ bật lên (Popup).\n"
+"\n"
+"Vui lòng cấp quyền mở Popup để tiếp tục!"
+
+#: public/class-shortcode.php:91 public/class-shortcode.php:184
+msgid "⚠️ Vui lòng cấp quyền mở Popup trên thanh địa chỉ để đi tiếp!"
+msgstr "⚠️ Vui lòng cấp quyền mở Popup trên thanh địa chỉ để đi tiếp!"
+
+#: public/class-shortcode.php:97
+msgid "Trang đích đang được chuẩn bị..."
+msgstr "Trang đích đang được chuẩn bị..."
+
+#: public/class-shortcode.php:98
+msgid "Vui lòng hoàn thành các bước bên dưới để lấy link"
+msgstr "Vui lòng hoàn thành các bước bên dưới để lấy link"
+
+#: public/class-shortcode.php:101
+msgid "Bấm vào đây để tiếp tục"
+msgstr "Bấm vào đây để tiếp tục"
+
+#: public/class-shortcode.php:117
+msgid "Lỗi: Vui lòng nhập slug của link. VD: [wprg_inline_button slug=\"abc\"]"
+msgstr ""
+"Lỗi: Vui lòng nhập slug của link. VD: [wprg_inline_button slug=\"abc\"]"
+
+#: public/class-shortcode.php:124
+msgid "Lỗi: Link không tồn tại trong hệ thống."
+msgstr "Lỗi: Link không tồn tại trong hệ thống."
+
+#: public/class-shortcode.php:129
+msgid "Lỗi: Gateway cấu hình cho link này đã bị xóa."
+msgstr "Lỗi: Gateway cấu hình cho link này đã bị xóa."
+
+#: public/class-shortcode.php:190
+msgid "Bấm vào nút bên dưới để lấy link:"
+msgstr "Bấm vào nút bên dưới để lấy link:"
+
+#: public/class-shortcode.php:192
+msgid "BẮT ĐẦU LẤY LINK"
+msgstr "BẮT ĐẦU LẤY LINK"
+
+#~ msgid "Lấy link..."
+#~ msgstr "Getting link..."
+
+#~ msgid "Đang kiểm tra bảo mật & Lấy link..."
+#~ msgstr "Performing security check & retrieving link..."
+
+#~ msgid "Link Redirect (Plugin tạo)"
+#~ msgstr "Redirect Link (Generated by Plugin)"
+
+#~ msgid "Tổng số Lượt Click"
+#~ msgstr "Total Clicks"
+
+#~ msgid "Link đã bị xóa"
+#~ msgstr "Link has been deleted"
+
+#~ msgid "Thời gian đếm ngược từ khi bấm nút lớn đến khi hiện nút Get Link."
+#~ msgstr ""
+#~ "Countdown time from when the main button is clicked until the Get Link "
+#~ "button appears."
+
+#~ msgid "Lịch sử Nhấp Link (Log Click)"
+#~ msgstr "Link Click History (Click Log)"
+
+#, php-format
+#~ msgid "Chỉ xóa Log của tháng đang lọc (%s)"
+#~ msgstr "Delete logs only for the filtered month (%s)"
+
+#~ msgid "Xóa sạch toàn bộ Log trong hệ thống"
+#~ msgstr "Delete all logs in the system"
+
+#~ msgid "Thời gian (Server)"
+#~ msgstr "Time (Server)"
+
+#~ msgid "Tên Link đã nhấp"
+#~ msgstr "Clicked Link Name"
+
+#~ msgid "User Agent (Trình duyệt)"
+#~ msgstr "User Agent (Browser)"
