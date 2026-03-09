@@ -20,7 +20,8 @@ if ( $action == 'duplicate' && isset( $_GET['link_id'] ) ) {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $new_slug = substr( str_shuffle( str_repeat( $characters, 5 ) ), 0, 30 );
         $wpdb->insert( $table_links, array(
-            'name'         => $original_link['name'] . ' ' . __( '(Copy)', 'wp-redirect-gateway' ), // Đã bọc dịch (Copy)
+            'name'         => $original_link['name'] . ' ' . __( '(Copy)', 'wp-redirect-gateway' ),
+            'tag'          => isset($original_link['tag']) ? $original_link['tag'] : '',
             'original_url' => $original_link['original_url'],
             'slug'         => $new_slug,
             'ad_count'     => $original_link['ad_count'],
@@ -66,6 +67,7 @@ if ( isset( $_POST['wprg_update_link'] ) && check_admin_referer( 'wprg_edit_link
         $table_links, 
         array(
             'name'         => sanitize_text_field( $_POST['link_name'] ),
+            'tag'          => sanitize_text_field( $_POST['link_tag'] ),
             'original_url' => esc_url_raw( $_POST['original_url'] ),
             'ad_count'     => intval( $_POST['ad_count'] ),
             'wait_time'    => sanitize_text_field( $_POST['wait_time'] ), 
@@ -135,13 +137,22 @@ if ( $max_ads < 1 ) $max_ads = 1;
             <form method="post" action="">
                 <?php wp_nonce_field( 'wprg_edit_link_nonce' ); ?>
                 <input type="hidden" name="edit_link_id" value="<?php echo esc_attr( $edit_data['id'] ); ?>">
-                
-                <div class="wprg-form-group">
-                    <label for="link_name">
-                        <?php esc_html_e( 'Tên hiển thị', 'wp-redirect-gateway' ); ?>
-                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Tên gọi nội bộ để bạn dễ nhận biết và tìm kiếm trong danh sách.', 'wp-redirect-gateway' ); ?></span></span>
-                    </label>
-                    <input name="link_name" type="text" id="link_name" value="<?php echo esc_attr( $edit_data['name'] ); ?>" required>
+
+                <div class="wprg-form-group" style="display: flex; gap: 20px;">
+                    <div style="flex: 2;">
+                        <label for="link_name">
+                            <?php esc_html_e( 'Tên hiển thị', 'wp-redirect-gateway' ); ?>
+                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Tên gọi nội bộ để bạn dễ nhận biết và tìm kiếm trong danh sách.', 'wp-redirect-gateway' ); ?></span></span>
+                        </label>
+                        <input name="link_name" type="text" id="link_name" placeholder="<?php esc_attr_e( 'VD: Link tải Game...', 'wp-redirect-gateway' ); ?>" value="<?php echo esc_attr( $edit_data['name'] ); ?>" required>
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="link_tag">
+                            <?php esc_html_e( 'Nhãn (Tag) phân loại', 'wp-redirect-gateway' ); ?>
+                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Dùng để phân loại Khách hàng hoặc Chiến dịch. Bạn có thể tìm kiếm Link bằng thẻ Tag này.', 'wp-redirect-gateway' ); ?></span></span>
+                        </label>
+                        <input name="link_tag" type="text" id="link_tag" placeholder="<?php esc_attr_e( 'VD: KhachHang_A', 'wp-redirect-gateway' ); ?>" value="<?php echo esc_attr( isset($edit_data['tag']) ? $edit_data['tag'] : '' ); ?>">
+                    </div>
                 </div>
 
                 <div class="wprg-form-group">
@@ -214,12 +225,21 @@ if ( $max_ads < 1 ) $max_ads = 1;
             <form method="post" action="">
                 <?php wp_nonce_field( 'wprg_add_link_nonce' ); ?>
                 
-                <div class="wprg-form-group">
-                    <label for="link_name">
-                        <?php esc_html_e( 'Tên hiển thị', 'wp-redirect-gateway' ); ?>
-                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Tên gọi nội bộ để bạn dễ nhận biết và tìm kiếm trong danh sách.', 'wp-redirect-gateway' ); ?></span></span>
-                    </label>
-                    <input name="link_name" type="text" id="link_name" required>
+                <div class="wprg-form-group" style="display: flex; gap: 20px;">
+                    <div style="flex: 2;">
+                        <label for="link_name">
+                            <?php esc_html_e( 'Tên hiển thị', 'wp-redirect-gateway' ); ?>
+                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Tên gọi nội bộ để bạn dễ nhận biết và tìm kiếm trong danh sách.', 'wp-redirect-gateway' ); ?></span></span>
+                        </label>
+                        <input name="link_name" type="text" id="link_name" placeholder="<?php esc_attr_e( 'VD: Link tải Game...', 'wp-redirect-gateway' ); ?>" required>
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="link_tag">
+                            <?php esc_html_e( 'Nhãn (Tag) phân loại', 'wp-redirect-gateway' ); ?>
+                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Dùng để phân loại Khách hàng hoặc Chiến dịch. Bạn có thể tìm kiếm Link bằng thẻ Tag này.', 'wp-redirect-gateway' ); ?></span></span>
+                        </label>
+                        <input name="link_tag" type="text" id="link_tag" placeholder="<?php esc_attr_e( 'VD: KhachHang_A', 'wp-redirect-gateway' ); ?>">
+                    </div>
                 </div>
 
                 <div class="wprg-form-group">

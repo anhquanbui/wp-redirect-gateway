@@ -8,6 +8,8 @@ class WPRG_Backup_Manager {
         add_action( 'wprg_daily_auto_backup_event', array( $this, 'run_auto_backup_task' ) );
         add_action( 'admin_post_wprg_full_restore', array( $this, 'manual_backup_restore' ) );
         add_action( 'admin_post_wprg_auto_restore', array( $this, 'auto_backup_restore' ) );
+        // API Xóa file Backup
+        add_action( 'admin_post_wprg_delete_backup', array( $this, 'delete_backup_file' ) );
     }
 
     private function get_all_plugin_data() {
@@ -37,7 +39,9 @@ class WPRG_Backup_Manager {
             'wprg_shortcodes',          
             'wprg_open_link_new_tab',
             'wprg_backup_time',
-            'wprg_backup_limit' // <--- MỚI: Bổ sung vào gói backup
+            'wprg_backup_limit',
+            'wprg_rel_noopener',
+            'wprg_rel_noreferrer'
         );
         
         foreach ( $option_keys as $key ) {
@@ -142,7 +146,7 @@ class WPRG_Backup_Manager {
         }
 
         $json_data = $this->get_all_plugin_data();
-        $filename = 'wprg-autobackup-' . date( 'Y-m-d' ) . '.json';
+        $filename = 'wprg-autobackup-' . date( 'Y-m-d-H-i-s' ) . '.json';
         file_put_contents( $backup_dir . '/' . $filename, $json_data );
 
         // [MỚI] Lấy giới hạn lưu trữ do người dùng cài đặt
@@ -161,5 +165,31 @@ class WPRG_Backup_Manager {
             }
         }
     }
+
+    public function delete_backup_file() {
+        if ( ! isset( $_POST['wprg_delete_backup_nonce'] ) || ! wp_verify_nonce( $_POST['wprg_delete_backup_nonce'], 'wprg_delete_backup_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
+        if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Bạn không có quyền!', 'wp-redirect-gateway' ) );
+        if ( empty( $_POST['backup_file'] ) ) wp_die( esc_html__( 'Thiếu tên file.', 'wp-redirect-gateway' ) );
+
+        $filename = sanitize_file_name( $_POST['backup_file'] );
+        
+        // Kiểm tra đúng định dạng file json của hệ thống mới cho xóa
+        if ( pathinfo( $filename, PATHINFO_EXTENSION ) !== 'json' || strpos( $filename, 'wprg-autobackup-' ) !== 0 ) {
+            wp_die( esc_html__( 'File không hợp lệ.', 'wp-redirect-gateway' ) );
+        }
+
+        $upload_dir = wp_upload_dir();
+        $filepath = $upload_dir['basedir'] . '/wprg-backups/' . $filename;
+
+        if ( file_exists( $filepath ) ) {
+            unlink( $filepath ); // Hàm xóa file của PHP
+        }
+
+        $redirect_url = wp_get_referer();
+        $redirect_url = add_query_arg( 'wprg_delete_success', '1', $redirect_url );
+        wp_safe_redirect( $redirect_url );
+        exit;
+    }
 }
+
 new WPRG_Backup_Manager();

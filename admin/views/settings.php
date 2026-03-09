@@ -12,6 +12,8 @@ if ( isset( $_POST['wprg_save_settings'] ) && check_admin_referer( 'wprg_setting
     update_option( 'wprg_recaptcha_secret', sanitize_text_field( $_POST['wprg_recaptcha_secret'] ) );
     update_option( 'wprg_delete_data', isset( $_POST['wprg_delete_data'] ) ? 'yes' : 'no' );
     update_option( 'wprg_enable_initial_click', isset( $_POST['wprg_enable_initial_click'] ) ? '1' : '0' );
+    update_option( 'wprg_rel_noopener', isset( $_POST['wprg_rel_noopener'] ) ? '1' : '0' );
+    update_option( 'wprg_rel_noreferrer', isset( $_POST['wprg_rel_noreferrer'] ) ? '1' : '0' );
     update_option( 'wprg_open_link_new_tab', isset( $_POST['wprg_open_link_new_tab'] ) ? '1' : '0' );
     
     $initial_links = isset( $_POST['wprg_initial_links'] ) && is_array( $_POST['wprg_initial_links'] ) ? array_filter( array_map( 'esc_url_raw', $_POST['wprg_initial_links'] ) ) : array();
@@ -48,6 +50,11 @@ if ( isset( $_GET['wprg_import_success'] ) && $_GET['wprg_import_success'] == '1
     $active_tab = 'tab-import-export';
 }
 
+if ( isset( $_GET['wprg_delete_success'] ) && $_GET['wprg_delete_success'] == '1' ) {
+    echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Đã xóa file backup thành công.', 'wp-redirect-gateway' ) . '</p></div>';
+    $active_tab = 'tab-import-export';
+}
+
 if ( isset( $_GET['wprg_restore_success'] ) && $_GET['wprg_restore_success'] == '1' ) {
     echo '<div class="notice notice-success is-dismissible" style="border-left-color: #d63638;"><p><strong>' . esc_html__( 'CẢNH BÁO: Đã KHÔI PHỤC TOÀN BỘ dữ liệu từ file Backup JSON thành công!', 'wp-redirect-gateway' ) . '</strong></p></div>';
     $active_tab = 'tab-import-export';
@@ -61,6 +68,8 @@ $recap_site = get_option( 'wprg_recaptcha_site', '' );
 $recap_secret = get_option( 'wprg_recaptcha_secret', '' );
 $delete_data = get_option( 'wprg_delete_data', 'no' );
 $enable_initial_click = get_option( 'wprg_enable_initial_click', '1' );
+$rel_noopener = get_option( 'wprg_rel_noopener', '1' ); // Mặc định BẬT
+$rel_noreferrer = get_option( 'wprg_rel_noreferrer', '0' ); // Mặc định TẮT
 $initial_links = get_option( 'wprg_initial_links', array() );
 $open_new_tab = get_option( 'wprg_open_link_new_tab', '0' );
 
@@ -180,6 +189,20 @@ if ( file_exists( $backup_dir ) ) {
                     <tr>
                         <th scope="row"><label for="wprg_recaptcha_secret"><?php esc_html_e( 'Secret Key', 'wp-redirect-gateway' ); ?></label></th>
                         <td><input name="wprg_recaptcha_secret" type="text" class="regular-text" value="<?php echo esc_attr( $recap_secret ); ?>"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><?php esc_html_e( 'Thuộc tính Bảo mật Link', 'wp-redirect-gateway' ); ?></th>
+                        <td>
+                            <label style="margin-right: 20px;">
+                                <input type="checkbox" name="wprg_rel_noopener" value="1" <?php checked( $rel_noopener, '1' ); ?>>
+                                <code>rel="noopener"</code> (Nên Bật)
+                            </label>
+                            <label>
+                                <input type="checkbox" name="wprg_rel_noreferrer" value="1" <?php checked( $rel_noreferrer, '1' ); ?>>
+                                <code>rel="noreferrer"</code> (Nên Tắt nếu làm Affiliate)
+                            </label>
+                            <p class="description" style="margin-top: 5px;"><?php esc_html_e( 'Tùy chọn noopener giúp chống hack Tabnabbing. Tùy chọn noreferrer ẩn nguồn website của bạn nhưng có thể làm mất hoa hồng Affiliate.', 'wp-redirect-gateway' ); ?></p>
+                        </td>
                     </tr>
                 </table>
             </div>
@@ -308,8 +331,20 @@ if ( file_exists( $backup_dir ) ) {
                                         ?>
                                             <tr>
                                                 <td>
-                                                    <strong><?php echo esc_html( $filename ); ?></strong><br>
-                                                    <span style="color: #666; font-size: 12px;"><?php echo esc_html( $filetime ); ?></span>
+                                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                                        <div>
+                                                            <strong><?php echo esc_html( $filename ); ?></strong><br>
+                                                            <span style="color: #666; font-size: 12px;"><?php echo esc_html( $filetime ); ?></span>
+                                                        </div>
+                                                        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin: 0;" title="<?php esc_attr_e( 'Xóa file này', 'wp-redirect-gateway' ); ?>">
+                                                            <input type="hidden" name="action" value="wprg_delete_backup">
+                                                            <input type="hidden" name="backup_file" value="<?php echo esc_attr( $filename ); ?>">
+                                                            <?php wp_nonce_field( 'wprg_delete_backup_action', 'wprg_delete_backup_nonce' ); ?>
+                                                            <button type="submit" style="background: none; border: none; padding: 0; color: #d63638; cursor: pointer; display: flex; align-items: center;" onclick="return confirm('<?php echo esc_js( __( 'Bạn có chắc chắn muốn XÓA VĨNH VIỄN file backup này không?', 'wp-redirect-gateway' ) ); ?>');">
+                                                                <span class="dashicons dashicons-no-alt" style="font-size: 20px; width: 20px; height: 20px;"></span>
+                                                            </button>
+                                                        </form>
+                                                    </div>
                                                 </td>
                                                 <td style="vertical-align: middle;"><?php echo esc_html( $filesize ); ?></td>
                                                 <td style="vertical-align: middle;">

@@ -68,6 +68,8 @@ class WPRG_Shortcode_Inline {
             'single_link' => get_option( 'wprg_single_link_mode', '0' ),
             'recaptcha_site' => $recap_site,
             'enable_initial_click' => get_option( 'wprg_enable_initial_click', '1' ),
+            'rel_noopener'         => get_option( 'wprg_rel_noopener', '1' ),
+            'rel_noreferrer'       => get_option( 'wprg_rel_noreferrer', '0' ),
             'initial_links'        => get_option( 'wprg_initial_links', array() ),
             'home_url'             => home_url(),
             'log_id'               => 0, 

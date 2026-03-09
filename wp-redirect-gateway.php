@@ -42,6 +42,7 @@ function wprg_activate_plugin() {
     $sql_links = "CREATE TABLE $table_links (
         id mediumint(9) NOT NULL AUTO_INCREMENT,
         name varchar(255) NOT NULL,
+        tag varchar(255) DEFAULT '',
         original_url text NOT NULL,
         slug varchar(255) NOT NULL,
         ad_count int(11) DEFAULT 0,
@@ -116,7 +117,9 @@ function wprg_handle_export_settings() {
         'wprg_shortcodes',
         'wprg_open_link_new_tab',
         'wprg_backup_time',
-        'wprg_backup_limit'
+        'wprg_backup_limit',
+        'wprg_rel_noopener',
+        'wprg_rel_noreferrer'
     );
 
     $export_data = array(
@@ -202,6 +205,7 @@ function wprg_handle_export_links_csv() {
     fputcsv( $output, array( 
         __( 'ID', 'wp-redirect-gateway' ), 
         __( 'Tên Link', 'wp-redirect-gateway' ), 
+        __( 'Nhãn (Tag)', 'wp-redirect-gateway' ),
         __( 'Link Gốc', 'wp-redirect-gateway' ), 
         __( 'Slug', 'wp-redirect-gateway' ), 
         __( 'Số QC', 'wp-redirect-gateway' ), 
@@ -214,8 +218,9 @@ function wprg_handle_export_links_csv() {
     // Dữ liệu
     if ( ! empty( $links ) ) {
         foreach ( $links as $link ) {
+            $tag_export = isset($link['tag']) ? $link['tag'] : '';
             fputcsv( $output, array(
-                $link['id'], $link['name'], $link['original_url'], $link['slug'],
+                $link['id'], $link['name'], $tag_export, $link['original_url'], $link['slug'],
                 $link['ad_count'], $link['wait_time'], $link['password'], $link['shortcode_id'], $link['created_at']
             ));
         }

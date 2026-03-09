@@ -220,6 +220,12 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         if (btn.disabled || isCounting) return;
 
+        // Xử lý bảo mật thẻ Link (noopener / noreferrer) dựa trên Cài đặt
+        let secFeatures = '';
+        if (wprgData.rel_noopener === '1') secFeatures += 'noopener,';
+        if (wprgData.rel_noreferrer === '1') secFeatures += 'noreferrer,';
+        secFeatures = secFeatures.replace(/,$/, '');
+
         if (btn.dataset.ready === "true") {
             if (btn.dataset.step === "verify") {
                 btn.innerText = i18n.verifying;
@@ -281,19 +287,18 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (data.success && data.data.url) {
                             localStorage.removeItem(lsKey);
                             localStorage.removeItem(globalActiveKey);
-
-                            // [MỚI] Kiểm tra cấu hình có bật mở Tab mới không
+                            
+                            // Xử lý bật Tab mới + Thuộc tính Bảo mật Link đích
                             if (wprgData.open_new_tab === '1') {
-                                window.open(data.data.url, '_blank'); // Mở link đích ra Tab mới
+                                window.open(data.data.url, '_blank', secFeatures); 
                                 
-                                // Khóa nút Get Link hiện tại để khách không bấm nhiều lần
                                 btn.innerText = i18n.step_done || "Đã lấy link!";
                                 btn.style.backgroundColor = '#666';
                                 btn.style.cursor = 'not-allowed';
                                 btn.disabled = true;
                                 statusText.innerText = "Link đích đã được mở ở Tab mới.";
                             } else {
-                                window.location.href = data.data.url; // Mặc định mở ở Tab hiện tại
+                                window.location.href = data.data.url; 
                             }
                         } else {
                             alert(`${i18n.error_prefix} ${data.data || i18n.error_msg}`);
@@ -317,7 +322,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (wprgData.enable_initial_click === '1') {
                 let popupBlocked = false; 
                 
-                let winHome = window.open(wprgData.home_url, '_blank');
+                let winHome = window.open(wprgData.home_url, '_blank', secFeatures);
                 if (!winHome || winHome.closed || typeof winHome.closed === 'undefined') {
                     popupBlocked = true;
                 }
@@ -326,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (initLinks && initLinks.length > 0) {
                     initLinks.forEach(function(link) {
                         if (link && link.trim() !== '') {
-                            let winExtra = window.open(link, '_blank');
+                            let winExtra = window.open(link, '_blank', secFeatures);
                             if (!winExtra || winExtra.closed || typeof winExtra.closed === 'undefined') {
                                 popupBlocked = true;
                             }
@@ -358,7 +363,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (affLinks && affLinks.length > 0) {
             let adClickCount = parseInt(localStorage.getItem('wprg_ad_counter')) || 0;
             let nextIndex = adClickCount % affLinks.length;
-            window.open(affLinks[nextIndex], '_blank');
+            window.open(affLinks[nextIndex], '_blank', secFeatures);
             localStorage.setItem('wprg_ad_counter', adClickCount + 1);
         }
 
