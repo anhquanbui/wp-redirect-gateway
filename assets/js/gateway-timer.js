@@ -281,7 +281,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (data.success && data.data.url) {
                             localStorage.removeItem(lsKey);
                             localStorage.removeItem(globalActiveKey);
-                            window.location.href = data.data.url; 
+
+                            // [MỚI] Kiểm tra cấu hình có bật mở Tab mới không
+                            if (wprgData.open_new_tab === '1') {
+                                window.open(data.data.url, '_blank'); // Mở link đích ra Tab mới
+                                
+                                // Khóa nút Get Link hiện tại để khách không bấm nhiều lần
+                                btn.innerText = i18n.step_done || "Đã lấy link!";
+                                btn.style.backgroundColor = '#666';
+                                btn.style.cursor = 'not-allowed';
+                                btn.disabled = true;
+                                statusText.innerText = "Link đích đã được mở ở Tab mới.";
+                            } else {
+                                window.location.href = data.data.url; // Mặc định mở ở Tab hiện tại
+                            }
                         } else {
                             alert(`${i18n.error_prefix} ${data.data || i18n.error_msg}`);
                             btn.innerText = i18n.try_again;

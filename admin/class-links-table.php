@@ -17,14 +17,24 @@ class WPRG_Links_Table extends WP_List_Table {
 
     public function get_columns() {
         return array(
-            'cb'           => '<input type="checkbox" />',
-            'name'         => __( 'Tên Link', 'wp-redirect-gateway' ),
-            'original_url' => __( 'Link Gốc', 'wp-redirect-gateway' ) . ' <span class="wprg-tooltip-icon" style="margin-top:-2px;">?<span class="wprg-tooltip-text">' . esc_attr__( 'Đường dẫn đích mà khách sẽ được chuyển hướng tới.', 'wp-redirect-gateway' ) . '</span></span>',
-            'slug'         => __( 'Link Chia sẻ', 'wp-redirect-gateway' ) . ' <span class="wprg-tooltip-icon" style="margin-top:-2px;">?<span class="wprg-tooltip-text">' . esc_attr__( 'Đây là link redirect của bạn, sẽ mở ra cổng Gateway. Định dạng đầy đủ khi Copy: yourdomain.com/go/[slug]', 'wp-redirect-gateway' ) . '</span></span>',
-            'inline_code'  => __( 'Mã chèn (Nút)', 'wp-redirect-gateway' ) . ' <span class="wprg-tooltip-icon" style="margin-top:-2px;">?<span class="wprg-tooltip-text">' . esc_attr__( 'Đây là mã shortcode dùng để chèn vào page / post. Định dạng đầy đủ khi Copy: [wprg_inline_button slug="[slug]"]', 'wp-redirect-gateway' ) . '</span></span>', 
-            'ad_count'     => __( 'Số QC', 'wp-redirect-gateway' ),
-            'wait_time'    => __( 'Thời gian', 'wp-redirect-gateway' ),
-            'created_at'   => __( 'Ngày tạo', 'wp-redirect-gateway' )
+            'cb'               => '<input type="checkbox" />',
+            'name'             => __( 'Tên Link', 'wp-redirect-gateway' ),
+            'original_url'     => __( 'Link Gốc', 'wp-redirect-gateway' ) . ' <span class="wprg-tooltip-icon" style="margin-top:-2px;">?<span class="wprg-tooltip-text">' . esc_attr__( 'Đường dẫn đích mà khách sẽ được chuyển hướng tới.', 'wp-redirect-gateway' ) . '</span></span>',
+            'slug'             => __( 'Link Chia sẻ', 'wp-redirect-gateway' ) . ' <span class="wprg-tooltip-icon" style="margin-top:-2px;">?<span class="wprg-tooltip-text">' . esc_attr__( 'Đây là link redirect của bạn, sẽ mở ra cổng Gateway. Định dạng đầy đủ khi Copy: yourdomain.com/go/[slug]', 'wp-redirect-gateway' ) . '</span></span>',
+            'inline_code'      => __( 'Mã chèn (Nút)', 'wp-redirect-gateway' ) . ' <span class="wprg-tooltip-icon" style="margin-top:-2px;">?<span class="wprg-tooltip-text">' . esc_attr__( 'Đây là mã shortcode dùng để chèn vào page / post. Định dạng đầy đủ khi Copy: [wprg_inline_button slug="[slug]"]', 'wp-redirect-gateway' ) . '</span></span>', 
+            'ad_count'         => __( 'Số QC', 'wp-redirect-gateway' ),
+            'wait_time'        => __( 'Thời gian', 'wp-redirect-gateway' ),
+            'completed_clicks' => __( 'Thành công', 'wp-redirect-gateway' ) . ' <span class="wprg-tooltip-icon" style="margin-top:-2px;">?<span class="wprg-tooltip-text">' . esc_attr__( 'Số lượt khách xem xong quảng cáo và lấy link thành công.', 'wp-redirect-gateway' ) . '</span></span>',
+            'created_at'       => __( 'Ngày tạo', 'wp-redirect-gateway' )
+        );
+    }
+
+    // [MỚI] Khai báo các cột cho phép Click để sắp xếp
+    protected function get_sortable_columns() {
+        return array(
+            'name'             => array('name', false),
+            'completed_clicks' => array('completed_clicks', false), // Cột đếm click có thể sắp xếp
+            'created_at'       => array('created_at', false)
         );
     }
 
@@ -52,7 +62,6 @@ class WPRG_Links_Table extends WP_List_Table {
         echo '<option value="">' . __( 'Tất cả số QC', 'wp-redirect-gateway' ) . '</option>';
         if ( ! empty( $ad_counts ) ) {
             foreach ( $ad_counts as $count ) {
-                // Đã bọc dịch chữ "QC"
                 printf( '<option value="%s" %s>%s</option>', esc_attr( $count ), selected( $selected_ad, $count, false ), sprintf( esc_html__( '%s QC', 'wp-redirect-gateway' ), esc_html( $count ) ) );
             }
         }
@@ -96,7 +105,6 @@ class WPRG_Links_Table extends WP_List_Table {
     protected function column_default( $item, $column_name ) {
         switch ( $column_name ) {
             case 'original_url':
-                // Đã bọc thuộc tính title="Copy Link gốc"
                 return '<div style="display:flex; align-items:center; gap:4px; max-width: 100%;">
                             <div style="flex: 1; min-width: 0; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; padding: 4px 8px;">
                                 <a href="' . esc_url( $item['original_url'] ) . '" target="_blank" style="display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-decoration:none; font-size: 12px; color: #666;" title="' . esc_attr( $item['original_url'] ) . '">' . esc_html( $item['original_url'] ) . '</a>
@@ -106,7 +114,6 @@ class WPRG_Links_Table extends WP_List_Table {
             
             case 'slug':
                 $redirect_url = site_url( '/go/' . $item['slug'] );
-                // Đã bọc thuộc tính title cho thẻ input và button copy
                 return '<div style="display:flex; align-items:center; gap:4px;">
                             <input type="text" readonly value="' . esc_attr( $item['slug'] ) . '" title="' . esc_attr__( 'Hiện Slug rút gọn - Bấm Copy để lấy Full Link', 'wp-redirect-gateway' ) . '" onfocus="this.select();" style="flex: 1; min-width: 40px; border: 1px solid #85c2e1; background: #f0f8ff; border-radius: 4px; padding: 4px 6px; font-size: 11px; color: #0073aa; font-weight: bold; font-family: monospace; text-align: center; box-shadow: none;" />
                             <button type="button" class="button button-small wprg-btn-copy" data-copy="' . esc_attr( $redirect_url ) . '" title="' . esc_attr__( 'Copy Full Link', 'wp-redirect-gateway' ) . '" style="padding: 0 4px; flex-shrink: 0;"><span class="dashicons dashicons-admin-page" style="font-size: 14px; margin-top: 3px;"></span></button>
@@ -114,7 +121,6 @@ class WPRG_Links_Table extends WP_List_Table {
             
             case 'inline_code': 
                 $inline_code = '[wprg_inline_button slug="' . esc_attr( $item['slug'] ) . '"]';
-                // Đã bọc thuộc tính title cho thẻ input và button copy
                 return '<div style="display:flex; align-items:center; gap:4px;">
                             <input type="text" readonly value="' . esc_attr( $item['slug'] ) . '" title="' . esc_attr__( 'Hiện Slug rút gọn - Bấm Copy để lấy Full Mã chèn', 'wp-redirect-gateway' ) . '" onfocus="this.select();" style="flex: 1; min-width: 40px; border: 1px solid #ddd; background: #fafafa; border-radius: 4px; padding: 4px 6px; font-size: 11px; color: #d63638; font-weight: bold; font-family: monospace; text-align: center; box-shadow: none;" />
                             <button type="button" class="button button-small wprg-btn-copy" data-copy="' . esc_attr( $inline_code ) . '" title="' . esc_attr__( 'Copy Full Mã chèn', 'wp-redirect-gateway' ) . '" style="padding: 0 4px; flex-shrink: 0;"><span class="dashicons dashicons-admin-page" style="font-size: 14px; margin-top: 3px;"></span></button>
@@ -122,12 +128,21 @@ class WPRG_Links_Table extends WP_List_Table {
             
             case 'ad_count':
                 return '<span class="badge" style="background:#0073aa;color:#fff;padding:3px 8px;border-radius:10px;">' . esc_html( $item[ $column_name ] ) . '</span>';
+            
             case 'wait_time': 
                 if ( ! empty( $item['wait_time'] ) ) {
                     return '<span style="color: #d63638; font-weight: bold;">' . esc_html( $item['wait_time'] ) . 's</span>';
                 } else {
                     return '<span style="color: #999; font-style: italic;">' . esc_html__( 'Mặc định', 'wp-redirect-gateway' ) . '</span>';
                 }
+            
+            // [MỚI] Hiển thị số click lấy link thành công
+            case 'completed_clicks':
+                $clicks = intval( $item['completed_clicks'] );
+                $color = $clicks > 0 ? '#00a32a' : '#999';
+                $bg = $clicks > 0 ? '#e1fbd6' : '#f0f0f1';
+                return '<span style="color: ' . $color . '; font-weight: bold; background: ' . $bg . '; padding: 3px 8px; border-radius: 10px; display: inline-block;">' . number_format_i18n( $clicks ) . '</span>';
+
             case 'created_at':
                 return esc_html( date( 'd/m/Y', strtotime( $item[ $column_name ] ) ) );
             default:
@@ -138,6 +153,7 @@ class WPRG_Links_Table extends WP_List_Table {
     public function prepare_items() {
         global $wpdb;
         $table_name = $wpdb->prefix . 'rg_links';
+        $table_logs = $wpdb->prefix . 'rg_logs';
 
         $per_page = 20; 
         $current_page = $this->get_pagenum();
@@ -175,11 +191,24 @@ class WPRG_Links_Table extends WP_List_Table {
 
         $columns  = $this->get_columns();
         $hidden   = array();
-        $sortable = array();
+        $sortable = $this->get_sortable_columns(); // Đã bật tính năng Sort
         $this->_column_headers = array( $columns, $hidden, $sortable );
 
+        // [MỚI] Bắt sự kiện Click tiêu đề để sắp xếp (ASC / DESC)
+        $orderby = ( isset( $_REQUEST['orderby'] ) && in_array( $_REQUEST['orderby'], array( 'name', 'created_at', 'completed_clicks', 'id' ) ) ) ? $_REQUEST['orderby'] : 'id';
+        $order = ( isset( $_REQUEST['order'] ) && in_array( strtoupper( $_REQUEST['order'] ), array( 'ASC', 'DESC' ) ) ) ? strtoupper( $_REQUEST['order'] ) : 'DESC';
+
         $offset = ( $current_page - 1 ) * $per_page;
-        $sql_data = "SELECT * FROM $table_name WHERE $where_sql ORDER BY id DESC LIMIT %d OFFSET %d";
+        
+        // [MỚI] SubQuery: Gắn kèm logic đếm số click thành công từ bảng Log cho từng Link
+        $sql_data = "
+            SELECT *, 
+            (SELECT COUNT(id) FROM $table_logs WHERE link_id = $table_name.id AND status = 'completed') as completed_clicks
+            FROM $table_name 
+            WHERE $where_sql 
+            ORDER BY $orderby $order 
+            LIMIT %d OFFSET %d
+        ";
         
         $query_args[] = $per_page;
         $query_args[] = $offset;
@@ -190,15 +219,17 @@ class WPRG_Links_Table extends WP_List_Table {
     }
 
     public function display() {
+        // Đã canh lại tỷ lệ % độ rộng các cột để chèn cột "Thành công" vào cho đẹp
         echo '<style>
             .wp-list-table .column-cb { width: 3%; }
-            .wp-list-table .column-name { width: 20%; }
-            .wp-list-table .column-original_url { width: 28%; } 
-            .wp-list-table .column-slug { width: 13%; }
-            .wp-list-table .column-inline_code { width: 13%; }
-            .wp-list-table .column-ad_count { width: 7%; text-align: center; }
-            .wp-list-table .column-wait_time { width: 8%; text-align: center; }
-            .wp-list-table .column-created_at { width: 8%; }
+            .wp-list-table .column-name { width: 17%; }
+            .wp-list-table .column-original_url { width: 23%; } 
+            .wp-list-table .column-slug { width: 12%; }
+            .wp-list-table .column-inline_code { width: 12%; }
+            .wp-list-table .column-ad_count { width: 6%; text-align: center; }
+            .wp-list-table .column-wait_time { width: 7%; text-align: center; }
+            .wp-list-table .column-completed_clicks { width: 10%; text-align: center; }
+            .wp-list-table .column-created_at { width: 10%; }
             .wp-list-table th { border-bottom: 2px solid #ccd0d4; }
         </style>';
         

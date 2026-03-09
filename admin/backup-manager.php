@@ -7,11 +7,9 @@ class WPRG_Backup_Manager {
         add_action( 'admin_post_wprg_full_backup', array( $this, 'manual_backup_download' ) );
         add_action( 'wprg_daily_auto_backup_event', array( $this, 'run_auto_backup_task' ) );
         add_action( 'admin_post_wprg_full_restore', array( $this, 'manual_backup_restore' ) );
+        add_action( 'admin_post_wprg_auto_restore', array( $this, 'auto_backup_restore' ) );
     }
 
-    /**
-     * Hàm gom toàn bộ dữ liệu của Plugin
-     */
     private function get_all_plugin_data() {
         global $wpdb;
         $table_links = $wpdb->prefix . 'rg_links';
@@ -26,7 +24,6 @@ class WPRG_Backup_Manager {
             'logs'        => array()
         );
 
-        // 1. Lấy Settings
         $option_keys = array( 
             'wprg_affiliate_links', 
             'wprg_require_active_tab', 
@@ -36,24 +33,23 @@ class WPRG_Backup_Manager {
             'wprg_delete_data', 
             'wprg_enable_initial_click', 
             'wprg_initial_links',
-            'wprg_enable_auto_backup', // Lưu luôn trạng thái bật/tắt Cron
-            'wprg_shortcodes'          // <--- BỔ SUNG DỮ LIỆU SHORTCODE VÀO ĐÂY
+            'wprg_enable_auto_backup', 
+            'wprg_shortcodes',          
+            'wprg_open_link_new_tab',
+            'wprg_backup_time',
+            'wprg_backup_limit' // <--- MỚI: Bổ sung vào gói backup
         );
         
         foreach ( $option_keys as $key ) {
             $data['settings'][$key] = get_option( $key );
         }
 
-        // 2. Lấy Database Links & Logs
         $data['links'] = $wpdb->get_results( "SELECT * FROM $table_links", ARRAY_A );
         $data['logs']  = $wpdb->get_results( "SELECT * FROM $table_logs", ARRAY_A );
 
         return wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
     }
 
-    /**
-     * Xử lý khi người dùng bấm nút "Tải Backup"
-     */
     public function manual_backup_download() {
         if ( ! isset( $_POST['wprg_backup_nonce'] ) || ! wp_verify_nonce( $_POST['wprg_backup_nonce'], 'wprg_backup_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
         if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Bạn không có quyền!', 'wp-redirect-gateway' ) );
@@ -69,18 +65,40 @@ class WPRG_Backup_Manager {
         exit;
     }
 
-    /**
-     * Xử lý Khôi phục (Restore) toàn bộ dữ liệu
-     */
     public function manual_backup_restore() {
         if ( ! isset( $_POST['wprg_restore_nonce'] ) || ! wp_verify_nonce( $_POST['wprg_restore_nonce'], 'wprg_restore_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
         if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Bạn không có quyền!', 'wp-redirect-gateway' ) );
         if ( empty( $_FILES['wprg_restore_file']['tmp_name'] ) ) wp_die( esc_html__( 'Vui lòng chọn file hợp lệ.', 'wp-redirect-gateway' ) );
 
         $file_content = file_get_contents( $_FILES['wprg_restore_file']['tmp_name'] );
+        $this->process_restore_data( $file_content );
+    }
+
+    public function auto_backup_restore() {
+        if ( ! isset( $_POST['wprg_auto_restore_nonce'] ) || ! wp_verify_nonce( $_POST['wprg_auto_restore_nonce'], 'wprg_auto_restore_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
+        if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Bạn không có quyền!', 'wp-redirect-gateway' ) );
+        if ( empty( $_POST['backup_file'] ) ) wp_die( esc_html__( 'Thiếu tên file.', 'wp-redirect-gateway' ) );
+
+        $filename = sanitize_file_name( $_POST['backup_file'] );
+        
+        if ( pathinfo( $filename, PATHINFO_EXTENSION ) !== 'json' || strpos( $filename, 'wprg-autobackup-' ) !== 0 ) {
+            wp_die( esc_html__( 'File không hợp lệ.', 'wp-redirect-gateway' ) );
+        }
+
+        $upload_dir = wp_upload_dir();
+        $filepath = $upload_dir['basedir'] . '/wprg-backups/' . $filename;
+
+        if ( ! file_exists( $filepath ) ) {
+            wp_die( esc_html__( 'File backup không tồn tại trên máy chủ.', 'wp-redirect-gateway' ) );
+        }
+
+        $file_content = file_get_contents( $filepath );
+        $this->process_restore_data( $file_content );
+    }
+
+    private function process_restore_data( $file_content ) {
         $decoded_data = json_decode( $file_content, true );
 
-        // Kiểm tra tính hợp lệ của file Backup
         if ( ! $decoded_data || ! isset( $decoded_data['plugin'] ) || $decoded_data['plugin'] !== 'wp-redirect-gateway' ) {
             wp_die( esc_html__( 'File không hợp lệ hoặc không phải file Full Backup của plugin WP Redirect Gateway.', 'wp-redirect-gateway' ) );
         }
@@ -89,47 +107,34 @@ class WPRG_Backup_Manager {
         $table_links = $wpdb->prefix . 'rg_links';
         $table_logs  = $wpdb->prefix . 'rg_logs';
 
-        // 1. Phục hồi Cài đặt (Settings)
         if ( isset( $decoded_data['settings'] ) && is_array( $decoded_data['settings'] ) ) {
             foreach ( $decoded_data['settings'] as $key => $value ) {
                 update_option( $key, $value );
             }
         }
 
-        // 2. Phục hồi Links (Xóa bảng cũ, chèn data mới)
         if ( isset( $decoded_data['links'] ) && is_array( $decoded_data['links'] ) ) {
-            $wpdb->query("TRUNCATE TABLE $table_links"); // Xóa sạch dữ liệu cũ
-            foreach ( $decoded_data['links'] as $link ) {
-                $wpdb->insert( $table_links, $link );
-            }
+            $wpdb->query("TRUNCATE TABLE $table_links"); 
+            foreach ( $decoded_data['links'] as $link ) { $wpdb->insert( $table_links, $link ); }
         }
 
-        // 3. Phục hồi Logs (Xóa bảng cũ, chèn data mới)
         if ( isset( $decoded_data['logs'] ) && is_array( $decoded_data['logs'] ) ) {
-            $wpdb->query("TRUNCATE TABLE $table_logs"); // Xóa sạch dữ liệu cũ
-            foreach ( $decoded_data['logs'] as $log ) {
-                $wpdb->insert( $table_logs, $log );
-            }
+            $wpdb->query("TRUNCATE TABLE $table_logs"); 
+            foreach ( $decoded_data['logs'] as $log ) { $wpdb->insert( $table_logs, $log ); }
         }
 
-        // Báo thành công
         $redirect_url = wp_get_referer();
         $redirect_url = add_query_arg( 'wprg_restore_success', '1', $redirect_url );
         wp_safe_redirect( $redirect_url );
         exit;
     }
 
-    /**
-     * Xử lý Cron Job chạy ngầm trên Server
-     */
     public function run_auto_backup_task() {
-        // Kiểm tra xem user có bật tính năng này trong cài đặt không
         if ( get_option( 'wprg_enable_auto_backup' ) !== '1' ) return;
 
         $upload_dir = wp_upload_dir();
         $backup_dir = $upload_dir['basedir'] . '/wprg-backups';
 
-        // Tạo thư mục nếu chưa có và bảo vệ nó khỏi việc tải trộm
         if ( ! file_exists( $backup_dir ) ) {
             wp_mkdir_p( $backup_dir );
             file_put_contents( $backup_dir . '/index.php', '<?php // Silence is golden' );
@@ -140,13 +145,19 @@ class WPRG_Backup_Manager {
         $filename = 'wprg-autobackup-' . date( 'Y-m-d' ) . '.json';
         file_put_contents( $backup_dir . '/' . $filename, $json_data );
 
-        // (Tùy chọn) Xóa các bản backup cũ để nhẹ server, chỉ giữ lại 7 bản gần nhất
+        // [MỚI] Lấy giới hạn lưu trữ do người dùng cài đặt
+        $backup_limit = intval( get_option( 'wprg_backup_limit', 7 ) );
+        if ( $backup_limit < 1 ) $backup_limit = 1; // Luôn giữ tối thiểu 1 bản
+
         $files = glob( $backup_dir . '/*.json' );
-        if ( count( $files ) > 7 ) {
+        if ( count( $files ) > $backup_limit ) {
+            // Sắp xếp file theo thời gian tăng dần (cũ nhất ở đầu)
             usort( $files, function( $a, $b ) { return filemtime( $a ) - filemtime( $b ); } );
-            $files_to_delete = array_slice( $files, 0, count( $files ) - 7 );
-            foreach ( $files_to_delete as $file ) {
-                unlink( $file );
+            
+            // Xóa các file cũ dư thừa
+            $files_to_delete = array_slice( $files, 0, count( $files ) - $backup_limit );
+            foreach ( $files_to_delete as $file ) { 
+                unlink( $file ); 
             }
         }
     }

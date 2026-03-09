@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-// XỬ LÝ LƯU DỮ LIỆU KHI BẤM NÚT SUBMIT (Form chính)
+// XỬ LÝ LƯU DỮ LIỆU KHI BẤM NÚT SUBMIT (Form Cài đặt chính)
 if ( isset( $_POST['wprg_save_settings'] ) && check_admin_referer( 'wprg_settings_nonce' ) ) {
     update_option( 'wprg_affiliate_links', sanitize_textarea_field( $_POST['wprg_affiliate_links'] ) );
     update_option( 'wprg_require_active_tab', isset( $_POST['wprg_require_active_tab'] ) ? '1' : '0' );
@@ -11,31 +11,45 @@ if ( isset( $_POST['wprg_save_settings'] ) && check_admin_referer( 'wprg_setting
     update_option( 'wprg_recaptcha_site', sanitize_text_field( $_POST['wprg_recaptcha_site'] ) );
     update_option( 'wprg_recaptcha_secret', sanitize_text_field( $_POST['wprg_recaptcha_secret'] ) );
     update_option( 'wprg_delete_data', isset( $_POST['wprg_delete_data'] ) ? 'yes' : 'no' );
-    
-    // Xử lý lưu Auto Backup chuẩn xác
-    update_option( 'wprg_enable_auto_backup', isset( $_POST['wprg_enable_auto_backup'] ) ? '1' : '0' );
-    
     update_option( 'wprg_enable_initial_click', isset( $_POST['wprg_enable_initial_click'] ) ? '1' : '0' );
+    update_option( 'wprg_open_link_new_tab', isset( $_POST['wprg_open_link_new_tab'] ) ? '1' : '0' );
     
     $initial_links = isset( $_POST['wprg_initial_links'] ) && is_array( $_POST['wprg_initial_links'] ) ? array_filter( array_map( 'esc_url_raw', $_POST['wprg_initial_links'] ) ) : array();
     update_option( 'wprg_initial_links', $initial_links );
-    
+
     $active_tab = isset($_POST['wprg_active_tab']) ? sanitize_text_field($_POST['wprg_active_tab']) : 'tab-ads';
-    
     echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Đã lưu cài đặt thành công.', 'wp-redirect-gateway' ) . '</p></div>';
+} 
+// XỬ LÝ LƯU RIÊNG CHO PHẦN AUTO BACKUP
+elseif ( isset( $_POST['wprg_save_backup_settings'] ) && check_admin_referer( 'wprg_backup_settings_nonce' ) ) {
+    $old_enable = get_option( 'wprg_enable_auto_backup', '0' );
+    $old_time   = get_option( 'wprg_backup_time', '00:00' );
+    
+    $new_enable = isset( $_POST['wprg_enable_auto_backup'] ) ? '1' : '0';
+    $new_time   = isset( $_POST['wprg_backup_time'] ) ? sanitize_text_field( $_POST['wprg_backup_time'] ) : '00:00';
+    $new_limit  = isset( $_POST['wprg_backup_limit'] ) ? intval( $_POST['wprg_backup_limit'] ) : 7;
+    
+    update_option( 'wprg_enable_auto_backup', $new_enable );
+    update_option( 'wprg_backup_time', $new_time );
+    update_option( 'wprg_backup_limit', $new_limit );
+
+    if ( $old_enable !== $new_enable || $old_time !== $new_time ) {
+        if ( function_exists('wprg_reschedule_backup_cron') ) { wprg_reschedule_backup_cron(); }
+    }
+    
+    $active_tab = 'tab-import-export'; 
+    echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Đã cập nhật thiết lập Auto Backup thành công.', 'wp-redirect-gateway' ) . '</p></div>';
 } else {
     $active_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'tab-ads'; 
 }
 
-// THÔNG BÁO TỪ TRANG XỬ LÝ IMPORT
 if ( isset( $_GET['wprg_import_success'] ) && $_GET['wprg_import_success'] == '1' ) {
     echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Đã nạp file cấu hình JSON thành công.', 'wp-redirect-gateway' ) . '</p></div>';
-    $active_tab = 'tab-import-export'; // Nếu import thành công, giữ ở tab Nhập/Xuất
+    $active_tab = 'tab-import-export';
 }
 
 if ( isset( $_GET['wprg_restore_success'] ) && $_GET['wprg_restore_success'] == '1' ) {
-    // Sử dụng wp_kses_post để cho phép thẻ <strong> hiển thị trong bản dịch
-    echo '<div class="notice notice-success is-dismissible" style="border-left-color: #d63638;"><p><strong>' . wp_kses_post( __( 'CẢNH BÁO: Đã KHÔI PHỤC TOÀN BỘ dữ liệu từ file Backup JSON thành công!', 'wp-redirect-gateway' ) ) . '</strong></p></div>';
+    echo '<div class="notice notice-success is-dismissible" style="border-left-color: #d63638;"><p><strong>' . esc_html__( 'CẢNH BÁO: Đã KHÔI PHỤC TOÀN BỘ dữ liệu từ file Backup JSON thành công!', 'wp-redirect-gateway' ) . '</strong></p></div>';
     $active_tab = 'tab-import-export';
 }
 
@@ -48,7 +62,24 @@ $recap_secret = get_option( 'wprg_recaptcha_secret', '' );
 $delete_data = get_option( 'wprg_delete_data', 'no' );
 $enable_initial_click = get_option( 'wprg_enable_initial_click', '1' );
 $initial_links = get_option( 'wprg_initial_links', array() );
+$open_new_tab = get_option( 'wprg_open_link_new_tab', '0' );
+
+// Lấy dữ liệu Backup
 $enable_auto_backup = get_option( 'wprg_enable_auto_backup', '0' );
+$backup_time = get_option( 'wprg_backup_time', '00:00' );
+$backup_limit = get_option( 'wprg_backup_limit', 7 );
+
+// QUÉT THƯ MỤC LẤY DANH SÁCH FILE BACKUP TRÊN SERVER
+$upload_dir = wp_upload_dir();
+$backup_dir = $upload_dir['basedir'] . '/wprg-backups';
+$auto_backup_files = array();
+if ( file_exists( $backup_dir ) ) {
+    $files = glob( $backup_dir . '/wprg-autobackup-*.json' );
+    if ( $files ) {
+        rsort( $files ); 
+        $auto_backup_files = $files;
+    }
+}
 ?>
 
 <div class="wrap">
@@ -60,7 +91,7 @@ $enable_auto_backup = get_option( 'wprg_enable_auto_backup', '0' );
         <a href="#tab-ux" class="nav-tab <?php echo ($active_tab === 'tab-ux') ? 'nav-tab-active' : ''; ?>" data-tab="tab-ux"><?php esc_html_e( '🎨 Trải nghiệm (UX)', 'wp-redirect-gateway' ); ?></a>
         <a href="#tab-security" class="nav-tab <?php echo ($active_tab === 'tab-security') ? 'nav-tab-active' : ''; ?>" data-tab="tab-security"><?php esc_html_e( '🛡️ Bảo mật & Chống Bot', 'wp-redirect-gateway' ); ?></a>
         <a href="#tab-system" class="nav-tab <?php echo ($active_tab === 'tab-system') ? 'nav-tab-active' : ''; ?>" data-tab="tab-system"><?php esc_html_e( '⚙️ Hệ thống', 'wp-redirect-gateway' ); ?></a>
-        <a href="#tab-import-export" class="nav-tab <?php echo ($active_tab === 'tab-import-export') ? 'nav-tab-active' : ''; ?>" data-tab="tab-import-export"><?php esc_html_e( '🔄 Nhập/Xuất', 'wp-redirect-gateway' ); ?></a>
+        <a href="#tab-import-export" class="nav-tab <?php echo ($active_tab === 'tab-import-export') ? 'nav-tab-active' : ''; ?>" data-tab="tab-import-export"><?php esc_html_e( '🔄 Nhập/Xuất & Backup', 'wp-redirect-gateway' ); ?></a>
     </h2>
 
     <div style="background: #fff; padding: 20px; border: 1px solid #ccd0d4; border-top: none; max-width: 800px;">
@@ -127,6 +158,15 @@ $enable_auto_backup = get_option( 'wprg_enable_auto_backup', '0' );
                             </label>
                         </td>
                     </tr>
+                    <tr>
+                        <th scope="row"><?php esc_html_e( 'Mở link đích ở Tab mới', 'wp-redirect-gateway' ); ?></th>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="wprg_open_link_new_tab" value="1" <?php checked( $open_new_tab, '1' ); ?>>
+                                <?php esc_html_e( 'Bật (Khi người dùng nhấn nút lấy link cuối cùng, trang đích sẽ được mở trong một tab mới)', 'wp-redirect-gateway' ); ?>
+                            </label>
+                        </td>
+                    </tr>
                 </table>
             </div>
 
@@ -145,21 +185,7 @@ $enable_auto_backup = get_option( 'wprg_enable_auto_backup', '0' );
             </div>
 
             <div id="tab-system" class="wprg-tab-content" style="<?php echo ($active_tab === 'tab-system') ? 'display:block;' : 'display:none;'; ?>">
-                <h3 style="margin-top: 0; color: #0073aa;"><?php esc_html_e( 'Sao lưu hệ thống (Cron)', 'wp-redirect-gateway' ); ?></h3>
-                <table class="form-table">
-                    <tr>
-                        <th scope="row"><?php esc_html_e( 'Backup Tự Động', 'wp-redirect-gateway' ); ?></th>
-                        <td>
-                            <label>
-                                <input type="checkbox" name="wprg_enable_auto_backup" value="1" <?php checked( $enable_auto_backup, '1' ); ?>>
-                                <strong><?php esc_html_e( 'Tự động sao lưu thiết lập và database mỗi ngày 1 lần', 'wp-redirect-gateway' ); ?></strong>
-                            </label>
-                            <p class="description"><?php echo wp_kses_post( __( 'Hệ thống sẽ chạy ngầm và lưu file vào thư mục <code>wp-content/uploads/wprg-backups/</code>. Tối đa lưu 7 bản mới nhất.', 'wp-redirect-gateway' ) ); ?></p>
-                        </td>
-                    </tr>
-                </table>
-
-                <h3 style="margin-top: 30px; color: #d63638;"><?php esc_html_e( 'Dữ liệu & Gỡ cài đặt', 'wp-redirect-gateway' ); ?></h3>
+                <h3 style="margin-top: 0; color: #d63638;"><?php esc_html_e( 'Dữ liệu & Gỡ cài đặt', 'wp-redirect-gateway' ); ?></h3>
                 <table class="form-table">
                     <tr>
                         <th scope="row"><?php esc_html_e( 'Xóa dữ liệu', 'wp-redirect-gateway' ); ?></th>
@@ -181,9 +207,9 @@ $enable_auto_backup = get_option( 'wprg_enable_auto_backup', '0' );
         </form>
 
         <div id="tab-import-export" class="wprg-tab-content" style="<?php echo ($active_tab === 'tab-import-export') ? 'display:block;' : 'display:none;'; ?>">
-            <h3 style="margin-top: 0; color: #2271b1;"><?php esc_html_e( 'Nhập / Xuất Cấu Hình (JSON)', 'wp-redirect-gateway' ); ?></h3>
             
-            <table class="form-table">
+            <h3 style="margin-top: 0; color: #2271b1;"><?php esc_html_e( 'Nhập / Xuất Cấu Hình (Chỉ Setting)', 'wp-redirect-gateway' ); ?></h3>
+            <table class="form-table" style="margin-bottom: 30px;">
                 <tr>
                     <th scope="row"><?php esc_html_e( 'Xuất Thiết Lập', 'wp-redirect-gateway' ); ?></th>
                     <td>
@@ -209,11 +235,14 @@ $enable_auto_backup = get_option( 'wprg_enable_auto_backup', '0' );
                 </tr>
             </table>
 
-            <h3 style="margin-top: 30px; color: #d63638;">📦 <?php esc_html_e( 'Backup Toàn Bộ Dữ Liệu', 'wp-redirect-gateway' ); ?></h3>
+            <hr style="border: 0; border-top: 1px dashed #ccc; margin: 30px 0;">
+
+            <h3 style="margin-top: 0; color: #0073aa;">📦 <?php esc_html_e( 'Quản lý Backup Dữ Liệu', 'wp-redirect-gateway' ); ?></h3>
             <table class="form-table">
+                
                 <tr>
                     <th scope="row"><?php esc_html_e( 'Sao lưu thủ công', 'wp-redirect-gateway' ); ?></th>
-                    <td>
+                    <td style="padding-bottom: 25px;">
                         <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                             <input type="hidden" name="action" value="wprg_full_backup">
                             <?php wp_nonce_field( 'wprg_backup_action', 'wprg_backup_nonce' ); ?>
@@ -225,18 +254,95 @@ $enable_auto_backup = get_option( 'wprg_enable_auto_backup', '0' );
                     </td>
                 </tr>
 
-                <tr>
-                    <th scope="row"><?php esc_html_e( 'Khôi phục hệ thống (Restore)', 'wp-redirect-gateway' ); ?></th>
-                    <td>
+                <tr style="border-top: 1px solid #eee;">
+                    <th scope="row" style="padding-top: 25px;"><?php esc_html_e( 'Cấu hình Backup tự động', 'wp-redirect-gateway' ); ?></th>
+                    <td style="padding-top: 25px;">
+                        <form method="post" action="">
+                            <?php wp_nonce_field( 'wprg_backup_settings_nonce' ); ?>
+                            <label style="display:block; margin-bottom:10px;">
+                                <input type="checkbox" name="wprg_enable_auto_backup" id="wprg_enable_auto_backup" value="1" <?php checked( $enable_auto_backup, '1' ); ?>>
+                                <strong><?php esc_html_e( 'Tự động sao lưu thiết lập và database mỗi ngày', 'wp-redirect-gateway' ); ?></strong>
+                            </label>
+                            
+                            <div id="wprg-backup-time-wrap" style="margin-left: 25px; margin-bottom: 15px; <?php echo ($enable_auto_backup === '1') ? 'display:block;' : 'display:none;'; ?>">
+                                <div style="display: flex; gap: 20px; margin-bottom: 5px;">
+                                    <div>
+                                        <label for="wprg_backup_time" style="font-weight: 500; margin-right: 5px;"><?php esc_html_e( 'Thời gian chạy:', 'wp-redirect-gateway' ); ?></label>
+                                        <input type="time" name="wprg_backup_time" id="wprg_backup_time" value="<?php echo esc_attr( $backup_time ); ?>" style="padding: 3px 8px;">
+                                    </div>
+                                    <div>
+                                        <label for="wprg_backup_limit" style="font-weight: 500; margin-right: 5px;"><?php esc_html_e( 'Số bản lưu tối đa:', 'wp-redirect-gateway' ); ?></label>
+                                        <input type="number" name="wprg_backup_limit" id="wprg_backup_limit" value="<?php echo esc_attr( $backup_limit ); ?>" min="1" max="50" style="padding: 3px 8px; width: 60px;">
+                                    </div>
+                                </div>
+                                <p class="description"><?php echo wp_kses_post( __( 'Hệ thống sẽ lưu file vào <code>wp-content/uploads/wprg-backups/</code>. Vượt quá số lượng sẽ tự động xóa bản cũ nhất.', 'wp-redirect-gateway' ) ); ?></p>
+                            </div>
+                            
+                            <div style="margin-top: 10px;">
+                                <input type="submit" name="wprg_save_backup_settings" class="button button-small" value="<?php esc_attr_e( 'Lưu thiết lập Auto Backup', 'wp-redirect-gateway' ); ?>">
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+
+                <tr style="border-top: 1px solid #eee;">
+                    <th scope="row" style="padding-top: 25px;"><?php esc_html_e( 'Bản sao lưu trên Server', 'wp-redirect-gateway' ); ?></th>
+                    <td style="padding-top: 25px;">
+                        <?php if ( empty( $auto_backup_files ) ) : ?>
+                            <p style="color: #666; font-style: italic;"><?php esc_html_e( 'Chưa có bản sao lưu tự động nào.', 'wp-redirect-gateway' ); ?></p>
+                        <?php else : ?>
+                            <div style="max-height: 250px; overflow-y: auto; border: 1px solid #ccd0d4; border-radius: 4px; max-width: 600px; margin-top: 5px; background: #fff;">
+                                <table class="wp-list-table widefat striped" style="margin: 0; border: none; width: 100%;">
+                                    <thead style="position: sticky; top: 0; background: #f6f7f7; box-shadow: 0 1px 1px rgba(0,0,0,.04); z-index: 1;">
+                                        <tr>
+                                            <th style="background: #f6f7f7; border-bottom: 1px solid #ccd0d4;"><?php esc_html_e( 'Tên File Backup', 'wp-redirect-gateway' ); ?></th>
+                                            <th style="background: #f6f7f7; border-bottom: 1px solid #ccd0d4;"><?php esc_html_e( 'Dung lượng', 'wp-redirect-gateway' ); ?></th>
+                                            <th style="background: #f6f7f7; border-bottom: 1px solid #ccd0d4;"><?php esc_html_e( 'Hành động', 'wp-redirect-gateway' ); ?></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ( $auto_backup_files as $file ) : 
+                                            $filename = basename( $file );
+                                            $filesize = size_format( filesize( $file ) );
+                                            $filetime = date_i18n( get_option('date_format') . ' ' . get_option('time_format'), filemtime( $file ) );
+                                        ?>
+                                            <tr>
+                                                <td>
+                                                    <strong><?php echo esc_html( $filename ); ?></strong><br>
+                                                    <span style="color: #666; font-size: 12px;"><?php echo esc_html( $filetime ); ?></span>
+                                                </td>
+                                                <td style="vertical-align: middle;"><?php echo esc_html( $filesize ); ?></td>
+                                                <td style="vertical-align: middle;">
+                                                    <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin: 0;">
+                                                        <input type="hidden" name="action" value="wprg_auto_restore">
+                                                        <input type="hidden" name="backup_file" value="<?php echo esc_attr( $filename ); ?>">
+                                                        <?php wp_nonce_field( 'wprg_auto_restore_action', 'wprg_auto_restore_nonce' ); ?>
+                                                        <button type="submit" class="button button-primary button-small" onclick="return confirm('<?php echo esc_js( __( 'CẢNH BÁO NGUY HIỂM: Hành động này sẽ XÓA SẠCH dữ liệu hiện tại và khôi phục từ bản backup này. Bạn chắc chắn chứ?', 'wp-redirect-gateway' ) ); ?>');">
+                                                            <?php esc_html_e( 'Khôi phục ngay', 'wp-redirect-gateway' ); ?>
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p class="description" style="margin-top: 10px;"><?php printf( esc_html__( 'Đang hiển thị các file backup tự động trên Server (Tối đa %d bản).', 'wp-redirect-gateway' ), intval($backup_limit) ); ?></p>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+
+                <tr style="border-top: 1px solid #eee;">
+                    <th scope="row" style="padding-top: 25px;"><?php esc_html_e( 'Khôi phục thủ công', 'wp-redirect-gateway' ); ?></th>
+                    <td style="padding-top: 25px;">
                         <form method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                             <input type="hidden" name="action" value="wprg_full_restore">
                             <?php wp_nonce_field( 'wprg_restore_action', 'wprg_restore_nonce' ); ?>
                             <input type="file" name="wprg_restore_file" accept=".json" required />
                             <br><br>
-                            <button type="submit" class="button button-primary" onclick="return confirm('<?php echo esc_js( __( 'CẢNH BÁO NGUY HIỂM: Hành động này sẽ XÓA SẠCH toàn bộ Cài đặt, Danh sách Link và Lịch sử hiện tại trên website này, thay thế bằng dữ liệu từ file backup. Bạn có chắc chắn muốn tiếp tục không?', 'wp-redirect-gateway' ) ); ?>');">
-                                <span class="dashicons dashicons-update" style="margin-top:3px;"></span> <?php esc_html_e( 'Phục hồi dữ liệu', 'wp-redirect-gateway' ); ?>
+                            <button type="submit" class="button" onclick="return confirm('<?php echo esc_js( __( 'CẢNH BÁO NGUY HIỂM: Bạn có chắc chắn muốn ghi đè toàn bộ Cài đặt, Link và Logs bằng file tải lên không?', 'wp-redirect-gateway' ) ); ?>');">
+                                <span class="dashicons dashicons-update" style="margin-top:3px;"></span> <?php esc_html_e( 'Up file & Phục hồi', 'wp-redirect-gateway' ); ?>
                             </button>
-                            <p class="description" style="color: #d63638; font-weight: bold;"><?php esc_html_e( 'Cẩn thận: Ghi đè toàn bộ Database & Settings của plugin bằng file Backup JSON!', 'wp-redirect-gateway' ); ?></p>
                         </form>
                     </td>
                 </tr>
@@ -256,39 +362,29 @@ document.addEventListener('DOMContentLoaded', function() {
     tabs.forEach(function(tab) {
         tab.addEventListener('click', function(e) {
             e.preventDefault();
-            
             tabs.forEach(t => t.classList.remove('nav-tab-active'));
             contents.forEach(c => c.style.display = 'none');
-            
             this.classList.add('nav-tab-active');
             const targetId = this.getAttribute('data-tab');
             document.getElementById(targetId).style.display = 'block';
-            
             if (activeTabInput) activeTabInput.value = targetId;
-
-            if(submitBtnWrap) {
-                submitBtnWrap.style.display = (targetId === 'tab-import-export') ? 'none' : 'block';
-            }
+            if(submitBtnWrap) { submitBtnWrap.style.display = (targetId === 'tab-import-export') ? 'none' : 'block'; }
         });
     });
 
-    const checkbox = document.getElementById('wprg_enable_initial_click');
-    const container = document.getElementById('wprg-initial-links-container');
-    const wrapper = document.getElementById('wprg-initial-links-wrapper');
-    const addBtn = document.getElementById('wprg-add-initial-link');
-
-    if(checkbox && container) {
-        checkbox.addEventListener('change', function() {
-            container.style.display = this.checked ? 'block' : 'none';
-        });
+    const cbInitClick = document.getElementById('wprg_enable_initial_click');
+    const wrapInitClick = document.getElementById('wprg-initial-links-container');
+    if(cbInitClick && wrapInitClick) {
+        cbInitClick.addEventListener('change', function() { wrapInitClick.style.display = this.checked ? 'block' : 'none'; });
     }
 
+    const wrapper = document.getElementById('wprg-initial-links-wrapper');
+    const addBtn = document.getElementById('wprg-add-initial-link');
     if(addBtn) {
         addBtn.addEventListener('click', function(e) {
             e.preventDefault();
             const row = document.createElement('div');
             row.style.marginBottom = '10px';
-            // Đã bọc text "Xóa" cho JS chèn nội dung HTML
             row.innerHTML = '<input type="url" name="wprg_initial_links[]" class="large-text" value="" placeholder="https://..." style="width: 80%;" /> <button type="button" class="button remove-link" style="color: #d63638; border-color: #d63638;"><?php echo esc_js( __( 'Xóa', 'wp-redirect-gateway' ) ); ?></button>';
             wrapper.appendChild(row);
         });
@@ -296,10 +392,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if(wrapper) {
         wrapper.addEventListener('click', function(e) {
-            if(e.target.classList.contains('remove-link')) {
-                e.preventDefault();
-                e.target.parentElement.remove();
-            }
+            if(e.target.classList.contains('remove-link')) { e.preventDefault(); e.target.parentElement.remove(); }
+        });
+    }
+
+    const cbAutoBackup = document.getElementById('wprg_enable_auto_backup');
+    const wrapBackupTime = document.getElementById('wprg-backup-time-wrap');
+    if(cbAutoBackup && wrapBackupTime) {
+        cbAutoBackup.addEventListener('change', function() {
+            wrapBackupTime.style.display = this.checked ? 'block' : 'none';
         });
     }
 });

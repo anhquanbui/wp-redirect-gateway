@@ -71,6 +71,7 @@ class WPRG_Shortcode_Inline {
             'initial_links'        => get_option( 'wprg_initial_links', array() ),
             'home_url'             => home_url(),
             'log_id'               => 0, 
+            'open_new_tab'         => get_option( 'wprg_open_link_new_tab', '0' ),
             
             'i18n'        => array(
                 'wait_msg'            => __( 'Vui lòng đợi...', 'wp-redirect-gateway' ),

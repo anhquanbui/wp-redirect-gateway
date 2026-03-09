@@ -113,7 +113,10 @@ function wprg_handle_export_settings() {
         'wprg_delete_data',
         'wprg_enable_initial_click',
         'wprg_initial_links',
-        'wprg_shortcodes' // Đã giữ nguyên Shortcodes
+        'wprg_shortcodes',
+        'wprg_open_link_new_tab',
+        'wprg_backup_time',
+        'wprg_backup_limit'
     );
 
     $export_data = array(
@@ -287,10 +290,48 @@ function wprg_handle_export_logs_csv() {
 }
 
 /**
- * LÊN LỊCH CRON JOB (Chạy 1 lần/ngày)
+ * LÊN LỊCH CRON JOB THÔNG MINH (Chạy theo giờ tùy chỉnh)
  */
-if ( ! wp_next_scheduled( 'wprg_daily_auto_backup_event' ) ) {
-    wp_schedule_event( time(), 'daily', 'wprg_daily_auto_backup_event' );
+
+// Hàm tính toán và hẹn lại lịch Cron
+function wprg_reschedule_backup_cron() {
+    // 1. Xóa lịch cũ đi (nếu có)
+    wp_clear_scheduled_hook( 'wprg_daily_auto_backup_event' );
+
+    // 2. Nếu người dùng tắt Auto Backup thì dừng ở đây
+    if ( get_option( 'wprg_enable_auto_backup', '0' ) !== '1' ) {
+        return;
+    }
+
+    // 3. Lấy giờ người dùng đã cài (VD: '02:00')
+    $time_string = get_option( 'wprg_backup_time', '00:00' );
+    if ( empty( $time_string ) ) $time_string = '00:00';
+
+    list( $hour, $minute ) = explode( ':', $time_string );
+
+    // 4. Lấy múi giờ của Website (WP Settings > General)
+    $timezone = wp_timezone();
+    $now = new DateTime( 'now', $timezone );
+    
+    // Tạo 1 mốc thời gian chạy cho ngày hôm nay
+    $next_run = clone $now;
+    $next_run->setTime( (int)$hour, (int)$minute, 0 );
+
+    // 5. Nếu giờ đó của ngày hôm nay đã trôi qua rồi -> Hẹn sang ngày mai
+    if ( $next_run <= $now ) {
+        $next_run->modify( '+1 day' );
+    }
+
+    // 6. Đặt lịch (Dùng getTimestamp() vì wp_schedule_event cần giờ UTC)
+    wp_schedule_event( $next_run->getTimestamp(), 'daily', 'wprg_daily_auto_backup_event' );
+}
+
+// Hook đảm bảo hệ thống luôn tự hẹn giờ lại mỗi khi load nếu chưa có lịch
+add_action( 'init', 'wprg_ensure_cron_is_scheduled' );
+function wprg_ensure_cron_is_scheduled() {
+    if ( get_option('wprg_enable_auto_backup') === '1' && ! wp_next_scheduled( 'wprg_daily_auto_backup_event' ) ) {
+        wprg_reschedule_backup_cron();
+    }
 }
 
 // Xóa lịch Cron khi người dùng hủy kích hoạt (Deactivate) plugin
@@ -298,3 +339,12 @@ register_deactivation_hook( __FILE__, 'wprg_deactivate_plugin' );
 function wprg_deactivate_plugin() {
     wp_clear_scheduled_hook( 'wprg_daily_auto_backup_event' );
 }
+
+// [CẬP NHẬT] Đừng quên thêm biến vào hàm XUẤT JSON ở trên:
+// Trong hàm wprg_handle_export_settings() của file này, bạn nhớ thêm 'wprg_backup_time' vào mảng $option_keys nhé:
+/* $option_keys = array(
+        ...
+        'wprg_open_link_new_tab',
+        'wprg_backup_time' // <--- BỔ SUNG Ở ĐÂY
+    );
+*/
