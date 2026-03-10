@@ -126,7 +126,7 @@ $shortcodes = get_option( 'wprg_shortcodes', array() );
                             <tr>
                                 <td><strong><?php echo esc_html( $sc['name'] ); ?></strong></td>
                                 <td><input type="text" readonly value='[wprg_gateway id="<?php echo esc_attr( $sc['id'] ); ?>"]' class="large-text" onfocus="this.select();" style="..." /></td>
-                                <td><strong><?php echo esc_html( $sc['wait_time'] ); ?></strong> s</td>
+                                <td><strong><?php echo esc_html( $sc['wait_time'] ); ?></strong> <?php esc_html_e( 'giây', 'wp-redirect-gateway' ); ?></td>
                                 <td><?php $page_url = get_permalink( $sc['page_id'] ); echo '<a href="' . esc_url( $page_url ) . '" target="_blank" style="...">🔗 ' . esc_html__( 'Xem trang', 'wp-redirect-gateway' ) . '</a>'; ?></td>
                                 <td><a href="?page=wprg-shortcodes&action=delete_sc&sc_id=<?php echo esc_attr( $sc['id'] ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Xóa shortcode này?', 'wp-redirect-gateway' ) ); ?>');" style="...">❌ <?php esc_html_e( 'Xóa', 'wp-redirect-gateway' ); ?></a></td>
                             </tr>

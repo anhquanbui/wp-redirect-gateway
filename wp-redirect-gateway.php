@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: WP Redirect Gateway & Ads Monetization
- * Description: Plugin quản lý link redirect, gateway ads, đếm ngược thời gian, chống bot và thống kê log chi tiết.
- * Version:     1.0.0
+ * Description: Plugin quản lý link redirect, gateway ads, đếm ngược thời gian, chống bot và thống kê log chi tiết. <br>🔗 <a href="https://quanbui.net" target="_blank" style="color:#0073aa; font-weight:500;">Visit my plugin</a> &nbsp;|&nbsp; 📖 <a href="https://quanbui.net/huong-dan" target="_blank" style="color:#0073aa; font-weight:500;">Document</a>
+ * Version:     1.0.2
  * Author:      Anh Quan Bui
  * Text Domain: wp-redirect-gateway
  * Domain Path: /languages
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // 2. ĐỊNH NGHĨA HẰNG SỐ (Constants)
-define( 'WPRG_VERSION', '1.0.0' );
+define( 'WPRG_VERSION', '1.0.2' );
 define( 'WPRG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WPRG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
@@ -119,7 +119,10 @@ function wprg_handle_export_settings() {
         'wprg_backup_time',
         'wprg_backup_limit',
         'wprg_rel_noopener',
-        'wprg_rel_noreferrer'
+        'wprg_rel_noreferrer',
+        'wprg_captcha_type',
+        'wprg_turnstile_site',
+        'wprg_turnstile_secret'
     );
 
     $export_data = array(
@@ -345,11 +348,19 @@ function wprg_deactivate_plugin() {
     wp_clear_scheduled_hook( 'wprg_daily_auto_backup_event' );
 }
 
-// [CẬP NHẬT] Đừng quên thêm biến vào hàm XUẤT JSON ở trên:
-// Trong hàm wprg_handle_export_settings() của file này, bạn nhớ thêm 'wprg_backup_time' vào mảng $option_keys nhé:
-/* $option_keys = array(
-        ...
-        'wprg_open_link_new_tab',
-        'wprg_backup_time' // <--- BỔ SUNG Ở ĐÂY
-    );
-*/
+/**
+ * 7. THÊM LINK VÀO TRANG QUẢN LÝ PLUGIN (Settings & Visit my website)
+ */
+
+// Thêm nút "Settings" kế bên chữ Deactivate
+add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'wprg_add_settings_link' );
+function wprg_add_settings_link( $links ) {
+    // LƯU Ý: Nếu URL trang cài đặt của bạn không phải là ?page=wprg-settings thì bạn sửa chữ 'wprg-settings' ở dòng dưới cho khớp nhé.
+    $settings_url = admin_url( 'admin.php?page=wprg-settings' ); 
+    
+    $settings_link = '<a href="' . esc_url( $settings_url ) . '" style="font-weight: bold; color: #2271b1;">' . esc_html__( 'Settings', 'wp-redirect-gateway' ) . '</a>';
+    
+    array_unshift( $links, $settings_link );
+    
+    return $links;
+}

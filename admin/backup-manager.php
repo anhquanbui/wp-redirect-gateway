@@ -41,7 +41,10 @@ class WPRG_Backup_Manager {
             'wprg_backup_time',
             'wprg_backup_limit',
             'wprg_rel_noopener',
-            'wprg_rel_noreferrer'
+            'wprg_rel_noreferrer',
+            'wprg_captcha_type',
+            'wprg_turnstile_site',
+            'wprg_turnstile_secret'
         );
         
         foreach ( $option_keys as $key ) {

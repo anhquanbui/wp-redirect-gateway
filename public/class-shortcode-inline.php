@@ -10,15 +10,23 @@ class WPRG_Shortcode_Inline {
 
     public function enqueue_scripts() {
         wp_register_script( 'wprg-gateway-js', WPRG_PLUGIN_URL . 'assets/js/gateway-timer.js', array('jquery'), time(), true );
+        
+        $captcha_type = get_option( 'wprg_captcha_type', 'recaptcha' );
+        $recap_site   = get_option( 'wprg_recaptcha_site', '' );
+        $ts_site      = get_option( 'wprg_turnstile_site', '' );
+
+        if ( $captcha_type === 'recaptcha' && ! empty( $recap_site ) ) {
+            wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js?render=' . esc_attr( $recap_site ), array(), null, true );
+        } elseif ( $captcha_type === 'turnstile' && ! empty( $ts_site ) ) {
+            wp_enqueue_script( 'cf-turnstile', 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit', array(), null, true );
+        }
     }
 
     public function render_inline_button_shortcode( $atts ) {
         $atts = shortcode_atts( array( 'slug' => '' ), $atts );
         $slug = sanitize_text_field( $atts['slug'] );
 
-        if ( empty( $slug ) ) {
-            return '<div style="padding: 10px; border: 1px solid red; color: red;">' . esc_html__( 'Lỗi: Vui lòng nhập slug của link.', 'wp-redirect-gateway' ) . '</div>';
-        }
+        if ( empty( $slug ) ) return '<div style="padding: 10px; border: 1px solid red; color: red;">' . esc_html__( 'Lỗi: Vui lòng nhập slug của link.', 'wp-redirect-gateway' ) . '</div>';
 
         global $wpdb;
         $table_links = $wpdb->prefix . 'rg_links';
@@ -34,46 +42,44 @@ class WPRG_Shortcode_Inline {
             $is_unlocked = true; 
         } else {
             $cookie_name = 'wprg_unlock_' . md5($slug);
-            if ( isset($_COOKIE[$cookie_name]) && $_COOKIE[$cookie_name] === md5($password) ) {
-                $is_unlocked = true; 
-            }
+            if ( isset($_COOKIE[$cookie_name]) && $_COOKIE[$cookie_name] === md5($password) ) $is_unlocked = true; 
         }
 
         $shortcodes = get_option( 'wprg_shortcodes', array() );
         $sc_id = $link_data['shortcode_id'];
         
-        if ( ! isset( $shortcodes[ $sc_id ] ) ) return '<div style="padding: 10px; border: 1px solid red; color: red;">' . esc_html__( 'Lỗi: Gateway cấu hình cho link này đã bị xóa.', 'wp-redirect-gateway' ) . '</div>';
+        if ( ! isset( $shortcodes[ $sc_id ] ) ) return '<div style="padding: 10px; border: 1px solid red; color: red;">' . esc_html__( 'Lỗi: Gateway bị xóa.', 'wp-redirect-gateway' ) . '</div>';
         $sc_data = $shortcodes[ $sc_id ];
 
         $final_wait_time = ! empty( $link_data['wait_time'] ) ? sanitize_text_field( $link_data['wait_time'] ) : sanitize_text_field( $sc_data['wait_time'] );
-
         $raw_aff_links = get_option( 'wprg_affiliate_links', '' );
         $aff_links_array = array_filter( array_map( 'trim', preg_split( '/\r\n|\r|\n/', $raw_aff_links ) ) );
         if ( empty( $aff_links_array ) ) $aff_links_array = array( home_url() ); 
 
-        $recap_site = get_option( 'wprg_recaptcha_site', '' );
-        if ( ! empty( $recap_site ) ) {
-            wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js?render=' . esc_attr( $recap_site ), array(), null, true );
-        }
+        // Tính toán thời gian sống của Cookie Mật khẩu ra Giây
+        $c_val = intval( get_option( 'wprg_cookie_pass_val', 24 ) );
+        $c_unit = get_option( 'wprg_cookie_pass_unit', 'hours' );
+        $c_multipliers = array( 'seconds' => 1, 'minutes' => 60, 'hours' => 3600, 'days' => 86400, 'weeks' => 604800, 'months' => 2592000, 'years' => 31536000 );
+        $cookie_time_sec = $c_val * ( isset( $c_multipliers[$c_unit] ) ? $c_multipliers[$c_unit] : 3600 );
 
         wp_enqueue_script( 'wprg-gateway-js' );
         wp_localize_script( 'wprg-gateway-js', 'wprgData', array(
             'ajax_url'    => admin_url( 'admin-ajax.php' ),
             'nonce'       => wp_create_nonce( 'wprg_gateway_nonce' ),
-            'slug'        => $slug,
-            'wait_time'   => $final_wait_time,
-            'total_ads'   => intval( $link_data['ad_count'] ),
             'aff_links'   => array_values( $aff_links_array ),
             'active_tab'  => get_option( 'wprg_require_active_tab', '1' ),
             'single_link' => get_option( 'wprg_single_link_mode', '0' ),
-            'recaptcha_site' => $recap_site,
+            'captcha_type'         => get_option( 'wprg_captcha_type', 'recaptcha' ), 
+            'recaptcha_site'       => get_option( 'wprg_recaptcha_site', '' ),        
+            'turnstile_site'       => get_option( 'wprg_turnstile_site', '' ),
             'enable_initial_click' => get_option( 'wprg_enable_initial_click', '1' ),
             'rel_noopener'         => get_option( 'wprg_rel_noopener', '1' ),
             'rel_noreferrer'       => get_option( 'wprg_rel_noreferrer', '0' ),
             'initial_links'        => get_option( 'wprg_initial_links', array() ),
             'home_url'             => home_url(),
-            'log_id'               => 0, 
             'open_new_tab'         => get_option( 'wprg_open_link_new_tab', '0' ),
+            'auto_retry'           => get_option( 'wprg_auto_retry_error', '0' ), // Mặc định là 0 (Tắt Auto Retry)
+            'cookie_time'          => $cookie_time_sec,
             
             'i18n'        => array(
                 'wait_msg'            => __( 'Vui lòng đợi...', 'wp-redirect-gateway' ),
@@ -81,7 +87,7 @@ class WPRG_Shortcode_Inline {
                 'link_ready'          => __( 'Link đã sẵn sàng! Bấm để nhận', 'wp-redirect-gateway' ),
                 'getting_link'        => __( 'Đang lấy link...', 'wp-redirect-gateway' ),
                 'checking_sec'        => __( 'Đang lấy link...', 'wp-redirect-gateway' ),
-                'active_warning'      => __( 'Bạn đang có 1 link đang hoạt động!', 'wp-redirect-gateway' ),
+                'active_warning'      => __( 'Bạn đang có 1 link khác đang hoạt động!', 'wp-redirect-gateway' ),
                 'active_desc'         => __( 'Hãy hoàn thành link kia, hoặc chờ hệ thống tự mở khóa sau 5 phút.', 'wp-redirect-gateway' ),
                 'error_prefix'        => __( 'Lỗi:', 'wp-redirect-gateway' ),
                 'error_msg'           => __( 'Không thể lấy link đích!', 'wp-redirect-gateway' ),
@@ -89,7 +95,7 @@ class WPRG_Shortcode_Inline {
                 'try_again'           => __( 'Thử lại', 'wp-redirect-gateway' ),
                 'step_done'           => __( 'Bạn đã hoàn thành các bước.', 'wp-redirect-gateway' ),
                 'counting'            => __( 'Đang đếm ngược...', 'wp-redirect-gateway' ),
-                'click_to_watch'      => __( 'Bấm để tiếp tục xem quảng cáo', 'wp-redirect-gateway' ),
+                'click_to_watch'      => __( 'Bấm để tiếp tục', 'wp-redirect-gateway' ),
                 'stop_warning'        => __( '⚠️ Đã dừng đếm. Bạn phải quay lại tab này!', 'wp-redirect-gateway' ), 
                 'verify_sec'          => __( '🔍 Xác minh bảo mật', 'wp-redirect-gateway' ),
                 'verifying'           => __( 'Đang chạy xác minh...', 'wp-redirect-gateway' ),
@@ -99,7 +105,18 @@ class WPRG_Shortcode_Inline {
                 'recap_error'         => __( 'reCAPTCHA bị lỗi. Vui lòng tải lại trang.', 'wp-redirect-gateway' ),
                 'script_blocked'      => __( 'Script bảo mật bị chặn. Vui lòng tắt trình chặn quảng cáo để đi tiếp.', 'wp-redirect-gateway' ),
                 'popup_blocked_alert' => __( "⚠️ Trình duyệt đang chặn Cửa sổ bật lên (Popup).\n\nVui lòng cấp quyền mở Popup để tiếp tục!", 'wp-redirect-gateway' ),
-                'popup_blocked_msg'   => __( '⚠️ Vui lòng cấp quyền mở Popup trên thanh địa chỉ để đi tiếp!', 'wp-redirect-gateway' )
+                'popup_blocked_msg'   => __( '⚠️ Vui lòng cấp quyền mở Popup trên thanh địa chỉ để đi tiếp!', 'wp-redirect-gateway' ),
+                'checking_pass' => __( 'ĐANG KIỂM TRA...', 'wp-redirect-gateway' ),
+                'unlock_now'    => __( 'MỞ KHÓA NGAY', 'wp-redirect-gateway' ),
+                'wrong_pass'    => __( 'Mật khẩu sai!', 'wp-redirect-gateway' ),
+                'wait_verify'   => __( 'ĐANG CHỜ XÁC MINH...', 'wp-redirect-gateway' ),
+                'retrying'      => __( 'ĐANG THỬ LẠI...', 'wp-redirect-gateway' ),
+                'network_error_short' => __( 'Lỗi kết nối mạng!', 'wp-redirect-gateway' ),
+                'checking_safe'       => __( 'Hệ thống đang kiểm tra an toàn, vui lòng đợi giây lát...', 'wp-redirect-gateway' ),
+                'cf_load_error'       => __( 'Lỗi: Trình duyệt không thể tải Script Cloudflare. Vui lòng tắt chặn quảng cáo hoặc tải lại trang!', 'wp-redirect-gateway' ),
+                'link_opened_btn'     => __( 'Đã lấy link!', 'wp-redirect-gateway' ),
+                'link_opened_new_tab' => __( 'Link đích đã được mở ở Tab mới.', 'wp-redirect-gateway' ),
+                'auto_retrying'       => __( 'Vấp mạng. Tự động thử lại sau 2 giây', 'wp-redirect-gateway' )
             )
         ));
 
@@ -117,12 +134,12 @@ class WPRG_Shortcode_Inline {
         </div>
         <?php endif; ?>
 
-        <div id="wprg-btn-wrap-<?php echo esc_attr($slug); ?>" class="wprg-inline-container" style="<?php echo ( ! $is_unlocked ) ? 'display:none;' : ''; ?> text-align: center; padding: 20px; background: #f9f9f9; border: 1px dashed #ccc; border-radius: 8px; margin: 20px 0;">
+        <div id="wprg-btn-wrap-<?php echo esc_attr($slug); ?>" class="wprg-inline-container wprg-gateway-wrapper" data-slug="<?php echo esc_attr($slug); ?>" data-wait="<?php echo esc_attr($final_wait_time); ?>" data-ads="<?php echo intval( $link_data['ad_count'] ); ?>" data-logid="0" style="<?php echo ( ! $is_unlocked ) ? 'display:none;' : ''; ?> text-align: center; padding: 20px; background: #f9f9f9; border: 1px dashed #ccc; border-radius: 8px; margin: 20px 0;">
             <p style="margin-bottom: 15px; font-weight: bold; color: #333;"><?php esc_html_e( 'Bấm vào nút bên dưới để lấy link:', 'wp-redirect-gateway' ); ?></p>
-            <button id="wprg-action-btn" style="padding: 12px 30px; font-size: 16px; font-weight: bold; background: #0073aa; color: #fff; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; width: 100%; max-width: 300px;">
+            <button class="wprg-action-btn" style="padding: 12px 30px; font-size: 16px; font-weight: bold; background: #0073aa; color: #fff; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; width: 100%; max-width: 300px;">
                 <?php esc_html_e( 'BẮT ĐẦU LẤY LINK', 'wp-redirect-gateway' ); ?>
             </button>
-            <p id="wprg-status-text" style="margin-top: 10px; font-size: 13px; font-style: italic; color: #888;"></p>
+            <p class="wprg-status-text" style="margin-top: 10px; font-size: 13px; font-style: italic; color: #888;"></p>
         </div>
         
         <?php

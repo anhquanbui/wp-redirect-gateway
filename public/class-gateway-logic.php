@@ -79,10 +79,10 @@ class WPRG_Gateway_Logic {
                         wp_redirect( $redirect_url, 302 );
                         exit;
                     } else {
-                        wp_die( 'Trang Gateway chứa shortcode không tồn tại hoặc đã bị xóa.' );
+                        wp_die( esc_html__( 'Trang Gateway chứa shortcode không tồn tại hoặc đã bị xóa.', 'wp-redirect-gateway' ) );
                     }
                 } else {
-                    wp_die( 'Link này chưa được gán Gateway hoặc Gateway đã bị vô hiệu hóa.' );
+                    wp_die( esc_html__('Link này chưa được gán Gateway hoặc Gateway đã bị vô hiệu hóa.','wp-redirect-gateway') );
                 }
             } else {
                 global $wp_query;

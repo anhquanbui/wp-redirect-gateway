@@ -15,13 +15,13 @@ class WPRG_Frontend_Ajax {
     // --- HÀM MỚI: KIỂM TRA MẬT KHẨU ---
     public function verify_password() {
         if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'wprg_gateway_nonce' ) ) {
-            wp_send_json_error( 'Lỗi bảo mật (Nonce invalid).' );
+            wp_send_json_error( __( 'Lỗi bảo mật (Nonce invalid).', 'wp-redirect-gateway' ) );
         }
 
         $slug = isset( $_POST['slug'] ) ? sanitize_text_field( $_POST['slug'] ) : '';
         $pass = isset( $_POST['password'] ) ? sanitize_text_field( $_POST['password'] ) : '';
 
-        if ( empty( $slug ) || empty( $pass ) ) wp_send_json_error( 'Vui lòng nhập đầy đủ thông tin.' );
+        if ( empty( $slug ) || empty( $pass ) ) wp_send_json_error( __('Vui lòng nhập đầy đủ thông tin.' ) );
 
         global $wpdb;
         $table_links = $wpdb->prefix . 'rg_links';
@@ -36,45 +36,52 @@ class WPRG_Frontend_Ajax {
                     'cookie_value' => md5($pass)
                 ) );
             } else {
-                wp_send_json_error( 'Mật khẩu không chính xác! Vui lòng thử lại.' );
+                wp_send_json_error( __('Mật khẩu không chính xác! Vui lòng thử lại.' ) );
             }
         } else {
-            wp_send_json_error( 'Link không tồn tại.' );
+            wp_send_json_error( __('Link không tồn tại.') );
         }
     }
 
     // --- HÀM CŨ: LẤY LINK VÀ GHI LOG ---
     public function get_final_link() {
         if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'wprg_gateway_nonce' ) ) {
-            wp_send_json_error( 'Lỗi bảo mật (Nonce invalid).' );
+            wp_send_json_error( __('Lỗi bảo mật (Nonce invalid).' ) );
         }
 
-        $recap_secret = get_option( 'wprg_recaptcha_secret', '' );
-        if ( ! empty( $recap_secret ) ) {
-            $token = isset( $_POST['recaptcha_token'] ) ? sanitize_text_field( $_POST['recaptcha_token'] ) : '';
-            if ( empty( $token ) ) wp_send_json_error( 'Hệ thống yêu cầu mã xác thực chống BOT.' );
+        $captcha_type = get_option( 'wprg_captcha_type', 'recaptcha' );
+        $token = isset( $_POST['recaptcha_token'] ) ? sanitize_text_field( $_POST['recaptcha_token'] ) : '';
 
-            $verify_url = 'https://www.google.com/recaptcha/api/siteverify';
-            $response = wp_remote_post( $verify_url, array(
-                'body' => array(
-                    'secret'   => $recap_secret,
-                    'response' => $token,
-                    'remoteip' => $_SERVER['REMOTE_ADDR']
-                )
-            ));
-
-            if ( is_wp_error( $response ) ) wp_send_json_error( 'Không thể kết nối đến Google reCAPTCHA.' );
-            $body = wp_remote_retrieve_body( $response );
-            $result = json_decode( $body );
-
-            if ( ! $result->success || $result->score < 0.5 ) {
-                $score_text = isset($result->score) ? $result->score : 'N/A';
-                wp_send_json_error( 'Hệ thống từ chối truy cập vì nghi ngờ bạn là Robot. (Score: ' . $score_text . ')' );
+        if ( $captcha_type === 'recaptcha' ) {
+            $recap_secret = get_option( 'wprg_recaptcha_secret', '' );
+            if ( ! empty( $recap_secret ) ) {
+                if ( empty( $token ) ) wp_send_json_error( __('Hệ thống yêu cầu mã xác thực chống BOT.') );
+                $response = wp_remote_post( 'https://www.google.com/recaptcha/api/siteverify', array(
+                    'body' => array( 'secret' => $recap_secret, 'response' => $token, 'remoteip' => $_SERVER['REMOTE_ADDR'] )
+                ));
+                if ( is_wp_error( $response ) ) wp_send_json_error( __('Không thể kết nối đến Google reCAPTCHA.') );
+                $result = json_decode( wp_remote_retrieve_body( $response ) );
+                if ( ! $result->success || $result->score < 0.5 ) {
+                    wp_send_json_error( __('Hệ thống từ chối truy cập vì nghi ngờ bạn là Robot.') );
+                }
+            }
+        } elseif ( $captcha_type === 'turnstile' ) {
+            $ts_secret = get_option( 'wprg_turnstile_secret', '' );
+            if ( ! empty( $ts_secret ) ) {
+                if ( empty( $token ) ) wp_send_json_error( __('Hệ thống yêu cầu mã xác thực Turnstile.') );
+                $response = wp_remote_post( 'https://challenges.cloudflare.com/turnstile/v0/siteverify', array(
+                    'body' => array( 'secret' => $ts_secret, 'response' => $token, 'remoteip' => $_SERVER['REMOTE_ADDR'] )
+                ));
+                if ( is_wp_error( $response ) ) wp_send_json_error( __('Không thể kết nối đến Cloudflare.') );
+                $result = json_decode( wp_remote_retrieve_body( $response ) );
+                if ( ! $result->success ) {
+                    wp_send_json_error( __('Xác thực Cloudflare Turnstile thất bại.') );
+                }
             }
         }
 
         $slug = isset( $_POST['slug'] ) ? sanitize_text_field( $_POST['slug'] ) : '';
-        if ( empty( $slug ) ) wp_send_json_error( 'Thiếu dữ liệu link.' );
+        if ( empty( $slug ) ) wp_send_json_error( __('Thiếu dữ liệu link.') );
 
         global $wpdb;
         $table_links = $wpdb->prefix . 'rg_links';
@@ -131,7 +138,7 @@ class WPRG_Frontend_Ajax {
             }
             wp_send_json_success( array( 'url' => $link_data['original_url'] ) );
         } else {
-            wp_send_json_error( 'Không tìm thấy link trong cơ sở dữ liệu.' );
+            wp_send_json_error( __('Không tìm thấy link trong cơ sở dữ liệu.') );
         }
     }
 }
