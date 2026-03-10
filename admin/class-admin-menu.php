@@ -7,6 +7,13 @@ class WPRG_Admin_Menu {
         add_action( 'admin_menu', array( $this, 'register_menus' ) ); 
         add_action( 'admin_notices', array( $this, 'wprg_admin_notices' ) );
         add_action( 'admin_init', array( $this, 'wprg_dismiss_notice_handler' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
+    }
+
+    public function enqueue_admin_styles( $hook_suffix ) {
+        if ( strpos( $hook_suffix, 'wprg-' ) !== false ) {
+            wp_enqueue_style( 'wprg-admin-css', WPRG_PLUGIN_URL . 'assets/css/wprg-admin.css', array(), WPRG_VERSION );
+        }
     }
     
     public function register_menus() {

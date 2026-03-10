@@ -1,0 +1,39 @@
+/* ==========================================================================
+   WP REDIRECT GATEWAY - ADMIN BACKEND STYLES
+   ========================================================================== */
+
+/* --- 1. Khung Form (Form Container) --- */
+.wprg-form-container { background: #fff; padding: 25px 30px; border: 1px solid #ccd0d4; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); max-width: 100%; }
+.wprg-form-container h3 { margin-top: 0; padding-bottom: 15px; border-bottom: 1px solid #f0f0f1; margin-bottom: 25px; color: #2271b1; font-size: 18px; }
+
+/* --- 2. Các ô nhập liệu (Form Group) --- */
+.wprg-form-group { margin-bottom: 20px; }
+.wprg-form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #2c3338; font-size: 14px; }
+.wprg-form-group input[type="text"], .wprg-form-group input[type="url"], .wprg-form-group input[type="number"], .wprg-form-group select { width: 100%; padding: 8px 12px; border: 1px solid #8c8f94; border-radius: 4px; box-shadow: none; transition: border-color 0.15s ease-in-out; font-size: 14px; box-sizing: border-box; }
+.wprg-form-group input:focus, .wprg-form-group select:focus { border-color: #2271b1; outline: none; box-shadow: 0 0 0 1px #2271b1; }
+
+/* --- 3. Tooltip Thần Thánh --- */
+.wprg-tooltip-icon { display: inline-block; width: 16px; height: 16px; background: #787c82; color: #fff; border-radius: 50%; text-align: center; line-height: 16px; font-size: 11px; font-weight: bold; cursor: help; margin-left: 6px; position: relative; vertical-align: middle; transition: background 0.3s; }
+.wprg-tooltip-icon:hover { background: #2271b1; }
+.wprg-tooltip-icon .wprg-tooltip-text { visibility: hidden; width: 260px; background-color: #1e1e1e; color: #fff; text-align: center; border-radius: 6px; padding: 10px 12px; font-size: 12px; font-weight: normal; position: absolute; z-index: 9999; bottom: 135%; left: 50%; margin-left: -130px; opacity: 0; transition: opacity 0.3s, bottom 0.3s; line-height: 1.5; pointer-events: none; white-space: normal; text-transform: none; letter-spacing: normal; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+.wprg-tooltip-icon .wprg-tooltip-text::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -6px; border-width: 6px; border-style: solid; border-color: #1e1e1e transparent transparent transparent; }
+.wprg-tooltip-icon:hover .wprg-tooltip-text { visibility: visible; opacity: 1; bottom: 150%; }
+
+/* --- 4. Thẻ Thống Kê (Stats Cards - Trang Logs) --- */
+.wprg-stat-card { background: #fff; padding: 20px; border: 1px solid #ccd0d4; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); flex: 1; min-width: 250px; border-bottom: 4px solid #0073aa; }
+.wprg-stat-card.success { border-bottom-color: #00a32a; }
+.wprg-stat-card.warning { border-bottom-color: #f56e28; }
+.wprg-stat-card h4 { margin: 0 0 10px 0; color: #666; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
+
+/* --- 5. Căn chỉnh Độ rộng Bảng WP List Table (Trang Links) --- */
+.wp-list-table .column-cb { width: 3%; }
+.wp-list-table .column-name { width: 12%; }
+.wp-list-table .column-tag { width: 8%; }
+.wp-list-table .column-original_url { width: 18%; } 
+.wp-list-table .column-slug { width: 12%; }
+.wp-list-table .column-inline_code { width: 12%; }
+.wp-list-table .column-ad_count { width: 6%; text-align: center; }
+.wp-list-table .column-wait_time { width: 7%; text-align: center; }
+.wp-list-table .column-completed_clicks { width: 10%; text-align: center; }
+.wp-list-table .column-created_at { width: 10%; }
+.wp-list-table th { border-bottom: 2px solid #ccd0d4 !important; }

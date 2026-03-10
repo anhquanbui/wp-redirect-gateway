@@ -5,18 +5,18 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 if ( ! function_exists( 'wprg_get_device_type' ) ) {
     function wprg_get_device_type( $user_agent ) {
         $ua = strtolower( $user_agent );
-        if ( empty( $ua ) || $ua === 'unknown' ) return __( '❓ Không rõ', 'wp-redirect-gateway' ); // Đã bọc dịch
+        if ( empty( $ua ) || $ua === 'unknown' ) return __( '❓ Không rõ', 'wp-redirect-gateway' ); 
         
         if ( preg_match( '/bot|crawl|slurp|spider|mediapartners|google|bing|yandex|facebook/i', $ua ) ) {
-            return __( '🤖 Robot (Bot)', 'wp-redirect-gateway' ); // Đã bọc dịch
+            return __( '🤖 Robot (Bot)', 'wp-redirect-gateway' ); 
         }
         if ( preg_match( '/ipad|tablet|kindle|playbook|silk/i', $ua ) ) {
-            return __( '💊 Máy tính bảng', 'wp-redirect-gateway' ); // Đã bọc dịch
+            return __( '💊 Máy tính bảng', 'wp-redirect-gateway' ); 
         }
         if ( preg_match( '/mobile|android|iphone|ipod|blackberry|windows phone/i', $ua ) ) {
-            return __( '📱 Điện thoại', 'wp-redirect-gateway' ); // Đã bọc dịch
+            return __( '📱 Điện thoại', 'wp-redirect-gateway' ); 
         }
-        return __( '💻 Máy tính', 'wp-redirect-gateway' ); // Đã bọc dịch
+        return __( '💻 Máy tính', 'wp-redirect-gateway' ); 
     }
 }
 
@@ -84,24 +84,6 @@ $top_referrers = $wpdb->get_results( "
     LIMIT 3
 " );
 ?>
-
-<style>
-    .wprg-form-container { background: #fff; padding: 20px 25px; border: 1px solid #ccd0d4; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
-    .wprg-form-container h3 { margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid #f0f0f1; margin-bottom: 15px; color: #2271b1; font-size: 16px; }
-    
-    /* Stats Cards */
-    .wprg-stat-card { background: #fff; padding: 20px; border: 1px solid #ccd0d4; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); flex: 1; min-width: 250px; border-bottom: 4px solid #0073aa; }
-    .wprg-stat-card.success { border-bottom-color: #00a32a; }
-    .wprg-stat-card.warning { border-bottom-color: #f56e28; }
-    .wprg-stat-card h4 { margin: 0 0 10px 0; color: #666; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
-    
-    /* Tooltip CSS */
-    .wprg-tooltip-icon { display: inline-block; width: 16px; height: 16px; background: #787c82; color: #fff; border-radius: 50%; text-align: center; line-height: 16px; font-size: 11px; font-weight: bold; cursor: help; margin-left: 4px; position: relative; vertical-align: middle; transition: background 0.3s; }
-    .wprg-tooltip-icon:hover { background: #2271b1; }
-    .wprg-tooltip-icon .wprg-tooltip-text { visibility: hidden; width: 220px; background-color: #1e1e1e; color: #fff; text-align: center; border-radius: 6px; padding: 8px 10px; font-size: 12px; font-weight: normal; position: absolute; z-index: 9999; bottom: 135%; left: 50%; margin-left: -110px; opacity: 0; transition: opacity 0.3s, bottom 0.3s; line-height: 1.4; pointer-events: none; white-space: normal; text-transform: none; letter-spacing: normal; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-    .wprg-tooltip-icon .wprg-tooltip-text::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -6px; border-width: 6px; border-style: solid; border-color: #1e1e1e transparent transparent transparent; }
-    .wprg-tooltip-icon:hover .wprg-tooltip-text { visibility: visible; opacity: 1; bottom: 150%; }
-</style>
 
 <div class="wrap">
     <h1 class="wp-heading-inline"><?php esc_html_e( 'Thống kê & Lịch sử Click', 'wp-redirect-gateway' ); ?></h1>

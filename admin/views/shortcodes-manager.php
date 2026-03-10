@@ -35,21 +35,6 @@ if ( isset( $_GET['action'] ) && $_GET['action'] == 'delete_sc' && isset( $_GET[
 $shortcodes = get_option( 'wprg_shortcodes', array() );
 ?>
 
-<style>
-    /* CSS nguyên bản giữ nguyên */
-    .wprg-form-container { background: #fff; padding: 25px 30px; border: 1px solid #ccd0d4; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
-    .wprg-form-container h3 { margin-top: 0; padding-bottom: 15px; border-bottom: 1px solid #f0f0f1; margin-bottom: 25px; color: #2271b1; font-size: 18px; }
-    .wprg-form-group { margin-bottom: 20px; }
-    .wprg-form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #2c3338; font-size: 14px; }
-    .wprg-form-group input[type="text"], .wprg-form-group input[type="url"], .wprg-form-group input[type="number"], .wprg-form-group select { width: 100%; padding: 8px 12px; border: 1px solid #8c8f94; border-radius: 4px; box-shadow: none; transition: border-color 0.15s ease-in-out; font-size: 14px; box-sizing: border-box; }
-    .wprg-form-group input:focus, .wprg-form-group select:focus { border-color: #2271b1; outline: none; box-shadow: 0 0 0 1px #2271b1; }
-    .wprg-tooltip-icon { display: inline-block; width: 16px; height: 16px; background: #787c82; color: #fff; border-radius: 50%; text-align: center; line-height: 16px; font-size: 11px; font-weight: bold; cursor: help; margin-left: 6px; position: relative; vertical-align: middle; transition: background 0.3s; }
-    .wprg-tooltip-icon:hover { background: #2271b1; }
-    .wprg-tooltip-icon .wprg-tooltip-text { visibility: hidden; width: 260px; background-color: #1e1e1e; color: #fff; text-align: center; border-radius: 6px; padding: 10px 12px; font-size: 12px; font-weight: normal; position: absolute; z-index: 1; bottom: 135%; left: 50%; margin-left: -130px; opacity: 0; transition: opacity 0.3s, bottom 0.3s; line-height: 1.5; pointer-events: none; white-space: normal; }
-    .wprg-tooltip-icon .wprg-tooltip-text::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -6px; border-width: 6px; border-style: solid; border-color: #1e1e1e transparent transparent transparent; }
-    .wprg-tooltip-icon:hover .wprg-tooltip-text { visibility: visible; opacity: 1; bottom: 150%; }
-</style>
-
 <div class="wrap">
     <h1 class="wp-heading-inline"><?php esc_html_e( 'Quản lý Shortcodes (Gateway)', 'wp-redirect-gateway' ); ?></h1>
     <hr class="wp-header-end">
@@ -126,7 +111,7 @@ $shortcodes = get_option( 'wprg_shortcodes', array() );
                             <tr>
                                 <td><strong><?php echo esc_html( $sc['name'] ); ?></strong></td>
                                 <td><input type="text" readonly value='[wprg_gateway id="<?php echo esc_attr( $sc['id'] ); ?>"]' class="large-text" onfocus="this.select();" style="..." /></td>
-                                <td><strong><?php echo esc_html( $sc['wait_time'] ); ?></strong> <?php esc_html_e( 'giây', 'wp-redirect-gateway' ); ?></td>
+                                <td><strong><?php echo esc_html( $sc['wait_time'] ); ?></strong> s</td>
                                 <td><?php $page_url = get_permalink( $sc['page_id'] ); echo '<a href="' . esc_url( $page_url ) . '" target="_blank" style="...">🔗 ' . esc_html__( 'Xem trang', 'wp-redirect-gateway' ) . '</a>'; ?></td>
                                 <td><a href="?page=wprg-shortcodes&action=delete_sc&sc_id=<?php echo esc_attr( $sc['id'] ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Xóa shortcode này?', 'wp-redirect-gateway' ) ); ?>');" style="...">❌ <?php esc_html_e( 'Xóa', 'wp-redirect-gateway' ); ?></a></td>
                             </tr>

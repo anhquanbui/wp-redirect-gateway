@@ -1,0 +1,110 @@
+/* ==========================================================================
+   WP REDIRECT GATEWAY - FRONTEND STYLES
+   ========================================================================== */
+
+/* --- Bố cục dùng chung (Wrapper) --- */
+.wprg-gateway-wrapper {
+    text-align: center;
+    margin: 40px auto;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    transition: opacity 0.5s ease;
+}
+
+/* --- Theme 1: Gateway Tiêu chuẩn --- */
+.wprg-theme-default {
+    padding: 50px 20px;
+    background: #f0f4f8;
+    border-radius: 10px;
+    max-width: 600px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* --- Theme 2: Nút Inline Nhỏ gọn --- */
+.wprg-theme-inline {
+    padding: 25px 20px;
+    background: #f9f9f9;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    
+    /* 1. Đổi max-width thành 100% để trải dài bằng văn bản */
+    max-width: 100%; 
+    
+    /* 2. Đổi margin để không bị căn giữa tự động nữa */
+    margin: 30px 0; 
+}
+
+/* Nút bấm cho Inline (Cho dài ra một chút cho cân đối với khung 100%) */
+.wprg-theme-inline .wprg-action-btn {
+    padding: 12px 30px;
+    font-size: 16px;
+    max-width: 350px; /* Bạn có thể tăng số này lên nếu muốn nút dài hơn */
+}
+
+/* --- Khung nhập Mật khẩu --- */
+.wprg-password-container {
+    padding: 40px 30px;
+    background: #fff;
+    border: 2px dashed #d63638;
+    border-radius: 10px;
+    max-width: 450px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+.wprg-theme-inline .wprg-password-container {
+    padding: 20px;
+    border-width: 1px;
+    background: #fffcfc;
+}
+
+/* --- Nút bấm (Button) --- */
+.wprg-action-btn, .wprg-pass-submit {
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+.wprg-action-btn {
+    background: #0073aa;
+    padding: 15px 40px;
+    max-width: 400px;
+}
+.wprg-action-btn:hover:not(:disabled) {
+    background: #005177;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,115,170,0.3);
+}
+.wprg-pass-submit {
+    background: #d63638;
+    padding: 15px 20px;
+}
+.wprg-pass-submit:hover {
+    background: #b32d2e;
+}
+
+/* --- Nút bấm cho Inline (nhỏ hơn) --- */
+.wprg-theme-inline .wprg-action-btn {
+    padding: 12px 30px;
+    font-size: 16px;
+    max-width: 300px;
+}
+
+/* --- Input Mật khẩu --- */
+.wprg-pass-input {
+    padding: 15px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 16px;
+}
+
+/* --- Các thành phần Text --- */
+.wprg-title { margin-bottom: 20px; color: #333; }
+.wprg-desc { color: #666; margin-bottom: 30px; }
+.wprg-status-text { margin-top: 15px; font-size: 14px; font-style: italic; color: #888; }
+.wprg-pass-error { color: #fff; background: #d63638; padding: 10px; border-radius: 5px; font-weight: bold; margin-bottom: 20px; display: none; }

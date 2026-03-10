@@ -30,12 +30,11 @@ class WPRG_Links_Table extends WP_List_Table {
         );
     }
 
-    // [MỚI] Khai báo các cột cho phép Click để sắp xếp
     protected function get_sortable_columns() {
         return array(
             'name'             => array('name', false),
             'tag'              => array('tag', false),
-            'completed_clicks' => array('completed_clicks', false), // Cột đếm click có thể sắp xếp
+            'completed_clicks' => array('completed_clicks', false), 
             'created_at'       => array('created_at', false)
         );
     }
@@ -144,7 +143,6 @@ class WPRG_Links_Table extends WP_List_Table {
                     return '<span style="color: #999; font-style: italic;">' . esc_html__( 'Mặc định', 'wp-redirect-gateway' ) . '</span>';
                 }
             
-            // [MỚI] Hiển thị số click lấy link thành công
             case 'completed_clicks':
                 $clicks = intval( $item['completed_clicks'] );
                 $color = $clicks > 0 ? '#00a32a' : '#999';
@@ -200,16 +198,14 @@ class WPRG_Links_Table extends WP_List_Table {
 
         $columns  = $this->get_columns();
         $hidden   = array();
-        $sortable = $this->get_sortable_columns(); // Đã bật tính năng Sort
+        $sortable = $this->get_sortable_columns(); 
         $this->_column_headers = array( $columns, $hidden, $sortable );
 
-        // [MỚI] Bắt sự kiện Click tiêu đề để sắp xếp (ASC / DESC)
         $orderby = ( isset( $_REQUEST['orderby'] ) && in_array( $_REQUEST['orderby'], array( 'name', 'tag', 'created_at', 'completed_clicks', 'id' ) ) ) ? $_REQUEST['orderby'] : 'id';
         $order = ( isset( $_REQUEST['order'] ) && in_array( strtoupper( $_REQUEST['order'] ), array( 'ASC', 'DESC' ) ) ) ? strtoupper( $_REQUEST['order'] ) : 'DESC';
 
         $offset = ( $current_page - 1 ) * $per_page;
         
-        // [MỚI] SubQuery: Gắn kèm logic đếm số click thành công từ bảng Log cho từng Link
         $sql_data = "
             SELECT *, 
             (SELECT COUNT(id) FROM $table_logs WHERE link_id = $table_name.id AND status = 'completed') as completed_clicks
@@ -228,21 +224,6 @@ class WPRG_Links_Table extends WP_List_Table {
     }
 
     public function display() {
-        // Đã canh lại tỷ lệ % độ rộng các cột để chèn cột "Thành công" vào cho đẹp
-        echo '<style>
-            .wp-list-table .column-cb { width: 3%; }
-            .wp-list-table .column-name { width: 12%; }
-            .wp-list-table .column-tag { width: 8%; }
-            .wp-list-table .column-original_url { width: 18%; } 
-            .wp-list-table .column-slug { width: 12%; }
-            .wp-list-table .column-inline_code { width: 12%; }
-            .wp-list-table .column-ad_count { width: 6%; text-align: center; }
-            .wp-list-table .column-wait_time { width: 7%; text-align: center; }
-            .wp-list-table .column-completed_clicks { width: 10%; text-align: center; }
-            .wp-list-table .column-created_at { width: 10%; }
-            .wp-list-table th { border-bottom: 2px solid #ccd0d4; }
-        </style>';
-        
         parent::display();
 
         echo '<script>

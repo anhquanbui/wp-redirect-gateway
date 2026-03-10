@@ -10,6 +10,7 @@ class WPRG_Shortcode_Inline {
 
     public function enqueue_scripts() {
         wp_register_script( 'wprg-gateway-js', WPRG_PLUGIN_URL . 'assets/js/gateway-timer.js', array('jquery'), time(), true );
+        wp_enqueue_style( 'wprg-frontend-css', WPRG_PLUGIN_URL . 'assets/css/wprg-frontend.css', array(), time() );
         
         $captcha_type = get_option( 'wprg_captcha_type', 'recaptcha' );
         $recap_site   = get_option( 'wprg_recaptcha_site', '' );
@@ -78,7 +79,7 @@ class WPRG_Shortcode_Inline {
             'initial_links'        => get_option( 'wprg_initial_links', array() ),
             'home_url'             => home_url(),
             'open_new_tab'         => get_option( 'wprg_open_link_new_tab', '0' ),
-            'auto_retry'           => get_option( 'wprg_auto_retry_error', '0' ), // Mặc định là 0 (Tắt Auto Retry)
+            'auto_retry'           => get_option( 'wprg_auto_retry_error', '0' ), 
             'cookie_time'          => $cookie_time_sec,
             
             'i18n'        => array(
@@ -124,22 +125,24 @@ class WPRG_Shortcode_Inline {
         ?>
         
         <?php if ( ! $is_unlocked ) : ?>
-        <div id="wprg-pass-wrap-<?php echo esc_attr($slug); ?>" class="wprg-password-container" style="text-align: center; padding: 20px; background: #fffcfc; border: 1px dashed #d63638; border-radius: 8px; margin: 20px auto; max-width: 350px;">
-            <h4 style="margin-top: 0; margin-bottom: 10px; color: #d63638; font-size: 16px;">🔒 <?php esc_html_e( 'Yêu Cầu Mật Khẩu', 'wp-redirect-gateway' ); ?></h4>
-            <p id="wprg-pass-error-<?php echo esc_attr($slug); ?>" style="color: #d63638; font-weight: bold; font-size: 13px; margin-bottom: 10px; display: none;"></p>
-            <form class="wprg-ajax-pass-form" data-slug="<?php echo esc_attr($slug); ?>">
-                <input type="password" class="wprg-pass-input" placeholder="<?php esc_attr_e( 'Nhập mật khẩu...', 'wp-redirect-gateway' ); ?>" style="padding: 10px; width: 100%; box-sizing: border-box; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; text-align: center;" required>
-                <button type="submit" class="wprg-pass-submit" style="padding: 10px; font-size: 14px; font-weight: bold; background: #d63638; color: #fff; border: none; border-radius: 4px; cursor: pointer; width: 100%; transition: 0.3s;"><?php esc_html_e( 'MỞ KHÓA NÚT BẤM', 'wp-redirect-gateway' ); ?></button>
-            </form>
+        <div id="wprg-pass-wrap-<?php echo esc_attr($slug); ?>" class="wprg-gateway-wrapper wprg-theme-inline">
+            <div class="wprg-password-container">
+                <h4 class="wprg-title" style="color: #d63638;">🔒 <?php esc_html_e( 'Yêu Cầu Mật Khẩu', 'wp-redirect-gateway' ); ?></h4>
+                <p id="wprg-pass-error-<?php echo esc_attr($slug); ?>" class="wprg-pass-error"></p>
+                <form class="wprg-ajax-pass-form" data-slug="<?php echo esc_attr($slug); ?>">
+                    <input type="password" class="wprg-pass-input" placeholder="<?php esc_attr_e( 'Nhập mật khẩu...', 'wp-redirect-gateway' ); ?>" required>
+                    <button type="submit" class="wprg-pass-submit"><?php esc_html_e( 'MỞ KHÓA NÚT BẤM', 'wp-redirect-gateway' ); ?></button>
+                </form>
+            </div>
         </div>
         <?php endif; ?>
 
-        <div id="wprg-btn-wrap-<?php echo esc_attr($slug); ?>" class="wprg-inline-container wprg-gateway-wrapper" data-slug="<?php echo esc_attr($slug); ?>" data-wait="<?php echo esc_attr($final_wait_time); ?>" data-ads="<?php echo intval( $link_data['ad_count'] ); ?>" data-logid="0" style="<?php echo ( ! $is_unlocked ) ? 'display:none;' : ''; ?> text-align: center; padding: 20px; background: #f9f9f9; border: 1px dashed #ccc; border-radius: 8px; margin: 20px 0;">
-            <p style="margin-bottom: 15px; font-weight: bold; color: #333;"><?php esc_html_e( 'Bấm vào nút bên dưới để lấy link:', 'wp-redirect-gateway' ); ?></p>
-            <button class="wprg-action-btn" style="padding: 12px 30px; font-size: 16px; font-weight: bold; background: #0073aa; color: #fff; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; width: 100%; max-width: 300px;">
+        <div id="wprg-btn-wrap-<?php echo esc_attr($slug); ?>" class="wprg-gateway-wrapper wprg-theme-inline" data-slug="<?php echo esc_attr($slug); ?>" data-wait="<?php echo esc_attr($final_wait_time); ?>" data-ads="<?php echo intval( $link_data['ad_count'] ); ?>" data-logid="0" style="<?php echo ( ! $is_unlocked ) ? 'display:none;' : ''; ?>">
+            <p class="wprg-title" style="font-weight: bold;"><?php esc_html_e( 'Bấm vào nút bên dưới để lấy link:', 'wp-redirect-gateway' ); ?></p>
+            <button class="wprg-action-btn">
                 <?php esc_html_e( 'BẮT ĐẦU LẤY LINK', 'wp-redirect-gateway' ); ?>
             </button>
-            <p class="wprg-status-text" style="margin-top: 10px; font-size: 13px; font-style: italic; color: #888;"></p>
+            <p class="wprg-status-text"></p>
         </div>
         
         <?php
