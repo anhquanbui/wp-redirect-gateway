@@ -372,13 +372,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
                         // Hàm xử lý lỗi: Quyết định Auto-Retry hay bắt người dùng bấm
                         function handleError(errorMsg) {
+                            
+                            // [BẢN VÁ UX ĐA NGÔN NGỮ]: So sánh khớp biến dịch thay vì text cứng
+                            if (errorMsg === wprgData.i18n.pass_backend_err) {
+                                alert("🛑 " + errorMsg + "\n\n" + wprgData.i18n.pls_enter_pass);
+                                window.location.reload(); // Ép tải lại trang để ẩn nút đi
+                                return;
+                            }
+
                             // Nếu bật chế độ Auto Retry và số lần thử < 2 (Sẽ thử lại tối đa 2 lần)
                             if (wprgData.auto_retry === '1' && attempt < 2) {
                                 btn.innerText = wprgData.i18n.retrying;
                                 btn.style.cursor = 'wait';
                                 statusText.innerHTML = `<span style='color:#f39c12; font-weight:bold;'>${wprgData.i18n.auto_retrying} (${attempt + 1}/2)...</span>`;
                                 
-                                // Nghỉ ngơi 2 giây để Google/Firewall dịu lại rồi gọi lại
                                 setTimeout(() => {
                                     executeAjaxLink(token, attempt + 1);
                                 }, 2000);

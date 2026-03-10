@@ -27,15 +27,14 @@ class WPRG_Shortcode_Inline {
         $atts = shortcode_atts( array( 'slug' => '' ), $atts );
         $slug = sanitize_text_field( $atts['slug'] );
 
-        if ( empty( $slug ) ) return '<div style="padding: 10px; border: 1px solid red; color: red;">' . esc_html__( 'Lỗi: Vui lòng nhập slug của link.', 'wp-redirect-gateway' ) . '</div>';
+        if ( empty( $slug ) ) return '<div class="wprg-shortcode-error">' . esc_html__( 'Lỗi: Vui lòng nhập slug của link.', 'wp-redirect-gateway' ) . '</div>';
 
         global $wpdb;
         $table_links = $wpdb->prefix . 'rg_links';
         $link_data = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_links WHERE slug = %s", $slug ), ARRAY_A );
         
-        if ( ! $link_data ) return '<div style="padding: 10px; border: 1px solid red; color: red;">' . esc_html__( 'Lỗi: Link không tồn tại trong hệ thống.', 'wp-redirect-gateway' ) . '</div>';
+        if ( ! $link_data ) return '<div class="wprg-shortcode-error">' . esc_html__( 'Lỗi: Link không tồn tại trong hệ thống.', 'wp-redirect-gateway' ) . '</div>';
 
-        // --- KIỂM TRA MẬT KHẨU ---
         $password = isset($link_data['password']) ? $link_data['password'] : '';
         $is_unlocked = false;
 
@@ -49,7 +48,7 @@ class WPRG_Shortcode_Inline {
         $shortcodes = get_option( 'wprg_shortcodes', array() );
         $sc_id = $link_data['shortcode_id'];
         
-        if ( ! isset( $shortcodes[ $sc_id ] ) ) return '<div style="padding: 10px; border: 1px solid red; color: red;">' . esc_html__( 'Lỗi: Gateway bị xóa.', 'wp-redirect-gateway' ) . '</div>';
+        if ( ! isset( $shortcodes[ $sc_id ] ) ) return '<div class="wprg-shortcode-error">' . esc_html__( 'Lỗi: Gateway bị xóa.', 'wp-redirect-gateway' ) . '</div>';
         $sc_data = $shortcodes[ $sc_id ];
 
         $final_wait_time = ! empty( $link_data['wait_time'] ) ? sanitize_text_field( $link_data['wait_time'] ) : sanitize_text_field( $sc_data['wait_time'] );
@@ -57,7 +56,6 @@ class WPRG_Shortcode_Inline {
         $aff_links_array = array_filter( array_map( 'trim', preg_split( '/\r\n|\r|\n/', $raw_aff_links ) ) );
         if ( empty( $aff_links_array ) ) $aff_links_array = array( home_url() ); 
 
-        // Tính toán thời gian sống của Cookie Mật khẩu ra Giây
         $c_val = intval( get_option( 'wprg_cookie_pass_val', 24 ) );
         $c_unit = get_option( 'wprg_cookie_pass_unit', 'hours' );
         $c_multipliers = array( 'seconds' => 1, 'minutes' => 60, 'hours' => 3600, 'days' => 86400, 'weeks' => 604800, 'months' => 2592000, 'years' => 31536000 );
@@ -79,7 +77,7 @@ class WPRG_Shortcode_Inline {
             'initial_links'        => get_option( 'wprg_initial_links', array() ),
             'home_url'             => home_url(),
             'open_new_tab'         => get_option( 'wprg_open_link_new_tab', '0' ),
-            'auto_retry'           => get_option( 'wprg_auto_retry_error', '0' ), 
+            'auto_retry'           => get_option( 'wprg_auto_retry_error', '0' ),
             'cookie_time'          => $cookie_time_sec,
             
             'i18n'        => array(
@@ -117,7 +115,9 @@ class WPRG_Shortcode_Inline {
                 'cf_load_error'       => __( 'Lỗi: Trình duyệt không thể tải Script Cloudflare. Vui lòng tắt chặn quảng cáo hoặc tải lại trang!', 'wp-redirect-gateway' ),
                 'link_opened_btn'     => __( 'Đã lấy link!', 'wp-redirect-gateway' ),
                 'link_opened_new_tab' => __( 'Link đích đã được mở ở Tab mới.', 'wp-redirect-gateway' ),
-                'auto_retrying'       => __( 'Vấp mạng. Tự động thử lại sau 2 giây', 'wp-redirect-gateway' )
+                'auto_retrying'       => __( 'Vấp mạng. Tự động thử lại sau 2 giây', 'wp-redirect-gateway' ),
+                'pass_backend_err'    => __( 'Lỗi bảo mật: Bạn chưa mở khóa mật khẩu cho link này!', 'wp-redirect-gateway' ),
+                'pls_enter_pass'      => __( 'Tốn vài giây để nhập mật khẩu thôi mà, tại sao bạn không cố gắng nhỉ?', 'wp-redirect-gateway' )
             )
         ));
 
@@ -127,7 +127,7 @@ class WPRG_Shortcode_Inline {
         <?php if ( ! $is_unlocked ) : ?>
         <div id="wprg-pass-wrap-<?php echo esc_attr($slug); ?>" class="wprg-gateway-wrapper wprg-theme-inline">
             <div class="wprg-password-container">
-                <h4 class="wprg-title" style="color: #d63638;">🔒 <?php esc_html_e( 'Yêu Cầu Mật Khẩu', 'wp-redirect-gateway' ); ?></h4>
+                <h4 class="wprg-title wprg-text-danger">🔒 <?php esc_html_e( 'Yêu Cầu Mật Khẩu', 'wp-redirect-gateway' ); ?></h4>
                 <p id="wprg-pass-error-<?php echo esc_attr($slug); ?>" class="wprg-pass-error"></p>
                 <form class="wprg-ajax-pass-form" data-slug="<?php echo esc_attr($slug); ?>">
                     <input type="password" class="wprg-pass-input" placeholder="<?php esc_attr_e( 'Nhập mật khẩu...', 'wp-redirect-gateway' ); ?>" required>
@@ -138,7 +138,7 @@ class WPRG_Shortcode_Inline {
         <?php endif; ?>
 
         <div id="wprg-btn-wrap-<?php echo esc_attr($slug); ?>" class="wprg-gateway-wrapper wprg-theme-inline" data-slug="<?php echo esc_attr($slug); ?>" data-wait="<?php echo esc_attr($final_wait_time); ?>" data-ads="<?php echo intval( $link_data['ad_count'] ); ?>" data-logid="0" style="<?php echo ( ! $is_unlocked ) ? 'display:none;' : ''; ?>">
-            <p class="wprg-title" style="font-weight: bold;"><?php esc_html_e( 'Bấm vào nút bên dưới để lấy link:', 'wp-redirect-gateway' ); ?></p>
+            <p class="wprg-title wprg-fw-bold"><?php esc_html_e( 'Bấm vào nút bên dưới để lấy link:', 'wp-redirect-gateway' ); ?></p>
             <button class="wprg-action-btn">
                 <?php esc_html_e( 'BẮT ĐẦU LẤY LINK', 'wp-redirect-gateway' ); ?>
             </button>

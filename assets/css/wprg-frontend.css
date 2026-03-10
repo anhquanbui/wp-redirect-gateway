@@ -108,3 +108,33 @@
 .wprg-desc { color: #666; margin-bottom: 30px; }
 .wprg-status-text { margin-top: 15px; font-size: 14px; font-style: italic; color: #888; }
 .wprg-pass-error { color: #fff; background: #d63638; padding: 10px; border-radius: 5px; font-weight: bold; margin-bottom: 20px; display: none; }
+
+/* --- Các thông báo lỗi Shortcode --- */
+.wprg-shortcode-error {
+    padding: 15px;
+    border: 1px solid #d63638;
+    background: #fff8f8;
+    color: #d63638;
+    border-radius: 5px;
+    text-align: center;
+    margin: 20px auto;
+    max-width: 600px;
+    font-weight: 500;
+}
+.wprg-shortcode-error h2 {
+    color: #d63638;
+    margin: 0 0 10px 0;
+}
+
+/* --- Tiện ích (Utilities) --- */
+.wprg-lock-icon {
+    font-size: 50px;
+    margin-bottom: 10px;
+    line-height: 1;
+}
+.wprg-text-danger {
+    color: #d63638 !important;
+}
+.wprg-fw-bold {
+    font-weight: bold !important;
+}
