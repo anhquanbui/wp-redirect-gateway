@@ -17,8 +17,10 @@ class WPRG_Shortcode_Inline {
         $ts_site      = get_option( 'wprg_turnstile_site', '' );
 
         if ( $captcha_type === 'recaptcha' && ! empty( $recap_site ) ) {
+            // phpcs:ignore PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent
             wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js?render=' . esc_attr( $recap_site ), array(), null, true );
         } elseif ( $captcha_type === 'turnstile' && ! empty( $ts_site ) ) {
+            // phpcs:ignore PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent
             wp_enqueue_script( 'cf-turnstile', 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit', array(), null, true );
         }
     }
@@ -31,7 +33,9 @@ class WPRG_Shortcode_Inline {
 
         global $wpdb;
         $table_links = $wpdb->prefix . 'rg_links';
-        $link_data = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_links WHERE slug = %s", $slug ), ARRAY_A );
+        
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $link_data = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table_links} WHERE slug = %s", $slug ), ARRAY_A );
         
         if ( ! $link_data ) return '<div class="wprg-shortcode-error">' . esc_html__( 'Lỗi: Link không tồn tại trong hệ thống.', 'wp-redirect-gateway' ) . '</div>';
 

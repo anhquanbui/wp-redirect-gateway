@@ -26,19 +26,20 @@ class WPRG_Gateway_Logic {
             $table_links = $wpdb->prefix . 'rg_links';
             $table_logs  = $wpdb->prefix . 'rg_logs';
 
-            $link_data = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_links WHERE slug = %s", $slug ), ARRAY_A );
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            $link_data = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table_links} WHERE slug = %s", $slug ), ARRAY_A );
 
             if ( $link_data ) {
-                $ip = isset($_SERVER['HTTP_CF_CONNECTING_IP']) ? $_SERVER['HTTP_CF_CONNECTING_IP'] : $_SERVER['REMOTE_ADDR'];
-                $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_textarea_field($_SERVER['HTTP_USER_AGENT']) : 'Unknown';
-                $referrer = isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER']) ? esc_url_raw($_SERVER['HTTP_REFERER']) : 'Trực tiếp';
+                $ip = isset($_SERVER['HTTP_CF_CONNECTING_IP']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_CF_CONNECTING_IP'] ) ) : ( isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '' );
+                $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_textarea_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : 'Unknown';
+                $referrer = isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER']) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : 'Trực tiếp';
                 
                 // [ĐÃ FIX CHUẨN] Tối ưu Referrer: So sánh bằng HTTP_HOST
                 if ( $referrer !== 'Trực tiếp' ) {
                     $parsed_ref = wp_parse_url( $referrer );
                     $ref_host = isset($parsed_ref['host']) ? str_replace('www.', '', strtolower($parsed_ref['host'])) : '';
                     
-                    $current_host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '');
+                    $current_host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : (isset($_SERVER['SERVER_NAME']) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : '');
                     $home_host = str_replace('www.', '', strtolower($current_host));
 
                     if ( $ref_host === $home_host || empty($ref_host) ) {
@@ -71,11 +72,13 @@ class WPRG_Gateway_Logic {
                     $gateway_url = get_permalink( $page_id );
 
                     if ( $gateway_url ) {
-                        $query_args = $_GET; 
+                        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+                        $query_args = isset( $_GET ) ? array_map( 'sanitize_text_field', wp_unslash( $_GET ) ) : array(); 
                         $query_args['wprg_link'] = $slug; 
                         $query_args['wprg_log_id'] = $log_id; 
                         
                         $redirect_url = add_query_arg( $query_args, $gateway_url );
+                        // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
                         wp_redirect( $redirect_url, 302 );
                         exit;
                     } else {

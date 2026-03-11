@@ -13,8 +13,12 @@ if ( $delete_data === 'yes' ) {
     // 1. DROP các bảng
     $table_links = $wpdb->prefix . 'rg_links';
     $table_logs  = $wpdb->prefix . 'rg_logs';
-    $wpdb->query( "DROP TABLE IF EXISTS $table_links" );
-    $wpdb->query( "DROP TABLE IF EXISTS $table_logs" );
+    
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+    $wpdb->query( "DROP TABLE IF EXISTS {$table_links}" );
+    
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+    $wpdb->query( "DROP TABLE IF EXISTS {$table_logs}" );
 
     // 2. Xóa sạch mọi Cài đặt (Bao gồm cả bộ nhớ thông báo)
     $options_to_delete = array(

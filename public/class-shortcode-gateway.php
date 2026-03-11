@@ -14,7 +14,12 @@ class WPRG_Shortcode_Gateway {
     }
 
     public function render_gateway_shortcode( $atts ) {
-        $slug = isset( $_GET['wprg_link'] ) ? sanitize_text_field( $_GET['wprg_link'] ) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $slug = isset( $_GET['wprg_link'] ) ? sanitize_text_field( wp_unslash( $_GET['wprg_link'] ) ) : '';
+        
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $log_id_val = isset( $_GET['wprg_log_id'] ) ? intval( wp_unslash( $_GET['wprg_log_id'] ) ) : 0;
+
         if ( empty( $slug ) ) {
             return '<div class="wprg-shortcode-error"><h2>' . esc_html__( 'Bạn không có quyền truy cập trực tiếp trang này!', 'wp-redirect-gateway' ) . '</h2></div>';
         }
@@ -27,7 +32,9 @@ class WPRG_Shortcode_Gateway {
 
         global $wpdb;
         $table_links = $wpdb->prefix . 'rg_links';
-        $link_data = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_links WHERE slug = %s", $slug ), ARRAY_A );
+        
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $link_data = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table_links} WHERE slug = %s", $slug ), ARRAY_A );
         
         if ( ! $link_data ) return '<div class="wprg-shortcode-error">' . esc_html__( 'Lỗi: Link không tồn tại hoặc đã bị xóa.', 'wp-redirect-gateway' ) . '</div>';
 
@@ -52,8 +59,10 @@ class WPRG_Shortcode_Gateway {
         $ts_site = get_option( 'wprg_turnstile_site', '' );
 
         if ( $captcha_type === 'recaptcha' && ! empty( $recap_site ) ) {
+            // phpcs:ignore PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent
             wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js?render=' . esc_attr( $recap_site ), array(), null, true );
         } elseif ( $captcha_type === 'turnstile' && ! empty( $ts_site ) ) {
+            // phpcs:ignore PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent
             wp_enqueue_script( 'cf-turnstile', 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit', array(), null, true );
         }
 
@@ -82,7 +91,7 @@ class WPRG_Shortcode_Gateway {
             'rel_noreferrer'       => get_option( 'wprg_rel_noreferrer', '0' ),
             'initial_links'        => get_option( 'wprg_initial_links', array() ),
             'home_url'             => home_url(),
-            'log_id'               => isset($_GET['wprg_log_id']) ? intval($_GET['wprg_log_id']) : 0,
+            'log_id'               => $log_id_val,
             'open_new_tab'         => get_option( 'wprg_open_link_new_tab', '0' ),
             'auto_retry'           => get_option( 'wprg_auto_retry_error', '0' ), 
             'cookie_time'          => $cookie_time_sec,
@@ -130,8 +139,6 @@ class WPRG_Shortcode_Gateway {
 
         ob_start(); 
         ?>
-
-        <?php $log_id_val = isset($_GET['wprg_log_id']) ? intval($_GET['wprg_log_id']) : 0; ?>
         
         <?php if ( ! $is_unlocked ) : ?>
         <div id="wprg-pass-wrap-<?php echo esc_attr($slug); ?>" class="wprg-gateway-wrapper wprg-password-container">

@@ -51,42 +51,48 @@ class WPRG_Backup_Manager {
             $data['settings'][$key] = get_option( $key );
         }
 
-        $data['links'] = $wpdb->get_results( "SELECT * FROM $table_links", ARRAY_A );
-        $data['logs']  = $wpdb->get_results( "SELECT * FROM $table_logs", ARRAY_A );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $data['links'] = $wpdb->get_results( "SELECT * FROM {$table_links}", ARRAY_A );
+        
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $data['logs']  = $wpdb->get_results( "SELECT * FROM {$table_logs}", ARRAY_A );
 
         return wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
     }
 
     public function manual_backup_download() {
-        if ( ! isset( $_POST['wprg_backup_nonce'] ) || ! wp_verify_nonce( $_POST['wprg_backup_nonce'], 'wprg_backup_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
+        if ( ! isset( $_POST['wprg_backup_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_backup_nonce'] ) ), 'wprg_backup_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
         if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Bạn không có quyền!', 'wp-redirect-gateway' ) );
 
         $json_data = $this->get_all_plugin_data();
-        $filename = 'wprg-full-backup-' . date( 'Y-m-d-H-i' ) . '.json';
+        $filename = 'wprg-full-backup-' . gmdate( 'Y-m-d-H-i' ) . '.json';
 
         if ( ob_get_length() ) ob_end_clean();
         header( 'Content-Description: File Transfer' );
         header( 'Content-Type: application/json; charset=utf-8' );
         header( 'Content-Disposition: attachment; filename=' . $filename );
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         echo $json_data;
         exit;
     }
 
     public function manual_backup_restore() {
-        if ( ! isset( $_POST['wprg_restore_nonce'] ) || ! wp_verify_nonce( $_POST['wprg_restore_nonce'], 'wprg_restore_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
+        if ( ! isset( $_POST['wprg_restore_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_restore_nonce'] ) ), 'wprg_restore_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
         if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Bạn không có quyền!', 'wp-redirect-gateway' ) );
         if ( empty( $_FILES['wprg_restore_file']['tmp_name'] ) ) wp_die( esc_html__( 'Vui lòng chọn file hợp lệ.', 'wp-redirect-gateway' ) );
 
-        $file_content = file_get_contents( $_FILES['wprg_restore_file']['tmp_name'] );
+        $tmp_name = sanitize_text_field( wp_unslash( $_FILES['wprg_restore_file']['tmp_name'] ) );
+        $file_content = file_get_contents( $tmp_name );
+        
         $this->process_restore_data( $file_content );
     }
 
     public function auto_backup_restore() {
-        if ( ! isset( $_POST['wprg_auto_restore_nonce'] ) || ! wp_verify_nonce( $_POST['wprg_auto_restore_nonce'], 'wprg_auto_restore_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
+        if ( ! isset( $_POST['wprg_auto_restore_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_auto_restore_nonce'] ) ), 'wprg_auto_restore_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
         if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Bạn không có quyền!', 'wp-redirect-gateway' ) );
         if ( empty( $_POST['backup_file'] ) ) wp_die( esc_html__( 'Thiếu tên file.', 'wp-redirect-gateway' ) );
 
-        $filename = sanitize_file_name( $_POST['backup_file'] );
+        $filename = sanitize_file_name( wp_unslash( $_POST['backup_file'] ) );
         
         if ( pathinfo( $filename, PATHINFO_EXTENSION ) !== 'json' || strpos( $filename, 'wprg-autobackup-' ) !== 0 ) {
             wp_die( esc_html__( 'File không hợp lệ.', 'wp-redirect-gateway' ) );
@@ -121,12 +127,14 @@ class WPRG_Backup_Manager {
         }
 
         if ( isset( $decoded_data['links'] ) && is_array( $decoded_data['links'] ) ) {
-            $wpdb->query("TRUNCATE TABLE $table_links"); 
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            $wpdb->query("TRUNCATE TABLE {$table_links}"); 
             foreach ( $decoded_data['links'] as $link ) { $wpdb->insert( $table_links, $link ); }
         }
 
         if ( isset( $decoded_data['logs'] ) && is_array( $decoded_data['logs'] ) ) {
-            $wpdb->query("TRUNCATE TABLE $table_logs"); 
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            $wpdb->query("TRUNCATE TABLE {$table_logs}"); 
             foreach ( $decoded_data['logs'] as $log ) { $wpdb->insert( $table_logs, $log ); }
         }
 
@@ -149,10 +157,10 @@ class WPRG_Backup_Manager {
         }
 
         $json_data = $this->get_all_plugin_data();
-        $filename = 'wprg-autobackup-' . date( 'Y-m-d-H-i-s' ) . '.json';
+        $filename = 'wprg-autobackup-' . gmdate( 'Y-m-d-H-i-s' ) . '.json';
         file_put_contents( $backup_dir . '/' . $filename, $json_data );
 
-        // [MỚI] Lấy giới hạn lưu trữ do người dùng cài đặt
+        // Lấy giới hạn lưu trữ do người dùng cài đặt
         $backup_limit = intval( get_option( 'wprg_backup_limit', 7 ) );
         if ( $backup_limit < 1 ) $backup_limit = 1; // Luôn giữ tối thiểu 1 bản
 
@@ -164,17 +172,17 @@ class WPRG_Backup_Manager {
             // Xóa các file cũ dư thừa
             $files_to_delete = array_slice( $files, 0, count( $files ) - $backup_limit );
             foreach ( $files_to_delete as $file ) { 
-                unlink( $file ); 
+                wp_delete_file( $file ); 
             }
         }
     }
 
     public function delete_backup_file() {
-        if ( ! isset( $_POST['wprg_delete_backup_nonce'] ) || ! wp_verify_nonce( $_POST['wprg_delete_backup_nonce'], 'wprg_delete_backup_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
+        if ( ! isset( $_POST['wprg_delete_backup_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_delete_backup_nonce'] ) ), 'wprg_delete_backup_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
         if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Bạn không có quyền!', 'wp-redirect-gateway' ) );
         if ( empty( $_POST['backup_file'] ) ) wp_die( esc_html__( 'Thiếu tên file.', 'wp-redirect-gateway' ) );
 
-        $filename = sanitize_file_name( $_POST['backup_file'] );
+        $filename = sanitize_file_name( wp_unslash( $_POST['backup_file'] ) );
         
         // Kiểm tra đúng định dạng file json của hệ thống mới cho xóa
         if ( pathinfo( $filename, PATHINFO_EXTENSION ) !== 'json' || strpos( $filename, 'wprg-autobackup-' ) !== 0 ) {
@@ -185,7 +193,7 @@ class WPRG_Backup_Manager {
         $filepath = $upload_dir['basedir'] . '/wprg-backups/' . $filename;
 
         if ( file_exists( $filepath ) ) {
-            unlink( $filepath ); // Hàm xóa file của PHP
+            wp_delete_file( $filepath ); // Dùng hàm xóa chuẩn của WordPress
         }
 
         $redirect_url = wp_get_referer();

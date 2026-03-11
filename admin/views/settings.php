@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // 1. XỬ LÝ LƯU DỮ LIỆU KHI BẤM NÚT SUBMIT (Form Cài đặt chính)
 if ( isset( $_POST['wprg_save_settings'] ) && check_admin_referer( 'wprg_settings_nonce' ) ) {
-    update_option( 'wprg_affiliate_links', sanitize_textarea_field( $_POST['wprg_affiliate_links'] ) );
+    update_option( 'wprg_affiliate_links', isset( $_POST['wprg_affiliate_links'] ) ? sanitize_textarea_field( wp_unslash( $_POST['wprg_affiliate_links'] ) ) : '' );
     update_option( 'wprg_require_active_tab', isset( $_POST['wprg_require_active_tab'] ) ? '1' : '0' );
     update_option( 'wprg_single_link_mode', isset( $_POST['wprg_single_link_mode'] ) ? '1' : '0' );
     update_option( 'wprg_delete_data', isset( $_POST['wprg_delete_data'] ) ? 'yes' : 'no' );
@@ -13,21 +13,21 @@ if ( isset( $_POST['wprg_save_settings'] ) && check_admin_referer( 'wprg_setting
     update_option( 'wprg_open_link_new_tab', isset( $_POST['wprg_open_link_new_tab'] ) ? '1' : '0' );
     update_option( 'wprg_auto_retry_error', isset( $_POST['wprg_auto_retry_error'] ) ? '1' : '0' );
     update_option( 'wprg_cookie_pass_val', isset( $_POST['wprg_cookie_pass_val'] ) ? intval( $_POST['wprg_cookie_pass_val'] ) : 24 );
-    update_option( 'wprg_cookie_pass_unit', isset( $_POST['wprg_cookie_pass_unit'] ) ? sanitize_text_field( $_POST['wprg_cookie_pass_unit'] ) : 'hours' );
+    update_option( 'wprg_cookie_pass_unit', isset( $_POST['wprg_cookie_pass_unit'] ) ? sanitize_text_field( wp_unslash( $_POST['wprg_cookie_pass_unit'] ) ) : 'hours' );
     
     // Lưu cài đặt Bảo mật
-    update_option( 'wprg_captcha_type', isset($_POST['wprg_captcha_type']) ? sanitize_text_field($_POST['wprg_captcha_type']) : 'recaptcha' );
-    update_option( 'wprg_recaptcha_site', sanitize_text_field( $_POST['wprg_recaptcha_site'] ) );
-    update_option( 'wprg_recaptcha_secret', sanitize_text_field( $_POST['wprg_recaptcha_secret'] ) );
-    update_option( 'wprg_turnstile_site', sanitize_text_field( $_POST['wprg_turnstile_site'] ) );
-    update_option( 'wprg_turnstile_secret', sanitize_text_field( $_POST['wprg_turnstile_secret'] ) );
+    update_option( 'wprg_captcha_type', isset( $_POST['wprg_captcha_type'] ) ? sanitize_text_field( wp_unslash( $_POST['wprg_captcha_type'] ) ) : 'recaptcha' );
+    update_option( 'wprg_recaptcha_site', isset( $_POST['wprg_recaptcha_site'] ) ? sanitize_text_field( wp_unslash( $_POST['wprg_recaptcha_site'] ) ) : '' );
+    update_option( 'wprg_recaptcha_secret', isset( $_POST['wprg_recaptcha_secret'] ) ? sanitize_text_field( wp_unslash( $_POST['wprg_recaptcha_secret'] ) ) : '' );
+    update_option( 'wprg_turnstile_site', isset( $_POST['wprg_turnstile_site'] ) ? sanitize_text_field( wp_unslash( $_POST['wprg_turnstile_site'] ) ) : '' );
+    update_option( 'wprg_turnstile_secret', isset( $_POST['wprg_turnstile_secret'] ) ? sanitize_text_field( wp_unslash( $_POST['wprg_turnstile_secret'] ) ) : '' );
     update_option( 'wprg_rel_noopener', isset( $_POST['wprg_rel_noopener'] ) ? '1' : '0' );
     update_option( 'wprg_rel_noreferrer', isset( $_POST['wprg_rel_noreferrer'] ) ? '1' : '0' );
 
-    $initial_links = isset( $_POST['wprg_initial_links'] ) && is_array( $_POST['wprg_initial_links'] ) ? array_filter( array_map( 'esc_url_raw', $_POST['wprg_initial_links'] ) ) : array();
+    $initial_links = isset( $_POST['wprg_initial_links'] ) && is_array( $_POST['wprg_initial_links'] ) ? array_filter( array_map( 'esc_url_raw', wp_unslash( $_POST['wprg_initial_links'] ) ) ) : array();
     update_option( 'wprg_initial_links', $initial_links );
 
-    $active_tab = isset($_POST['wprg_active_tab']) ? sanitize_text_field($_POST['wprg_active_tab']) : 'tab-ads';
+    $active_tab = isset( $_POST['wprg_active_tab'] ) ? sanitize_text_field( wp_unslash( $_POST['wprg_active_tab'] ) ) : 'tab-ads';
     echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Đã lưu cài đặt thành công.', 'wp-redirect-gateway' ) . '</p></div>';
 } 
 // 2. XỬ LÝ LƯU RIÊNG CHO PHẦN AUTO BACKUP
@@ -36,7 +36,7 @@ elseif ( isset( $_POST['wprg_save_backup_settings'] ) && check_admin_referer( 'w
     $old_time   = get_option( 'wprg_backup_time', '00:00' );
     
     $new_enable = isset( $_POST['wprg_enable_auto_backup'] ) ? '1' : '0';
-    $new_time   = isset( $_POST['wprg_backup_time'] ) ? sanitize_text_field( $_POST['wprg_backup_time'] ) : '00:00';
+    $new_time   = isset( $_POST['wprg_backup_time'] ) ? sanitize_text_field( wp_unslash( $_POST['wprg_backup_time'] ) ) : '00:00';
     $new_limit  = isset( $_POST['wprg_backup_limit'] ) ? intval( $_POST['wprg_backup_limit'] ) : 7;
     
     update_option( 'wprg_enable_auto_backup', $new_enable );
@@ -50,7 +50,7 @@ elseif ( isset( $_POST['wprg_save_backup_settings'] ) && check_admin_referer( 'w
     $active_tab = 'tab-import-export'; 
     echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Đã cập nhật thiết lập Auto Backup thành công.', 'wp-redirect-gateway' ) . '</p></div>';
 } else {
-    $active_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'tab-ads'; 
+    $active_tab = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( $_GET['tab'] ) ) : 'tab-ads'; 
 }
 
 // 3. XỬ LÝ THÔNG BÁO TỪ CÁC HÀNH ĐỘNG BACKUP
@@ -446,7 +446,12 @@ if ( file_exists( $backup_dir ) ) {
                                     </tbody>
                                 </table>
                             </div>
-                            <p class="description" style="margin-top: 10px;"><?php printf( esc_html__( 'Đang hiển thị các file backup tự động trên Server (Tối đa %d bản).', 'wp-redirect-gateway' ), intval($backup_limit) ); ?></p>
+                            <p class="description" style="margin-top: 10px;">
+                                <?php 
+                                /* translators: %d: Maximum number of backups */
+                                printf( esc_html__( 'Đang hiển thị các file backup tự động trên Server (Tối đa %d bản).', 'wp-redirect-gateway' ), intval($backup_limit) ); 
+                                ?>
+                            </p>
                         <?php endif; ?>
                     </td>
                 </tr>

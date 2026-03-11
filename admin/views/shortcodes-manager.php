@@ -3,9 +3,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 // --- XỬ LÝ LƯU SHORTCODE MỚI ---
 if ( isset( $_POST['wprg_submit_shortcode'] ) && check_admin_referer( 'wprg_add_shortcode_nonce' ) ) {
-    $name      = sanitize_text_field( $_POST['sc_name'] );
-    $wait_time = sanitize_text_field( $_POST['sc_wait_time'] );
-    $page_id   = intval( $_POST['sc_page_id'] ); 
+    $name      = isset( $_POST['sc_name'] ) ? sanitize_text_field( wp_unslash( $_POST['sc_name'] ) ) : '';
+    $wait_time = isset( $_POST['sc_wait_time'] ) ? sanitize_text_field( wp_unslash( $_POST['sc_wait_time'] ) ) : '';
+    $page_id   = isset( $_POST['sc_page_id'] ) ? intval( wp_unslash( $_POST['sc_page_id'] ) ) : 0; 
     
     $sc_id = substr( md5( time() . wp_rand() ), 0, 8 );
     $shortcodes = get_option( 'wprg_shortcodes', array() );
@@ -24,7 +24,7 @@ if ( isset( $_POST['wprg_submit_shortcode'] ) && check_admin_referer( 'wprg_add_
 // --- XỬ LÝ XÓA SHORTCODE ---
 if ( isset( $_GET['action'] ) && $_GET['action'] == 'delete_sc' && isset( $_GET['sc_id'] ) ) {
     $shortcodes = get_option( 'wprg_shortcodes', array() );
-    $delete_id = sanitize_text_field( $_GET['sc_id'] );
+    $delete_id = sanitize_text_field( wp_unslash( $_GET['sc_id'] ) );
     if ( isset( $shortcodes[ $delete_id ] ) ) {
         unset( $shortcodes[ $delete_id ] );
         update_option( 'wprg_shortcodes', $shortcodes );

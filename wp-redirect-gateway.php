@@ -6,6 +6,8 @@
  * Author:      Anh Quan Bui
  * Text Domain: wp-redirect-gateway
  * Domain Path: /languages
+ * License:           GPLv2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  */
 
 // 1. BẢO MẬT: Ngăn chặn truy cập trực tiếp vào file
@@ -21,14 +23,15 @@ define( 'WPRG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 /**
  * 3. Load Text Domain để hỗ trợ đa ngôn ngữ
  */
-function wprg_load_textdomain() {
-    load_plugin_textdomain( 
-        'wp-redirect-gateway', 
-        false, 
-        dirname( plugin_basename( __FILE__ ) ) . '/languages/' 
-    );
-}
-add_action( 'plugins_loaded', 'wprg_load_textdomain' );
+/** function wprg_load_textdomain() {
+*   load_plugin_textdomain( 
+*      'wp-redirect-gateway', 
+*      false, 
+*      dirname( plugin_basename( __FILE__ ) ) . '/languages/' 
+*  );
+*}
+*add_action( 'plugins_loaded', 'wprg_load_textdomain' );
+*/
 
 /**
  * 4. Tạo Database khi kích hoạt plugin (Activation Hook)
@@ -98,7 +101,7 @@ require_once WPRG_PLUGIN_DIR . 'public/class-frontend-ajax.php';
 // --- XỬ LÝ EXPORT JSON ---
 add_action( 'admin_post_wprg_export_settings', 'wprg_handle_export_settings' );
 function wprg_handle_export_settings() {
-    if ( ! isset( $_POST['wprg_export_nonce'] ) || ! wp_verify_nonce( $_POST['wprg_export_nonce'], 'wprg_export_nonce_action' ) ) {
+    if ( ! isset( $_POST['wprg_export_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_export_nonce'] ) ), 'wprg_export_nonce_action' ) ) {
         wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
     }
     if ( ! current_user_can( 'manage_options' ) ) {
@@ -136,7 +139,7 @@ function wprg_handle_export_settings() {
         $export_data['settings'][$key] = get_option( $key );
     }
 
-    $filename = 'wprg-settings-' . date( 'Y-m-d' ) . '.json';
+    $filename = 'wprg-settings-' . wp_date( 'Y-m-d' ) . '.json';
     
     // Khắc phục lỗi trắng trang
     if ( ob_get_length() ) {
@@ -153,7 +156,7 @@ function wprg_handle_export_settings() {
 // --- XỬ LÝ IMPORT JSON ---
 add_action( 'admin_post_wprg_import_settings', 'wprg_handle_import_settings' );
 function wprg_handle_import_settings() {
-    if ( ! isset( $_POST['wprg_import_nonce'] ) || ! wp_verify_nonce( $_POST['wprg_import_nonce'], 'wprg_import_nonce_action' ) ) {
+    if ( ! isset( $_POST['wprg_import_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_import_nonce'] ) ), 'wprg_import_nonce_action' ) ) {
         wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
     }
     if ( ! current_user_can( 'manage_options' ) ) {
@@ -163,7 +166,8 @@ function wprg_handle_import_settings() {
         wp_die( esc_html__( 'Vui lòng chọn file hợp lệ.', 'wp-redirect-gateway' ) );
     }
 
-    $file_content = file_get_contents( $_FILES['wprg_import_file']['tmp_name'] );
+    $tmp_name = sanitize_text_field( wp_unslash( $_FILES['wprg_import_file']['tmp_name'] ) );
+    $file_content = file_get_contents( $tmp_name );
     $decoded_data = json_decode( $file_content, true );
 
     if ( ! $decoded_data || ! isset( $decoded_data['plugin'] ) || $decoded_data['plugin'] !== 'wp-redirect-gateway' ) {
@@ -185,7 +189,7 @@ function wprg_handle_import_settings() {
 // --- XỬ LÝ EXPORT LINKS RA CSV ---
 add_action( 'admin_post_wprg_export_links_csv', 'wprg_handle_export_links_csv' );
 function wprg_handle_export_links_csv() {
-    if ( ! isset( $_POST['wprg_export_links_nonce'] ) || ! wp_verify_nonce( $_POST['wprg_export_links_nonce'], 'wprg_export_links_action' ) ) {
+    if ( ! isset( $_POST['wprg_export_links_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_export_links_nonce'] ) ), 'wprg_export_links_action' ) ) {
         wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
     }
     if ( ! current_user_can( 'manage_options' ) ) {
@@ -194,14 +198,17 @@ function wprg_handle_export_links_csv() {
 
     global $wpdb;
     $table_links = $wpdb->prefix . 'rg_links';
-    $links = $wpdb->get_results( "SELECT * FROM $table_links ORDER BY id DESC", ARRAY_A );
+    
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+    $links = $wpdb->get_results( "SELECT * FROM {$table_links} ORDER BY id DESC", ARRAY_A );
 
     if ( ob_get_length() ) ob_end_clean(); // Xóa đệm tránh lỗi file
 
     header( 'Content-Type: text/csv; charset=utf-8' );
-    header( 'Content-Disposition: attachment; filename="wprg-links-' . date('Y-m-d') . '.csv"' );
+    header( 'Content-Disposition: attachment; filename="wprg-links-' . wp_date('Y-m-d') . '.csv"' );
 
     $output = fopen( 'php://output', 'w' );
+    // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputs
     fputs( $output, "\xEF\xBB\xBF" ); // Ghi BOM để Excel đọc được Tiếng Việt có dấu
 
     // Đã bọc dịch cho dòng tiêu đề file CSV
@@ -228,6 +235,7 @@ function wprg_handle_export_links_csv() {
             ));
         }
     }
+    // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
     fclose( $output );
     exit;
 }
@@ -235,7 +243,7 @@ function wprg_handle_export_links_csv() {
 // --- XỬ LÝ EXPORT LOGS RA CSV ---
 add_action( 'admin_post_wprg_export_logs_csv', 'wprg_handle_export_logs_csv' );
 function wprg_handle_export_logs_csv() {
-    if ( ! isset( $_POST['wprg_export_logs_nonce'] ) || ! wp_verify_nonce( $_POST['wprg_export_logs_nonce'], 'wprg_export_logs_action' ) ) {
+    if ( ! isset( $_POST['wprg_export_logs_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_export_logs_nonce'] ) ), 'wprg_export_logs_action' ) ) {
         wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
     }
     if ( ! current_user_can( 'manage_options' ) ) {
@@ -250,25 +258,26 @@ function wprg_handle_export_logs_csv() {
     $where = "";
     $filename_suffix = "all";
     if ( ! empty( $_POST['filter_month'] ) ) {
-        $month = sanitize_text_field( $_POST['filter_month'] );
+        $month = sanitize_text_field( wp_unslash( $_POST['filter_month'] ) );
         $where = $wpdb->prepare( "WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s", $month );
         $filename_suffix = $month;
     }
 
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
     $logs = $wpdb->get_results( "
         SELECT lg.*, lk.name as link_name 
-        FROM $table_logs lg 
-        LEFT JOIN $table_links lk ON lg.link_id = lk.id 
-        $where ORDER BY lg.clicked_at DESC
+        FROM {$table_logs} lg 
+        LEFT JOIN {$table_links} lk ON lg.link_id = lk.id 
+        {$where} ORDER BY lg.clicked_at DESC
     ", ARRAY_A );
 
     if ( ob_get_length() ) ob_end_clean();
 
     header( 'Content-Type: text/csv; charset=utf-8' );
-    // Đã sửa triệt để lỗi dư dấu ngoặc kép ở filename
-    header( 'Content-Disposition: attachment; filename="wprg-logs-' . $filename_suffix . '-' . date('Y-m-d') . '.csv"' );
+    header( 'Content-Disposition: attachment; filename="wprg-logs-' . $filename_suffix . '-' . wp_date('Y-m-d') . '.csv"' );
 
     $output = fopen( 'php://output', 'w' );
+    // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputs
     fputs( $output, "\xEF\xBB\xBF" ); // BOM Tiếng Việt
 
     // Đã bọc dịch cho tiêu đề file CSV Logs
@@ -293,6 +302,7 @@ function wprg_handle_export_logs_csv() {
             ));
         }
     }
+    // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
     fclose( $output );
     exit;
 }

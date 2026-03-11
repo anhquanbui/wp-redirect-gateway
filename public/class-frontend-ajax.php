@@ -14,19 +14,21 @@ class WPRG_Frontend_Ajax {
 
     // --- HÀM MỚI: KIỂM TRA MẬT KHẨU ---
     public function verify_password() {
-        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'wprg_gateway_nonce' ) ) {
+        $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+        if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'wprg_gateway_nonce' ) ) {
             wp_send_json_error( __( 'Lỗi bảo mật (Nonce invalid).', 'wp-redirect-gateway' ) );
         }
 
-        $slug = isset( $_POST['slug'] ) ? sanitize_text_field( $_POST['slug'] ) : '';
-        $pass = isset( $_POST['password'] ) ? sanitize_text_field( $_POST['password'] ) : '';
+        $slug = isset( $_POST['slug'] ) ? sanitize_text_field( wp_unslash( $_POST['slug'] ) ) : '';
+        $pass = isset( $_POST['password'] ) ? sanitize_text_field( wp_unslash( $_POST['password'] ) ) : '';
 
         if ( empty( $slug ) || empty( $pass ) ) wp_send_json_error( __( 'Vui lòng nhập đầy đủ thông tin.', 'wp-redirect-gateway' ) );
 
         global $wpdb;
         $table_links = $wpdb->prefix . 'rg_links';
         
-        $link_data = $wpdb->get_row( $wpdb->prepare( "SELECT password FROM $table_links WHERE slug = %s", $slug ), ARRAY_A );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $link_data = $wpdb->get_row( $wpdb->prepare( "SELECT password FROM {$table_links} WHERE slug = %s", $slug ), ARRAY_A );
 
         if ( $link_data ) {
             if ( $pass === $link_data['password'] ) {
@@ -45,19 +47,21 @@ class WPRG_Frontend_Ajax {
 
     // --- HÀM CŨ: LẤY LINK VÀ GHI LOG ---
     public function get_final_link() {
-        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'wprg_gateway_nonce' ) ) {
+        $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+        if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'wprg_gateway_nonce' ) ) {
             wp_send_json_error( __( 'Lỗi bảo mật (Nonce invalid).', 'wp-redirect-gateway' ) );
         }
 
         $captcha_type = get_option( 'wprg_captcha_type', 'recaptcha' );
-        $token = isset( $_POST['recaptcha_token'] ) ? sanitize_text_field( $_POST['recaptcha_token'] ) : '';
+        $token = isset( $_POST['recaptcha_token'] ) ? sanitize_text_field( wp_unslash( $_POST['recaptcha_token'] ) ) : '';
+        $remote_ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 
         if ( $captcha_type === 'recaptcha' ) {
             $recap_secret = get_option( 'wprg_recaptcha_secret', '' );
             if ( ! empty( $recap_secret ) ) {
                 if ( empty( $token ) ) wp_send_json_error( __( 'Hệ thống yêu cầu mã xác thực chống BOT.', 'wp-redirect-gateway' ) );
                 $response = wp_remote_post( 'https://www.google.com/recaptcha/api/siteverify', array(
-                    'body' => array( 'secret' => $recap_secret, 'response' => $token, 'remoteip' => $_SERVER['REMOTE_ADDR'] )
+                    'body' => array( 'secret' => $recap_secret, 'response' => $token, 'remoteip' => $remote_ip )
                 ));
                 if ( is_wp_error( $response ) ) wp_send_json_error( __( 'Không thể kết nối đến Google reCAPTCHA.', 'wp-redirect-gateway' ) );
                 $result = json_decode( wp_remote_retrieve_body( $response ) );
@@ -70,7 +74,7 @@ class WPRG_Frontend_Ajax {
             if ( ! empty( $ts_secret ) ) {
                 if ( empty( $token ) ) wp_send_json_error( __( 'Hệ thống yêu cầu mã xác thực Turnstile.', 'wp-redirect-gateway' ) );
                 $response = wp_remote_post( 'https://challenges.cloudflare.com/turnstile/v0/siteverify', array(
-                    'body' => array( 'secret' => $ts_secret, 'response' => $token, 'remoteip' => $_SERVER['REMOTE_ADDR'] )
+                    'body' => array( 'secret' => $ts_secret, 'response' => $token, 'remoteip' => $remote_ip )
                 ));
                 if ( is_wp_error( $response ) ) wp_send_json_error( __( 'Không thể kết nối đến Cloudflare.', 'wp-redirect-gateway' ) );
                 $result = json_decode( wp_remote_retrieve_body( $response ) );
@@ -80,15 +84,15 @@ class WPRG_Frontend_Ajax {
             }
         }
 
-        $slug = isset( $_POST['slug'] ) ? sanitize_text_field( $_POST['slug'] ) : '';
+        $slug = isset( $_POST['slug'] ) ? sanitize_text_field( wp_unslash( $_POST['slug'] ) ) : '';
         if ( empty( $slug ) ) wp_send_json_error( __( 'Thiếu dữ liệu link.', 'wp-redirect-gateway' ) );
 
         global $wpdb;
         $table_links = $wpdb->prefix . 'rg_links';
         $table_logs  = $wpdb->prefix . 'rg_logs';
         
-        // [ĐÃ VÁ LỖI]: Bổ sung gọi cột 'password' ra từ Database
-        $link_data = $wpdb->get_row( $wpdb->prepare( "SELECT id, original_url, password FROM $table_links WHERE slug = %s", $slug ), ARRAY_A );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $link_data = $wpdb->get_row( $wpdb->prepare( "SELECT id, original_url, password FROM {$table_links} WHERE slug = %s", $slug ), ARRAY_A );
 
         if ( $link_data ) {
 
@@ -105,15 +109,15 @@ class WPRG_Frontend_Ajax {
             }
             // ========================================================
 
-            $ip = isset($_SERVER['HTTP_CF_CONNECTING_IP']) ? $_SERVER['HTTP_CF_CONNECTING_IP'] : $_SERVER['REMOTE_ADDR'];
-            $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_textarea_field($_SERVER['HTTP_USER_AGENT']) : 'Unknown';
-            $referrer = isset( $_POST['referrer'] ) && !empty( $_POST['referrer'] ) ? esc_url_raw( $_POST['referrer'] ) : 'Trực tiếp';
+            $ip = isset($_SERVER['HTTP_CF_CONNECTING_IP']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_CF_CONNECTING_IP'] ) ) : $remote_ip;
+            $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_textarea_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : 'Unknown';
+            $referrer = isset( $_POST['referrer'] ) && !empty( $_POST['referrer'] ) ? esc_url_raw( wp_unslash( $_POST['referrer'] ) ) : 'Trực tiếp';
             
             if ( $referrer !== 'Trực tiếp' ) {
                 $parsed_ref = wp_parse_url( $referrer );
                 $ref_host = isset($parsed_ref['host']) ? str_replace('www.', '', strtolower($parsed_ref['host'])) : '';
                 
-                $current_host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '');
+                $current_host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : (isset($_SERVER['SERVER_NAME']) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : '');
                 $home_host = str_replace('www.', '', strtolower($current_host));
 
                 if ( $ref_host === $home_host || empty($ref_host) ) {
@@ -126,9 +130,9 @@ class WPRG_Frontend_Ajax {
                 }
             }
 
-            $sub_id = isset( $_POST['sub_id'] ) ? sanitize_text_field( $_POST['sub_id'] ) : '';
-            $url_params = isset( $_POST['url_params'] ) ? sanitize_textarea_field( $_POST['url_params'] ) : '';
-            $log_id = isset( $_POST['log_id'] ) ? intval( $_POST['log_id'] ) : 0;
+            $sub_id = isset( $_POST['sub_id'] ) ? sanitize_text_field( wp_unslash( $_POST['sub_id'] ) ) : '';
+            $url_params = isset( $_POST['url_params'] ) ? sanitize_textarea_field( wp_unslash( $_POST['url_params'] ) ) : '';
+            $log_id = isset( $_POST['log_id'] ) ? intval( wp_unslash( $_POST['log_id'] ) ) : 0;
 
             if ( $log_id > 0 ) {
                 $wpdb->update( 

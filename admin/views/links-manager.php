@@ -3,22 +3,27 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 global $wpdb;
 $table_links = $wpdb->prefix . 'rg_links';
-$action = isset( $_GET['action'] ) ? sanitize_text_field( $_GET['action'] ) : '';
+$action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( $_GET['action'] ) ) : '';
 
 // --- 1. XỬ LÝ XÓA 1 LINK ---
-if ( $action == 'delete' && isset( $_GET['link_id'] ) ) {
-    if ( wp_verify_nonce( $_GET['_wpnonce'], 'wprg_delete_link' ) ) {
+if ( $action === 'delete' && isset( $_GET['link_id'] ) ) {
+    $nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
+    if ( wp_verify_nonce( $nonce, 'wprg_delete_link' ) ) {
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->delete( $table_links, array( 'id' => intval( $_GET['link_id'] ) ) );
         echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Đã xóa link thành công.', 'wp-redirect-gateway' ) . '</p></div>';
     }
 }
 
 // --- 2. XỬ LÝ NHÂN BẢN LINK ---
-if ( $action == 'duplicate' && isset( $_GET['link_id'] ) ) {
-    $original_link = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_links WHERE id = %d", intval( $_GET['link_id'] ) ), ARRAY_A );
+if ( $action === 'duplicate' && isset( $_GET['link_id'] ) ) {
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    $original_link = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table_links} WHERE id = %d", intval( $_GET['link_id'] ) ), ARRAY_A );
     if ( $original_link ) {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $new_slug = substr( str_shuffle( str_repeat( $characters, 5 ) ), 0, 30 );
+        
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
         $wpdb->insert( $table_links, array(
             'name'         => $original_link['name'] . ' ' . __( '(Copy)', 'wp-redirect-gateway' ),
             'tag'          => isset($original_link['tag']) ? $original_link['tag'] : '',
@@ -34,11 +39,19 @@ if ( $action == 'duplicate' && isset( $_GET['link_id'] ) ) {
 }
 
 // --- 3. XỬ LÝ XÓA HÀNG LOẠT (BULK DELETE) ---
-if ( ( isset( $_POST['action'] ) && $_POST['action'] === 'bulk-delete' ) || ( isset( $_POST['action2'] ) && $_POST['action2'] === 'bulk-delete' ) ) {
+$post_action = isset( $_POST['action'] ) ? sanitize_text_field( wp_unslash( $_POST['action'] ) ) : '';
+$post_action2 = isset( $_POST['action2'] ) ? sanitize_text_field( wp_unslash( $_POST['action2'] ) ) : '';
+
+if ( $post_action === 'bulk-delete' || $post_action2 === 'bulk-delete' ) {
     if ( isset( $_POST['bulk-delete'] ) && is_array( $_POST['bulk-delete'] ) ) {
-        $ids = array_map( 'intval', $_POST['bulk-delete'] );
+        $raw_ids = wp_unslash( $_POST['bulk-delete'] );
+        $ids = array_map( 'intval', $raw_ids );
         $ids_list = implode( ',', $ids );
-        $wpdb->query( "DELETE FROM $table_links WHERE id IN ($ids_list)" );
+        
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $wpdb->query( "DELETE FROM {$table_links} WHERE id IN ($ids_list)" );
+        
+        /* translators: %d: Number of deleted links */
         echo '<div class="notice notice-success is-dismissible"><p>' . sprintf( esc_html__( 'Đã xóa %d link thành công.', 'wp-redirect-gateway' ), count($ids) ) . '</p></div>';
     }
 }
@@ -48,31 +61,34 @@ if ( isset( $_POST['wprg_submit_link'] ) && check_admin_referer( 'wprg_add_link_
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $slug = substr( str_shuffle( str_repeat( $characters, 5 ) ), 0, 30 );
     
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
     $wpdb->insert( $table_links, array(
-        'name'         => sanitize_text_field( $_POST['link_name'] ),
-        'original_url' => esc_url_raw( $_POST['original_url'] ),
+        'name'         => isset( $_POST['link_name'] ) ? sanitize_text_field( wp_unslash( $_POST['link_name'] ) ) : '',
+        'original_url' => isset( $_POST['original_url'] ) ? esc_url_raw( wp_unslash( $_POST['original_url'] ) ) : '',
         'slug'         => $slug,
-        'ad_count'     => intval( $_POST['ad_count'] ),
-        'wait_time'    => sanitize_text_field( $_POST['wait_time'] ),
-        'password'     => sanitize_text_field( $_POST['password'] ),
-        'shortcode_id' => sanitize_text_field( $_POST['shortcode_id'] )
+        'ad_count'     => isset( $_POST['ad_count'] ) ? intval( $_POST['ad_count'] ) : 0,
+        'wait_time'    => isset( $_POST['wait_time'] ) ? sanitize_text_field( wp_unslash( $_POST['wait_time'] ) ) : '',
+        'password'     => isset( $_POST['password'] ) ? sanitize_text_field( wp_unslash( $_POST['password'] ) ) : '',
+        'shortcode_id' => isset( $_POST['shortcode_id'] ) ? sanitize_text_field( wp_unslash( $_POST['shortcode_id'] ) ) : ''
     ));
     echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Đã tạo link thành công!', 'wp-redirect-gateway' ) . '</p></div>';
 }
 
 // --- 5. XỬ LÝ CẬP NHẬT (EDIT) LINK ---
 if ( isset( $_POST['wprg_update_link'] ) && check_admin_referer( 'wprg_edit_link_nonce' ) ) {
-    $edit_id = intval( $_POST['edit_link_id'] );
+    $edit_id = isset( $_POST['edit_link_id'] ) ? intval( $_POST['edit_link_id'] ) : 0;
+    
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     $wpdb->update( 
         $table_links, 
         array(
-            'name'         => sanitize_text_field( $_POST['link_name'] ),
-            'tag'          => sanitize_text_field( $_POST['link_tag'] ),
-            'original_url' => esc_url_raw( $_POST['original_url'] ),
-            'ad_count'     => intval( $_POST['ad_count'] ),
-            'wait_time'    => sanitize_text_field( $_POST['wait_time'] ), 
-            'password'     => sanitize_text_field( $_POST['password'] ), 
-            'shortcode_id' => sanitize_text_field( $_POST['shortcode_id'] )
+            'name'         => isset( $_POST['link_name'] ) ? sanitize_text_field( wp_unslash( $_POST['link_name'] ) ) : '',
+            'tag'          => isset( $_POST['link_tag'] ) ? sanitize_text_field( wp_unslash( $_POST['link_tag'] ) ) : '',
+            'original_url' => isset( $_POST['original_url'] ) ? esc_url_raw( wp_unslash( $_POST['original_url'] ) ) : '',
+            'ad_count'     => isset( $_POST['ad_count'] ) ? intval( $_POST['ad_count'] ) : 0,
+            'wait_time'    => isset( $_POST['wait_time'] ) ? sanitize_text_field( wp_unslash( $_POST['wait_time'] ) ) : '', 
+            'password'     => isset( $_POST['password'] ) ? sanitize_text_field( wp_unslash( $_POST['password'] ) ) : '', 
+            'shortcode_id' => isset( $_POST['shortcode_id'] ) ? sanitize_text_field( wp_unslash( $_POST['shortcode_id'] ) ) : ''
         ),
         array( 'id' => $edit_id )
     );
@@ -113,7 +129,8 @@ if ( $max_ads < 1 ) $max_ads = 1;
     <hr class="wp-header-end">
 
     <?php if ( $action === 'edit' && isset( $_GET['link_id'] ) ) : 
-        $edit_data = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_links WHERE id = %d", intval( $_GET['link_id'] ) ), ARRAY_A );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $edit_data = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table_links} WHERE id = %d", intval( $_GET['link_id'] ) ), ARRAY_A );
         if ( $edit_data ) :
     ?>
         <div class="wprg-form-container">

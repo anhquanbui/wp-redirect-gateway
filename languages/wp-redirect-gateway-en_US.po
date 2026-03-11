@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-03-10 07:19-0600\n"
-"PO-Revision-Date: 2026-03-10 11:52-0600\n"
+"POT-Creation-Date: 2026-03-10 23:56-0600\n"
+"PO-Revision-Date: 2026-03-11 00:00-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_US\n"
@@ -48,43 +48,43 @@ msgid ""
 "File không hợp lệ hoặc không phải file Full Backup của plugin WP Redirect "
 "Gateway."
 msgstr ""
-"nvalid file or this is not a full backup file for the WP Redirect Gateway "
+"The file is invalid or is not a Full Backup file of the WP Redirect Gateway "
 "plugin."
 
-#: admin/class-admin-menu.php:14 admin/class-admin-menu.php:15
+#: admin/class-admin-menu.php:21 admin/class-admin-menu.php:22
 msgid "Gateway Redirect"
 msgstr "Gateway Redirect"
 
-#: admin/class-admin-menu.php:23
+#: admin/class-admin-menu.php:30
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: admin/class-admin-menu.php:24
+#: admin/class-admin-menu.php:31
 msgid "Quản lý Link"
 msgstr "Link Management"
 
-#: admin/class-admin-menu.php:25
+#: admin/class-admin-menu.php:32
 msgid "Shortcodes"
 msgstr "Shortcodes"
 
-#: admin/class-admin-menu.php:26
+#: admin/class-admin-menu.php:33
 msgid "Cài đặt"
 msgstr "Setting"
 
-#: admin/class-admin-menu.php:27
+#: admin/class-admin-menu.php:34
 msgid "Logs"
 msgstr "Logs"
 
-#: admin/class-admin-menu.php:88
+#: admin/class-admin-menu.php:95
 msgid "⚠️ Chú ý (Từ WP Redirect Gateway):"
 msgstr "⚠️ Notice (from WP Redirect Gateway):"
 
-#: admin/class-admin-menu.php:88
+#: admin/class-admin-menu.php:95
 #, php-format
 msgid "Phát hiện website đang cài đặt %s."
 msgstr "The website is detected to be using %s."
 
-#: admin/class-admin-menu.php:89
+#: admin/class-admin-menu.php:96
 msgid ""
 "Vui lòng vào cài đặt Cache và thêm đường dẫn của <strong>Trang Gateway</"
 "strong> vào danh sách <strong>Không lưu bộ nhớ đệm (Never Cache URL)</"
@@ -93,21 +93,21 @@ msgstr ""
 "Please go to the Cache settings and add the <strong>Gateway Page</strong> "
 "URL to the <strong>Never Cache URL</strong> list."
 
-#: admin/class-admin-menu.php:90
+#: admin/class-admin-menu.php:97
 #, php-format
 msgid "Đã thiết lập xong cho %s, Ẩn đi!"
 msgstr "I’ve configured %s, hide this notice!"
 
-#: admin/class-admin-menu.php:100
+#: admin/class-admin-menu.php:107
 msgid "🛡️ Mẹo Bảo Mật:"
 msgstr "🛡️ Security Tip:"
 
-#: admin/class-admin-menu.php:100
+#: admin/class-admin-menu.php:107
 #, php-format
 msgid "Website đang dùng Tường lửa %s."
 msgstr "Your website is currently using the %s firewall."
 
-#: admin/class-admin-menu.php:101
+#: admin/class-admin-menu.php:108
 msgid ""
 "Hãy đảm bảo dùng <strong>chung 1 bộ Key reCAPTCHA</strong> để tránh xung đột "
 "nhé."
@@ -115,13 +115,13 @@ msgstr ""
 "Please make sure to use <strong>the same reCAPTCHA key pair</strong> to "
 "avoid conflicts."
 
-#: admin/class-admin-menu.php:102
+#: admin/class-admin-menu.php:109
 #, php-format
 msgid "Đã hiểu lưu ý của %s, Ẩn đi!"
 msgstr "I understand the notice for %s, hide this message!"
 
 #: admin/class-links-table.php:21 admin/views/dashboard.php:70
-#: admin/views/logs-manager.php:219 wp-redirect-gateway.php:210
+#: admin/views/logs-manager.php:201 wp-redirect-gateway.php:210
 #: wp-redirect-gateway.php:278
 msgid "Tên Link"
 msgstr "Link Name"
@@ -166,8 +166,8 @@ msgstr ""
 msgid "Số QC"
 msgstr "Ad Count"
 
-#: admin/class-links-table.php:27 admin/views/logs-manager.php:214
-#: admin/views/shortcodes-manager.php:116 wp-redirect-gateway.php:276
+#: admin/class-links-table.php:27 admin/views/logs-manager.php:196
+#: admin/views/shortcodes-manager.php:101 wp-redirect-gateway.php:276
 msgid "Thời gian"
 msgstr "Time"
 
@@ -184,74 +184,74 @@ msgstr ""
 msgid "Ngày tạo"
 msgstr "Creation Date"
 
-#: admin/class-links-table.php:45 admin/class-links-table.php:94
+#: admin/class-links-table.php:44 admin/class-links-table.php:93
 #: admin/views/settings.php:157 admin/views/settings.php:507
-#: admin/views/shortcodes-manager.php:131
+#: admin/views/shortcodes-manager.php:116
 msgid "Xóa"
 msgstr "Delete"
 
-#: admin/class-links-table.php:64
+#: admin/class-links-table.php:63
 msgid "Tất cả số QC"
 msgstr "All Ad Numbers"
 
-#: admin/class-links-table.php:67
+#: admin/class-links-table.php:66
 #, php-format
 msgid "%s QC"
 msgstr "%s Ads"
 
-#: admin/class-links-table.php:73
+#: admin/class-links-table.php:72
 msgid "Tất cả các tháng"
 msgstr "All Months"
 
-#: admin/class-links-table.php:83
+#: admin/class-links-table.php:82
 msgid "Lọc"
 msgstr "Apply Filter"
 
-#: admin/class-links-table.php:92
+#: admin/class-links-table.php:91
 msgid "Sửa"
 msgstr "Edit"
 
-#: admin/class-links-table.php:93
+#: admin/class-links-table.php:92
 msgid "Nhân bản"
 msgstr "Duplicate"
 
-#: admin/class-links-table.php:94
+#: admin/class-links-table.php:93
 msgid "Bạn có chắc chắn muốn xóa link này?"
 msgstr "Are you sure you want to delete this link?"
 
-#: admin/class-links-table.php:97
+#: admin/class-links-table.php:96
 msgid "Có mật khẩu bảo vệ"
 msgstr "Password Protected"
 
-#: admin/class-links-table.php:112
+#: admin/class-links-table.php:111
 msgid "Mở Link Đích"
 msgstr "Open Destination Link"
 
-#: admin/class-links-table.php:113
+#: admin/class-links-table.php:112
 msgid "Copy Link gốc"
 msgstr "Copy Original Link"
 
-#: admin/class-links-table.php:125
+#: admin/class-links-table.php:124
 msgid "Hiện Slug rút gọn - Bấm Copy để lấy Full Link"
 msgstr "Short slug shown – Click Copy to get the full link"
 
-#: admin/class-links-table.php:126
+#: admin/class-links-table.php:125
 msgid "Mở Link Chia Sẻ"
 msgstr "Open Share Link"
 
-#: admin/class-links-table.php:127
+#: admin/class-links-table.php:126
 msgid "Copy Full Link"
 msgstr "Copy Full Link"
 
-#: admin/class-links-table.php:133
+#: admin/class-links-table.php:132
 msgid "Hiện Slug rút gọn - Bấm Copy để lấy Full Mã chèn"
 msgstr "Short slug shown – Click Copy to get the full embed code"
 
-#: admin/class-links-table.php:134
+#: admin/class-links-table.php:133
 msgid "Copy Full Mã chèn"
 msgstr "Copy Full Embed Code"
 
-#: admin/class-links-table.php:144
+#: admin/class-links-table.php:143
 msgid "Mặc định"
 msgstr "Default"
 
@@ -283,8 +283,8 @@ msgstr "Click Count"
 msgid "Chưa có dữ liệu."
 msgstr "No data available."
 
-#: admin/views/dashboard.php:77 admin/views/logs-manager.php:126
-#: admin/views/logs-manager.php:254
+#: admin/views/dashboard.php:77 admin/views/logs-manager.php:108
+#: admin/views/logs-manager.php:236
 msgid "Link đã xóa"
 msgstr "Link Deleted"
 
@@ -292,7 +292,7 @@ msgstr "Link Deleted"
 msgid "Top 20 IP nhấp nhiều nhất"
 msgstr "Top 20 Most Active IPs"
 
-#: admin/views/dashboard.php:91 admin/views/logs-manager.php:230
+#: admin/views/dashboard.php:91 admin/views/logs-manager.php:212
 msgid "Địa chỉ IP"
 msgstr "IP Address"
 
@@ -329,43 +329,43 @@ msgstr "Link created successfully!"
 msgid "Đã cập nhật link thành công!"
 msgstr "Link updated successfully!"
 
-#: admin/views/links-manager.php:113
+#: admin/views/links-manager.php:97
 msgid "Quản lý Link Redirect"
 msgstr "Redirect Link Management"
 
-#: admin/views/links-manager.php:116
+#: admin/views/links-manager.php:100
 msgid "Tạo Link Mới"
 msgstr "Create New Link"
 
-#: admin/views/links-manager.php:122
+#: admin/views/links-manager.php:106
 msgid "Xuất Excel (CSV)"
 msgstr "Export Excel (CSV)"
 
-#: admin/views/links-manager.php:127
+#: admin/views/links-manager.php:111
 msgid "Quay lại danh sách"
 msgstr "Back to List"
 
-#: admin/views/links-manager.php:136
+#: admin/views/links-manager.php:120
 msgid "Chỉnh sửa Link"
 msgstr "Edit Link"
 
-#: admin/views/links-manager.php:144 admin/views/links-manager.php:231
+#: admin/views/links-manager.php:128 admin/views/links-manager.php:215
 msgid "Tên hiển thị"
 msgstr "Display Name"
 
-#: admin/views/links-manager.php:145 admin/views/links-manager.php:232
+#: admin/views/links-manager.php:129 admin/views/links-manager.php:216
 msgid "Tên gọi nội bộ để bạn dễ nhận biết và tìm kiếm trong danh sách."
 msgstr "Internal name to help you easily identify and search in the list."
 
-#: admin/views/links-manager.php:147 admin/views/links-manager.php:234
+#: admin/views/links-manager.php:131 admin/views/links-manager.php:218
 msgid "VD: Link tải Game..."
 msgstr "Example: Game Download Link..."
 
-#: admin/views/links-manager.php:151 admin/views/links-manager.php:238
+#: admin/views/links-manager.php:135 admin/views/links-manager.php:222
 msgid "Nhãn (Tag) phân loại"
 msgstr "Tag (Category)"
 
-#: admin/views/links-manager.php:152 admin/views/links-manager.php:239
+#: admin/views/links-manager.php:136 admin/views/links-manager.php:223
 msgid ""
 "Dùng để phân loại Khách hàng hoặc Chiến dịch. Bạn có thể tìm kiếm Link bằng "
 "thẻ Tag này."
@@ -373,42 +373,42 @@ msgstr ""
 "Used to categorize customers or campaigns. You can search links using this "
 "tag."
 
-#: admin/views/links-manager.php:154 admin/views/links-manager.php:241
+#: admin/views/links-manager.php:138 admin/views/links-manager.php:225
 msgid "VD: KhachHang_A"
 msgstr "Example: Customer_A"
 
-#: admin/views/links-manager.php:160 admin/views/links-manager.php:247
+#: admin/views/links-manager.php:144 admin/views/links-manager.php:231
 msgid "Link Gốc (Đích đến)"
 msgstr "Original Link (Destination)"
 
-#: admin/views/links-manager.php:161 admin/views/links-manager.php:248
+#: admin/views/links-manager.php:145 admin/views/links-manager.php:232
 msgid ""
 "Đường dẫn thực sự mà bạn muốn người dùng truy cập tới sau khi xem xong quảng "
 "cáo."
 msgstr ""
 "The actual URL that users will be redirected to after finishing the ads."
 
-#: admin/views/links-manager.php:163 admin/views/links-manager.php:250
+#: admin/views/links-manager.php:147 admin/views/links-manager.php:234
 msgid "https://..."
 msgstr "https://..."
 
-#: admin/views/links-manager.php:169 admin/views/links-manager.php:256
+#: admin/views/links-manager.php:153 admin/views/links-manager.php:240
 msgid "Chọn Gateway"
 msgstr "Select Gateway"
 
-#: admin/views/links-manager.php:170 admin/views/links-manager.php:257
+#: admin/views/links-manager.php:154 admin/views/links-manager.php:241
 msgid "Chọn giao diện đếm ngược mà bạn đã tạo ở phần Shortcodes."
 msgstr "Select the countdown interface you created in the Shortcodes section."
 
-#: admin/views/links-manager.php:173 admin/views/links-manager.php:260
+#: admin/views/links-manager.php:157 admin/views/links-manager.php:244
 msgid "-- Chọn Gateway --"
 msgstr "-- Select a Gateway --"
 
-#: admin/views/links-manager.php:181 admin/views/links-manager.php:268
+#: admin/views/links-manager.php:165 admin/views/links-manager.php:252
 msgid "Số lần Xem QC"
 msgstr "Number of Ad Views"
 
-#: admin/views/links-manager.php:182 admin/views/links-manager.php:269
+#: admin/views/links-manager.php:166 admin/views/links-manager.php:253
 msgid ""
 "Nhập 0 để lấy link ngay. Tối đa bằng số lượng Link Affiliate bạn nhập trong "
 "phần Cài đặt."
@@ -416,11 +416,11 @@ msgstr ""
 "Enter 0 to get the link instantly. The maximum value equals the number of "
 "Affiliate Links configured in Settings."
 
-#: admin/views/links-manager.php:190 admin/views/links-manager.php:277
+#: admin/views/links-manager.php:174 admin/views/links-manager.php:261
 msgid "Thời gian chờ riêng (Tùy chọn)"
 msgstr "Custom Wait Time (Optional)"
 
-#: admin/views/links-manager.php:191 admin/views/links-manager.php:278
+#: admin/views/links-manager.php:175 admin/views/links-manager.php:262
 msgid ""
 "Nhập dạng 15,10,5 để ghi đè thời gian của Gateway. Để trống nếu muốn dùng "
 "thời gian mặc định."
@@ -428,15 +428,15 @@ msgstr ""
 "Enter values like 15,10,5 to override the Gateway timing. Leave empty to use "
 "the default time."
 
-#: admin/views/links-manager.php:193 admin/views/links-manager.php:280
+#: admin/views/links-manager.php:177 admin/views/links-manager.php:264
 msgid "VD: 15,10,5"
 msgstr "Example: 15,10,5"
 
-#: admin/views/links-manager.php:198 admin/views/links-manager.php:285
+#: admin/views/links-manager.php:182 admin/views/links-manager.php:269
 msgid "Mật khẩu bảo vệ (Tùy chọn)"
 msgstr "Password Protection (Optional)"
 
-#: admin/views/links-manager.php:199 admin/views/links-manager.php:286
+#: admin/views/links-manager.php:183 admin/views/links-manager.php:270
 msgid ""
 "Người dùng bắt buộc nhập đúng Mật khẩu này mới có thể bắt đầu đếm ngược lấy "
 "link."
@@ -444,27 +444,27 @@ msgstr ""
 "Users must enter the correct password before they can start the countdown to "
 "access the link."
 
-#: admin/views/links-manager.php:201 admin/views/links-manager.php:288
+#: admin/views/links-manager.php:185 admin/views/links-manager.php:272
 msgid "Để trống nếu không đặt mật khẩu"
-msgstr "Leave empty if no password is required."
+msgstr "Leave empty if no password is required"
 
-#: admin/views/links-manager.php:205
+#: admin/views/links-manager.php:189
 msgid "Lưu Cập Nhật"
 msgstr "Save Changes"
 
-#: admin/views/links-manager.php:206
+#: admin/views/links-manager.php:190
 msgid "Hủy bỏ"
 msgstr "Cancel"
 
-#: admin/views/links-manager.php:216
+#: admin/views/links-manager.php:200
 msgid "Tìm Link"
 msgstr "Search Link"
 
-#: admin/views/links-manager.php:224
+#: admin/views/links-manager.php:208
 msgid "Tạo Link Redirect Mới"
 msgstr "Create New Redirect Link"
 
-#: admin/views/links-manager.php:292
+#: admin/views/links-manager.php:276
 msgid "Lưu Link Mới"
 msgstr "Save New Link"
 
@@ -497,173 +497,173 @@ msgstr "All logs have been cleared!"
 msgid "Đã xóa log của tháng %s thành công."
 msgstr "Logs for %s have been deleted successfully."
 
-#: admin/views/logs-manager.php:107
+#: admin/views/logs-manager.php:89
 msgid "Thống kê & Lịch sử Click"
 msgstr "Statistics & Click History"
 
-#: admin/views/logs-manager.php:113
+#: admin/views/logs-manager.php:95
 msgid "Tổng Truy Cập / Hoàn Thành"
 msgstr "Total Visits / Completions"
 
-#: admin/views/logs-manager.php:114
+#: admin/views/logs-manager.php:96
 msgid "Số lượt click vào link / Số lượt xem xong quảng cáo để lấy link đích."
 msgstr ""
 "Number of link clicks / Number of completed ad views to access the "
 "destination link."
 
-#: admin/views/logs-manager.php:118
+#: admin/views/logs-manager.php:100
 msgid "Conversion Rate (Tỉ lệ chuyển đổi)"
 msgstr "Conversion Rate"
 
-#: admin/views/logs-manager.php:123
+#: admin/views/logs-manager.php:105
 msgid "Link Nhấp Nhiều Nhất"
 msgstr "Most Clicked Link"
 
-#: admin/views/logs-manager.php:127
+#: admin/views/logs-manager.php:109
 #, php-format
 msgid "%s click"
 msgstr "%s clicks"
 
-#: admin/views/logs-manager.php:129
+#: admin/views/logs-manager.php:111
 msgid "Chưa có dữ liệu"
 msgstr "No data available"
 
-#: admin/views/logs-manager.php:135
+#: admin/views/logs-manager.php:117
 msgid "Top 3 Nguồn Truy Cập (Referrer)"
 msgstr "Top 3 Traffic Sources (Referrers)"
 
-#: admin/views/logs-manager.php:136
+#: admin/views/logs-manager.php:118
 msgid ""
 "Nơi người dùng nhấp vào link của bạn (Facebook, Youtube, Website khác...)."
 msgstr ""
 "Where users clicked your link from (Facebook, YouTube, other websites...)."
 
-#: admin/views/logs-manager.php:148
+#: admin/views/logs-manager.php:130
 msgid "Chưa có nguồn truy cập ngoại"
 msgstr "No external referrers yet"
 
-#: admin/views/logs-manager.php:155
+#: admin/views/logs-manager.php:137
 msgid "Lọc hiển thị"
 msgstr "Display Filter"
 
-#: admin/views/logs-manager.php:159
+#: admin/views/logs-manager.php:141
 msgid "-- Tất cả các tháng --"
 msgstr "-- All Months --"
 
-#: admin/views/logs-manager.php:162
+#: admin/views/logs-manager.php:144
 msgid "Tháng "
 msgstr "Month "
 
-#: admin/views/logs-manager.php:166
+#: admin/views/logs-manager.php:148
 msgid "Lọc Log"
 msgstr "Filter Logs"
 
-#: admin/views/logs-manager.php:171
+#: admin/views/logs-manager.php:153
 msgid "Dọn dẹp Database"
 msgstr "Clean Up Database"
 
-#: admin/views/logs-manager.php:172
+#: admin/views/logs-manager.php:154
 msgid "Hành động này không thể hoàn tác. Bạn chắc chắn chứ?"
 msgstr "This action cannot be undone. Are you sure?"
 
-#: admin/views/logs-manager.php:175
+#: admin/views/logs-manager.php:157
 msgid "-- Chọn kiểu xóa --"
 msgstr "-- Select Deletion Type --"
 
-#: admin/views/logs-manager.php:177
+#: admin/views/logs-manager.php:159
 #, php-format
 msgid "Xóa Log tháng %s"
 msgstr "Delete logs for %s"
 
-#: admin/views/logs-manager.php:179
+#: admin/views/logs-manager.php:161
 msgid "Xóa sạch toàn bộ Log"
 msgstr "Delete all logs"
 
-#: admin/views/logs-manager.php:186
+#: admin/views/logs-manager.php:168
 msgid "Thực thi Xóa"
 msgstr "Execute Deletion"
 
-#: admin/views/logs-manager.php:191
+#: admin/views/logs-manager.php:173
 msgid "Xuất Dữ Liệu (Excel)"
 msgstr "Export Data (Excel)"
 
-#: admin/views/logs-manager.php:199
+#: admin/views/logs-manager.php:181
 #, php-format
 msgid "Đang xuất tháng: %s"
 msgstr "Exporting month: %s"
 
-#: admin/views/logs-manager.php:201
+#: admin/views/logs-manager.php:183
 #, php-format
 msgid "Xuất %s (Có thể nặng)"
 msgstr "Export %s (May be large)"
 
-#: admin/views/logs-manager.php:201
+#: admin/views/logs-manager.php:183
 msgid "Tất cả"
 msgstr "All"
 
-#: admin/views/logs-manager.php:205
+#: admin/views/logs-manager.php:187
 msgid "Tải file CSV"
 msgstr "Download CSV File"
 
-#: admin/views/logs-manager.php:216 wp-redirect-gateway.php:277
+#: admin/views/logs-manager.php:198 wp-redirect-gateway.php:277
 msgid "Trạng thái"
 msgstr "Status"
 
-#: admin/views/logs-manager.php:217
+#: admin/views/logs-manager.php:199
 msgid "Truy cập: Mới bấm vào link. Hoàn thành: Đã xem xong quảng cáo."
 msgstr ""
 "Access: User just clicked the link. Completed: User finished watching the "
 "ads."
 
-#: admin/views/logs-manager.php:222 wp-redirect-gateway.php:279
+#: admin/views/logs-manager.php:204 wp-redirect-gateway.php:279
 msgid "Sub-ID"
 msgstr "Sub-ID"
 
-#: admin/views/logs-manager.php:223
+#: admin/views/logs-manager.php:205
 msgid "ID chiến dịch theo dõi (ví dụ: ?subid=facebook_ads)."
 msgstr "Campaign tracking ID (e.g., ?subid=facebook_ads)."
 
-#: admin/views/logs-manager.php:226
+#: admin/views/logs-manager.php:208
 msgid "Tham số"
 msgstr "Parameters"
 
-#: admin/views/logs-manager.php:227
+#: admin/views/logs-manager.php:209
 msgid "Các đuôi tracking UTM gắn kèm sau link."
 msgstr "UTM tracking parameters appended to the link."
 
-#: admin/views/logs-manager.php:232 wp-redirect-gateway.php:282
+#: admin/views/logs-manager.php:214 wp-redirect-gateway.php:282
 msgid "Nguồn (Referrer)"
 msgstr "Referrer (Source)"
 
-#: admin/views/logs-manager.php:233
+#: admin/views/logs-manager.php:215
 msgid "Trang web mà khách hàng đang đứng trước khi click."
 msgstr "The website the visitor was on before clicking the link."
 
-#: admin/views/logs-manager.php:235
+#: admin/views/logs-manager.php:217
 msgid "Thiết bị"
 msgstr "Device"
 
-#: admin/views/logs-manager.php:240
+#: admin/views/logs-manager.php:222
 msgid "Chưa có dữ liệu log nào."
 msgstr "No log data available."
 
-#: admin/views/logs-manager.php:248 wp-redirect-gateway.php:289
+#: admin/views/logs-manager.php:230 wp-redirect-gateway.php:289
 msgid "Hoàn thành"
 msgstr "Completed"
 
-#: admin/views/logs-manager.php:250 wp-redirect-gateway.php:289
+#: admin/views/logs-manager.php:232 wp-redirect-gateway.php:289
 msgid "Truy cập"
 msgstr "Visited"
 
-#: admin/views/logs-manager.php:258 admin/views/logs-manager.php:266
+#: admin/views/logs-manager.php:240 admin/views/logs-manager.php:248
 msgid "Click để bôi đen"
 msgstr "Click to select"
 
-#: admin/views/logs-manager.php:279
+#: admin/views/logs-manager.php:261
 msgid "Trực tiếp"
 msgstr "Direct"
 
-#: admin/views/logs-manager.php:294
+#: admin/views/logs-manager.php:276
 msgid "Đang hiển thị tối đa 500 click mới nhất."
 msgstr "Showing up to the latest 500 clicks."
 
@@ -988,7 +988,7 @@ msgstr "Backup File Name"
 msgid "Dung lượng"
 msgstr "File Size"
 
-#: admin/views/settings.php:407 admin/views/shortcodes-manager.php:118
+#: admin/views/settings.php:407 admin/views/shortcodes-manager.php:103
 msgid "Hành động"
 msgstr "Actions"
 
@@ -1041,15 +1041,15 @@ msgstr "Shortcode created successfully!"
 msgid "Đã xóa Shortcode."
 msgstr "Shortcode deleted."
 
-#: admin/views/shortcodes-manager.php:54
+#: admin/views/shortcodes-manager.php:39
 msgid "Quản lý Shortcodes (Gateway)"
 msgstr "Shortcode Management (Gateway)"
 
-#: admin/views/shortcodes-manager.php:59
+#: admin/views/shortcodes-manager.php:44
 msgid "💡 Mẹo quan trọng cho lần đầu thiết lập!"
 msgstr "💡 Important Tip for First-Time Setup!"
 
-#: admin/views/shortcodes-manager.php:60
+#: admin/views/shortcodes-manager.php:45
 msgid ""
 "Vì hệ thống đếm ngược và bảo mật của Gateway cần hoạt động theo <strong>thời "
 "gian thực</strong>, trang web được chọn làm Gateway <strong>TUYỆT ĐỐI KHÔNG "
@@ -1059,7 +1059,7 @@ msgstr ""
 "<strong>real time</strong>, the page selected as the Gateway must "
 "<strong>ABSOLUTELY NOT BE CACHED</strong>."
 
-#: admin/views/shortcodes-manager.php:61
+#: admin/views/shortcodes-manager.php:46
 msgid ""
 "Sau khi bạn tạo Shortcode và gán nó vào một Trang (Page), hãy nhớ copy đường "
 "dẫn của Trang đó và thêm vào danh sách <strong>Never Cache URL (Không lưu bộ "
@@ -1069,17 +1069,17 @@ msgstr ""
 "After you create a shortcode and assign it to a Page, remember to copy that "
 "page URL and add it to the <strong>Never Cache URL</strong> list in the "
 "settings of caching plugins such as WP Rocket, LiteSpeed, W3 Total Cache, "
-"etc."
+"etc!"
 
-#: admin/views/shortcodes-manager.php:67
+#: admin/views/shortcodes-manager.php:52
 msgid "Tạo Shortcode Mới"
 msgstr "Create New Shortcode"
 
-#: admin/views/shortcodes-manager.php:72
+#: admin/views/shortcodes-manager.php:57
 msgid "Tên nhận diện"
 msgstr "Identifier name"
 
-#: admin/views/shortcodes-manager.php:73
+#: admin/views/shortcodes-manager.php:58
 msgid ""
 "Tên gọi nội bộ để bạn dễ nhận biết khi chọn Gateway lúc tạo Link (VD: "
 "Gateway Action Games)."
@@ -1087,15 +1087,15 @@ msgstr ""
 "Internal name to help you easily identify the Gateway when creating a link "
 "(e.g., Gateway Action Games)."
 
-#: admin/views/shortcodes-manager.php:75
+#: admin/views/shortcodes-manager.php:60
 msgid "Ví dụ: Gateway Game Hành Động"
 msgstr "Example: Action Game Gateway"
 
-#: admin/views/shortcodes-manager.php:80
+#: admin/views/shortcodes-manager.php:65
 msgid "Thời gian chờ (giây)"
 msgstr "Waiting Time (seconds)"
 
-#: admin/views/shortcodes-manager.php:81
+#: admin/views/shortcodes-manager.php:66
 msgid ""
 "Nhập 1 số cho tất cả bước (VD: 10) hoặc nhiều số cách nhau bằng dấu phẩy để "
 "áp dụng cho từng bước QC (VD: 15,5,3)."
@@ -1103,67 +1103,63 @@ msgstr ""
 "Enter a single number for all steps (e.g., 10) or multiple numbers separated "
 "by commas to apply to each ad step (e.g., 15,5,3)."
 
-#: admin/views/shortcodes-manager.php:83
+#: admin/views/shortcodes-manager.php:68
 msgid "VD: 10,5,3"
 msgstr "Example: 10,5,3"
 
-#: admin/views/shortcodes-manager.php:88
+#: admin/views/shortcodes-manager.php:73
 msgid "Chọn Trang (Page) đặt Shortcode"
 msgstr "Select Page for Shortcode"
 
-#: admin/views/shortcodes-manager.php:89
+#: admin/views/shortcodes-manager.php:74
 msgid ""
 "Trang chứa Shortcode này sẽ đóng vai trò là \"Cửa an ninh\" đếm ngược thời "
 "gian."
 msgstr ""
 "The page containing this shortcode will act as the countdown “security "
-"gateway.”"
+"gateway”."
 
-#: admin/views/shortcodes-manager.php:92
+#: admin/views/shortcodes-manager.php:77
 msgid "-- Chọn một trang --"
 msgstr "-- Select a page --"
 
-#: admin/views/shortcodes-manager.php:99
+#: admin/views/shortcodes-manager.php:84
 msgid ""
 "⚠️ Chú ý: Trang được chọn ở đây bắt buộc phải được loại trừ khỏi bộ nhớ đệm "
 "(Exclude from Cache) của Website!"
 msgstr ""
 "⚠️ Note: The page selected here must be excluded from the website cache!"
 
-#: admin/views/shortcodes-manager.php:104
+#: admin/views/shortcodes-manager.php:89
 msgid "Tạo Shortcode"
 msgstr "Create Shortcode"
 
-#: admin/views/shortcodes-manager.php:110
+#: admin/views/shortcodes-manager.php:95
 msgid "Danh sách Shortcode đã tạo"
 msgstr "List of Created Shortcodes"
 
-#: admin/views/shortcodes-manager.php:114
+#: admin/views/shortcodes-manager.php:99
 msgid "Tên Gateway"
 msgstr "Gateway Name"
 
-#: admin/views/shortcodes-manager.php:115
+#: admin/views/shortcodes-manager.php:100
 msgid "Shortcode"
 msgstr "Shortcode"
 
-#: admin/views/shortcodes-manager.php:117
+#: admin/views/shortcodes-manager.php:102
 msgid "Trang đích"
 msgstr "Destination Page"
 
-#: admin/views/shortcodes-manager.php:123
+#: admin/views/shortcodes-manager.php:108
 msgid "Chưa có shortcode nào. Hãy tạo cái đầu tiên bên cạnh nhé!"
 msgstr ""
-"No shortcodes found. Please create the first one using the panel next to it."
+"No shortcodes found. Please create the first one using the panel next to it!"
 
-#: admin/views/shortcodes-manager.php:129
-msgid "giây"
-msgstr "seconds"
-
-#: admin/views/shortcodes-manager.php:130
+#: admin/views/shortcodes-manager.php:115
 msgid "Xem trang"
 msgstr "View Page"
 
-#: admin/views/shortcodes-manager.php:131
+#: admin/views/shortcodes-manager.php:116
 msgid "Xóa shortcode này?"
 msgstr "Delete this shortcode?"
 
@@ -1211,7 +1207,12 @@ msgstr "Cloudflare Turnstile verification failed."
 msgid "Thiếu dữ liệu link."
 msgstr "Missing link data."
 
-#: public/class-frontend-ajax.php:141
+#: public/class-frontend-ajax.php:103 public/class-shortcode-gateway.php:126
+#: public/class-shortcode-inline.php:119
+msgid "Lỗi bảo mật: Bạn chưa mở khóa mật khẩu cho link này!"
+msgstr "Security error: You have not unlocked the password for this link yet!"
+
+#: public/class-frontend-ajax.php:156
 msgid "Không tìm thấy link trong cơ sở dữ liệu."
 msgstr "Link not found in the database."
 
@@ -1225,106 +1226,106 @@ msgid "Link này chưa được gán Gateway hoặc Gateway đã bị vô hiệu
 msgstr ""
 "This link has not been assigned a Gateway or the Gateway has been disabled."
 
-#: public/class-shortcode-gateway.php:18
+#: public/class-shortcode-gateway.php:19
 msgid "Bạn không có quyền truy cập trực tiếp trang này!"
 msgstr "You do not have permission to access this page directly!"
 
-#: public/class-shortcode-gateway.php:24
+#: public/class-shortcode-gateway.php:25
 msgid "Lỗi: Gateway không tồn tại."
 msgstr "Error: Gateway does not exist."
 
-#: public/class-shortcode-gateway.php:31
+#: public/class-shortcode-gateway.php:32
 msgid "Lỗi: Link không tồn tại hoặc đã bị xóa."
 msgstr "Error: The link does not exist or has been deleted."
 
-#: public/class-shortcode-gateway.php:94 public/class-shortcode-inline.php:85
+#: public/class-shortcode-gateway.php:91 public/class-shortcode-inline.php:84
 msgid "Vui lòng đợi..."
 msgstr "Please wait..."
 
-#: public/class-shortcode-gateway.php:95 public/class-shortcode-inline.php:86
+#: public/class-shortcode-gateway.php:92 public/class-shortcode-inline.php:85
 msgid "Xem quảng cáo"
 msgstr "Watch Ad"
 
-#: public/class-shortcode-gateway.php:96 public/class-shortcode-inline.php:87
+#: public/class-shortcode-gateway.php:93 public/class-shortcode-inline.php:86
 msgid "Link đã sẵn sàng! Bấm để nhận"
 msgstr "Link is ready! Click to get it"
 
-#: public/class-shortcode-gateway.php:97 public/class-shortcode-gateway.php:98
-#: public/class-shortcode-inline.php:88 public/class-shortcode-inline.php:89
+#: public/class-shortcode-gateway.php:94 public/class-shortcode-gateway.php:95
+#: public/class-shortcode-inline.php:87 public/class-shortcode-inline.php:88
 msgid "Đang lấy link..."
 msgstr "Retrieving link..."
 
-#: public/class-shortcode-gateway.php:99
+#: public/class-shortcode-gateway.php:96
 msgid "Bạn đang có 1 link đang hoạt động!"
 msgstr "You already have an active link!"
 
-#: public/class-shortcode-gateway.php:100 public/class-shortcode-inline.php:91
+#: public/class-shortcode-gateway.php:97 public/class-shortcode-inline.php:90
 msgid "Hãy hoàn thành link kia, hoặc chờ hệ thống tự mở khóa sau 5 phút."
 msgstr ""
 "Please complete the other link, or wait for the system to unlock "
 "automatically after 5 minutes."
 
-#: public/class-shortcode-gateway.php:101 public/class-shortcode-inline.php:92
+#: public/class-shortcode-gateway.php:98 public/class-shortcode-inline.php:91
 msgid "Lỗi:"
 msgstr "Error:"
 
-#: public/class-shortcode-gateway.php:102 public/class-shortcode-inline.php:93
+#: public/class-shortcode-gateway.php:99 public/class-shortcode-inline.php:92
 msgid "Không thể lấy link đích!"
 msgstr "Unable to retrieve the destination link!"
 
-#: public/class-shortcode-gateway.php:103 public/class-shortcode-inline.php:94
+#: public/class-shortcode-gateway.php:100 public/class-shortcode-inline.php:93
 msgid "Lỗi kết nối mạng, vui lòng thử lại!"
 msgstr "Network error, please try again!"
 
-#: public/class-shortcode-gateway.php:104 public/class-shortcode-inline.php:95
+#: public/class-shortcode-gateway.php:101 public/class-shortcode-inline.php:94
 msgid "Thử lại"
 msgstr "Retry"
 
-#: public/class-shortcode-gateway.php:105 public/class-shortcode-inline.php:96
+#: public/class-shortcode-gateway.php:102 public/class-shortcode-inline.php:95
 msgid "Bạn đã hoàn thành các bước."
 msgstr "You have completed the steps."
 
-#: public/class-shortcode-gateway.php:106 public/class-shortcode-inline.php:97
+#: public/class-shortcode-gateway.php:103 public/class-shortcode-inline.php:96
 msgid "Đang đếm ngược..."
 msgstr "Countdown in progress..."
 
-#: public/class-shortcode-gateway.php:107
+#: public/class-shortcode-gateway.php:104
 msgid "Bấm để tiếp tục xem quảng cáo"
 msgstr "Click to continue watching the ad"
 
-#: public/class-shortcode-gateway.php:108 public/class-shortcode-inline.php:99
+#: public/class-shortcode-gateway.php:105 public/class-shortcode-inline.php:98
 msgid "⚠️ Đã dừng đếm. Bạn phải quay lại tab này!"
 msgstr "⚠️ Countdown paused. Please return to this tab!"
 
-#: public/class-shortcode-gateway.php:109 public/class-shortcode-inline.php:100
+#: public/class-shortcode-gateway.php:106 public/class-shortcode-inline.php:99
 msgid "🔍 Xác minh bảo mật"
 msgstr "🔍 Security Verification"
 
-#: public/class-shortcode-gateway.php:110 public/class-shortcode-inline.php:101
+#: public/class-shortcode-gateway.php:107 public/class-shortcode-inline.php:100
 msgid "Đang chạy xác minh..."
 msgstr "Verification in progress..."
 
-#: public/class-shortcode-gateway.php:111 public/class-shortcode-inline.php:102
+#: public/class-shortcode-gateway.php:108 public/class-shortcode-inline.php:101
 msgid "Hệ thống cần kiểm tra để đảm bảo bạn không phải Robot."
 msgstr "The system needs to verify that you are not a robot."
 
-#: public/class-shortcode-gateway.php:112 public/class-shortcode-inline.php:103
+#: public/class-shortcode-gateway.php:109 public/class-shortcode-inline.php:102
 msgid "CLICK HERE TO CONTINUE"
 msgstr "CLICK HERE TO CONTINUE"
 
-#: public/class-shortcode-gateway.php:113 public/class-shortcode-inline.php:104
+#: public/class-shortcode-gateway.php:110 public/class-shortcode-inline.php:103
 msgid "Vui lòng nhấn nút bên dưới để bắt đầu"
 msgstr "Please click the button below to start"
 
-#: public/class-shortcode-gateway.php:114 public/class-shortcode-inline.php:105
+#: public/class-shortcode-gateway.php:111 public/class-shortcode-inline.php:104
 msgid "reCAPTCHA bị lỗi. Vui lòng tải lại trang."
 msgstr "reCAPTCHA error. Please reload the page."
 
-#: public/class-shortcode-gateway.php:115 public/class-shortcode-inline.php:106
+#: public/class-shortcode-gateway.php:112 public/class-shortcode-inline.php:105
 msgid "Script bảo mật bị chặn. Vui lòng tắt trình chặn quảng cáo để đi tiếp."
 msgstr "Security script blocked. Please disable your ad blocker to continue."
 
-#: public/class-shortcode-gateway.php:116 public/class-shortcode-inline.php:107
+#: public/class-shortcode-gateway.php:113 public/class-shortcode-inline.php:106
 msgid ""
 "⚠️ Trình duyệt đang chặn Cửa sổ bật lên (Popup).\n"
 "\n"
@@ -1334,40 +1335,40 @@ msgstr ""
 "\n"
 "Please allow pop-ups to continue!"
 
-#: public/class-shortcode-gateway.php:117 public/class-shortcode-inline.php:108
+#: public/class-shortcode-gateway.php:114 public/class-shortcode-inline.php:107
 msgid "⚠️ Vui lòng cấp quyền mở Popup trên thanh địa chỉ để đi tiếp!"
 msgstr "⚠️ Please enable pop-ups from the address bar to continue!"
 
-#: public/class-shortcode-gateway.php:118 public/class-shortcode-inline.php:109
+#: public/class-shortcode-gateway.php:115 public/class-shortcode-inline.php:108
 msgid "ĐANG KIỂM TRA..."
 msgstr "CHECKING..."
 
-#: public/class-shortcode-gateway.php:119
-#: public/class-shortcode-gateway.php:145 public/class-shortcode-inline.php:110
+#: public/class-shortcode-gateway.php:116
+#: public/class-shortcode-gateway.php:144 public/class-shortcode-inline.php:109
 msgid "MỞ KHÓA NGAY"
 msgstr "UNLOCK NOW"
 
-#: public/class-shortcode-gateway.php:120 public/class-shortcode-inline.php:111
+#: public/class-shortcode-gateway.php:117 public/class-shortcode-inline.php:110
 msgid "Mật khẩu sai!"
 msgstr "Incorrect password!"
 
-#: public/class-shortcode-gateway.php:121 public/class-shortcode-inline.php:112
+#: public/class-shortcode-gateway.php:118 public/class-shortcode-inline.php:111
 msgid "ĐANG CHỜ XÁC MINH..."
 msgstr "WAITING FOR VERIFICATION..."
 
-#: public/class-shortcode-gateway.php:122 public/class-shortcode-inline.php:113
+#: public/class-shortcode-gateway.php:119 public/class-shortcode-inline.php:112
 msgid "ĐANG THỬ LẠI..."
 msgstr "RETRYING..."
 
-#: public/class-shortcode-gateway.php:123 public/class-shortcode-inline.php:114
+#: public/class-shortcode-gateway.php:120 public/class-shortcode-inline.php:113
 msgid "Lỗi kết nối mạng!"
 msgstr "Network connection error!"
 
-#: public/class-shortcode-gateway.php:124 public/class-shortcode-inline.php:115
+#: public/class-shortcode-gateway.php:121 public/class-shortcode-inline.php:114
 msgid "Hệ thống đang kiểm tra an toàn, vui lòng đợi giây lát..."
 msgstr "The system is performing a security check. Please wait a moment..."
 
-#: public/class-shortcode-gateway.php:125 public/class-shortcode-inline.php:116
+#: public/class-shortcode-gateway.php:122 public/class-shortcode-inline.php:115
 msgid ""
 "Lỗi: Trình duyệt không thể tải Script Cloudflare. Vui lòng tắt chặn quảng "
 "cáo hoặc tải lại trang!"
@@ -1375,47 +1376,52 @@ msgstr ""
 "Error: The browser could not load the Cloudflare script. Please disable your "
 "ad blocker or refresh the page!"
 
-#: public/class-shortcode-gateway.php:126 public/class-shortcode-inline.php:117
+#: public/class-shortcode-gateway.php:123 public/class-shortcode-inline.php:116
 msgid "Đã lấy link!"
 msgstr "Link acquired!"
 
-#: public/class-shortcode-gateway.php:127 public/class-shortcode-inline.php:118
+#: public/class-shortcode-gateway.php:124 public/class-shortcode-inline.php:117
 msgid "Link đích đã được mở ở Tab mới."
 msgstr "The destination link has been opened in a new tab."
 
-#: public/class-shortcode-gateway.php:128 public/class-shortcode-inline.php:119
+#: public/class-shortcode-gateway.php:125 public/class-shortcode-inline.php:118
 msgid "Vấp mạng. Tự động thử lại sau 2 giây"
-msgstr "Network interruption. Retrying automatically in 2 seconds."
+msgstr "Network interruption. Retrying automatically in 2 seconds"
 
-#: public/class-shortcode-gateway.php:140
+#: public/class-shortcode-gateway.php:127 public/class-shortcode-inline.php:120
+msgid "Tốn vài giây để nhập mật khẩu thôi mà, tại sao bạn không cố gắng nhỉ?"
+msgstr ""
+"It only takes a few seconds to enter the password—why not give it a try?"
+
+#: public/class-shortcode-gateway.php:139
 msgid "Link Yêu Cầu Mật Khẩu"
 msgstr "Password Required Link"
 
-#: public/class-shortcode-gateway.php:141
+#: public/class-shortcode-gateway.php:140
 msgid "Vui lòng nhập mật khẩu để tiếp tục lấy link đích."
 msgstr "Please enter the password to continue accessing the destination link."
 
-#: public/class-shortcode-gateway.php:144
+#: public/class-shortcode-gateway.php:143
 msgid "Nhập mật khẩu vào đây..."
 msgstr "Enter password here..."
 
-#: public/class-shortcode-gateway.php:151
+#: public/class-shortcode-gateway.php:150
 msgid "Trang đích đang được chuẩn bị..."
 msgstr "Preparing the destination page..."
 
-#: public/class-shortcode-gateway.php:152
+#: public/class-shortcode-gateway.php:151
 msgid "Vui lòng hoàn thành các bước bên dưới để lấy link"
 msgstr "Please complete the steps below to get the link"
 
-#: public/class-shortcode-gateway.php:155
+#: public/class-shortcode-gateway.php:154
 msgid "Bấm vào đây để tiếp tục"
 msgstr "Click here to continue"
 
-#: public/class-shortcode-inline.php:29
+#: public/class-shortcode-inline.php:30
 msgid "Lỗi: Vui lòng nhập slug của link."
 msgstr "Error: Please enter the link slug."
 
-#: public/class-shortcode-inline.php:35
+#: public/class-shortcode-inline.php:36
 msgid "Lỗi: Link không tồn tại trong hệ thống."
 msgstr "Error: The link does not exist in the system."
 
@@ -1423,31 +1429,31 @@ msgstr "Error: The link does not exist in the system."
 msgid "Lỗi: Gateway bị xóa."
 msgstr "Error: The Gateway has been deleted."
 
-#: public/class-shortcode-inline.php:90
+#: public/class-shortcode-inline.php:89
 msgid "Bạn đang có 1 link khác đang hoạt động!"
 msgstr "Another link is currently active!"
 
-#: public/class-shortcode-inline.php:98
+#: public/class-shortcode-inline.php:97
 msgid "Bấm để tiếp tục"
 msgstr "Click to continue"
 
-#: public/class-shortcode-inline.php:128
+#: public/class-shortcode-inline.php:130
 msgid "Yêu Cầu Mật Khẩu"
 msgstr "Password Required"
 
-#: public/class-shortcode-inline.php:131
+#: public/class-shortcode-inline.php:133
 msgid "Nhập mật khẩu..."
 msgstr "Enter password..."
 
-#: public/class-shortcode-inline.php:132
+#: public/class-shortcode-inline.php:134
 msgid "MỞ KHÓA NÚT BẤM"
 msgstr "UNLOCK BUTTON"
 
-#: public/class-shortcode-inline.php:138
+#: public/class-shortcode-inline.php:141
 msgid "Bấm vào nút bên dưới để lấy link:"
 msgstr "Click the button below to get the link:"
 
-#: public/class-shortcode-inline.php:140
+#: public/class-shortcode-inline.php:143
 msgid "BẮT ĐẦU LẤY LINK"
 msgstr "START GETTING LINK"
 
@@ -1494,6 +1500,9 @@ msgstr "Device (User Agent)"
 #: wp-redirect-gateway.php:361
 msgid "Settings"
 msgstr "Settings"
+
+#~ msgid "giây"
+#~ msgstr "seconds"
 
 #~ msgid "Link Chia sẻ (Mạng xã hội)"
 #~ msgstr "Share Link (Social Media)"
