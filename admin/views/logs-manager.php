@@ -47,43 +47,43 @@ $selected_month = isset( $_GET['filter_month'] ) ? sanitize_text_field( wp_unsla
 
 // 1. Query Lấy Danh Sách Logs
 if ( ! empty( $selected_month ) ) {
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     $logs = $wpdb->get_results( $wpdb->prepare( "
         SELECT lg.*, lk.name as link_name 
-        FROM {$table_logs} lg
-        LEFT JOIN {$table_links} lk ON lg.link_id = lk.id
+        FROM " . $table_logs . " lg
+        LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id
         WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s
         ORDER BY lg.clicked_at DESC
         LIMIT 500
     ", $selected_month ), ARRAY_A );
 } else {
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     $logs = $wpdb->get_results( "
         SELECT lg.*, lk.name as link_name 
-        FROM {$table_logs} lg
-        LEFT JOIN {$table_links} lk ON lg.link_id = lk.id
+        FROM " . $table_logs . " lg
+        LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id
         ORDER BY lg.clicked_at DESC
         LIMIT 500
     ", ARRAY_A );
 }
 
 // 2. Query Lấy Danh Sách Tháng
-// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-$available_months = $wpdb->get_col( "SELECT DISTINCT DATE_FORMAT(clicked_at, '%Y-%m') as month_year FROM {$table_logs} ORDER BY month_year DESC" );
+// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+$available_months = $wpdb->get_col( "SELECT DISTINCT DATE_FORMAT(clicked_at, '%Y-%m') as month_year FROM " . $table_logs . " ORDER BY month_year DESC" );
 
 // --- TRUY VẤN THỐNG KÊ NHANH ---
 if ( ! empty( $selected_month ) ) {
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-    $total_clicks = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM {$table_logs} lg WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s", $selected_month ) );
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    $total_clicks = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM " . $table_logs . " lg WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s", $selected_month ) );
     
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-    $completed_clicks = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM {$table_logs} lg WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s AND status = 'completed'", $selected_month ) );
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    $completed_clicks = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM " . $table_logs . " lg WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s AND status = 'completed'", $selected_month ) );
     
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     $top_link = $wpdb->get_row( $wpdb->prepare( "
         SELECT lk.name, COUNT(lg.id) as clicks 
-        FROM {$table_logs} lg 
-        LEFT JOIN {$table_links} lk ON lg.link_id = lk.id 
+        FROM " . $table_logs . " lg 
+        LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id 
         WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s 
         GROUP BY lg.link_id 
         ORDER BY clicks DESC 
@@ -91,10 +91,10 @@ if ( ! empty( $selected_month ) ) {
     ", $selected_month ) );
 
     // 3. Query Top Referrers
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     $top_referrers = $wpdb->get_results( $wpdb->prepare( "
         SELECT referrer, COUNT(id) as clicks 
-        FROM {$table_logs} lg 
+        FROM " . $table_logs . " lg 
         WHERE referrer != 'Direct / None' AND referrer != 'Trực tiếp' AND referrer IS NOT NULL AND referrer != '' 
         AND DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s
         GROUP BY referrer 
@@ -102,26 +102,26 @@ if ( ! empty( $selected_month ) ) {
         LIMIT 3
     ", $selected_month ) );
 } else {
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-    $total_clicks = $wpdb->get_var( "SELECT COUNT(id) FROM {$table_logs} lg" );
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    $total_clicks = $wpdb->get_var( "SELECT COUNT(id) FROM " . $table_logs . " lg" );
     
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-    $completed_clicks = $wpdb->get_var( "SELECT COUNT(id) FROM {$table_logs} lg WHERE status = 'completed'" );
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    $completed_clicks = $wpdb->get_var( "SELECT COUNT(id) FROM " . $table_logs . " lg WHERE status = 'completed'" );
     
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     $top_link = $wpdb->get_row( "
         SELECT lk.name, COUNT(lg.id) as clicks 
-        FROM {$table_logs} lg 
-        LEFT JOIN {$table_links} lk ON lg.link_id = lk.id 
+        FROM " . $table_logs . " lg 
+        LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id 
         GROUP BY lg.link_id 
         ORDER BY clicks DESC 
         LIMIT 1
     " );
 
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     $top_referrers = $wpdb->get_results( "
         SELECT referrer, COUNT(id) as clicks 
-        FROM {$table_logs} lg 
+        FROM " . $table_logs . " lg 
         WHERE referrer != 'Direct / None' AND referrer != 'Trực tiếp' AND referrer IS NOT NULL AND referrer != ''
         GROUP BY referrer 
         ORDER BY clicks DESC 

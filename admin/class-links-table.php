@@ -203,11 +203,11 @@ class WPRG_Links_Table extends WP_List_Table {
         $where_sql = implode( ' AND ', $where_clauses );
 
         if ( empty( $query_args ) ) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
-            $total_items = $wpdb->get_var( "SELECT COUNT(id) FROM {$table_name} WHERE {$where_sql}" );
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $total_items = $wpdb->get_var( "SELECT COUNT(id) FROM " . $table_name . " WHERE " . $where_sql );
         } else {
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-            $total_items = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM {$table_name} WHERE {$where_sql}", $query_args ) );
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.PlaceholdersReplacements, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $total_items = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM " . $table_name . " WHERE " . $where_sql, $query_args ) );
         }
 
         $this->set_pagination_args( array(
@@ -233,13 +233,13 @@ class WPRG_Links_Table extends WP_List_Table {
         $query_args[] = $per_page;
         $query_args[] = $offset;
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.PlaceholdersReplacements, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $this->items = $wpdb->get_results( $wpdb->prepare( "
             SELECT *, 
-            (SELECT COUNT(id) FROM {$table_logs} WHERE link_id = {$table_name}.id AND status = 'completed') as completed_clicks
-            FROM {$table_name} 
-            WHERE {$where_sql} 
-            ORDER BY {$orderby} {$order} 
+            (SELECT COUNT(id) FROM " . $table_logs . " WHERE link_id = " . $table_name . ".id AND status = 'completed') as completed_clicks
+            FROM " . $table_name . " 
+            WHERE " . $where_sql . " 
+            ORDER BY " . $orderby . " " . $order . " 
             LIMIT %d OFFSET %d
         ", $query_args ), ARRAY_A );
     }

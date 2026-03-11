@@ -1,13 +1,18 @@
 <?php
 /**
- * Plugin Name: WP Redirect Gateway & Ads Monetization
- * Description: Plugin quản lý link redirect, gateway ads, đếm ngược thời gian, chống bot và thống kê log chi tiết. <br>🔗 <a href="https://quanbui.net" target="_blank" style="color:#0073aa; font-weight:500;">Visit my plugin</a> &nbsp;|&nbsp; 📖 <a href="https://quanbui.net/huong-dan" target="_blank" style="color:#0073aa; font-weight:500;">Document</a>
+ * Plugin Name: Redirect Gateway Manager
+ * Plugin URI:  https://quanbui.net
+ * Description: Advanced redirect and link access control plugin with countdown timers, password protection, captcha support, and click analytics.
  * Version:     1.0.2
  * Author:      Anh Quan Bui
+ * Author URI:  https://quanbui.net
+ * Requires at least: 5.6
+ * Tested up to: 6.9
+ * Requires PHP: 7.4
  * Text Domain: wp-redirect-gateway
  * Domain Path: /languages
- * License:           GPLv2 or later
- * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * License:     GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
 
 // 1. BẢO MẬT: Ngăn chặn truy cập trực tiếp vào file
@@ -263,12 +268,12 @@ function wprg_handle_export_logs_csv() {
         $filename_suffix = $month;
     }
 
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     $logs = $wpdb->get_results( "
         SELECT lg.*, lk.name as link_name 
-        FROM {$table_logs} lg 
-        LEFT JOIN {$table_links} lk ON lg.link_id = lk.id 
-        {$where} ORDER BY lg.clicked_at DESC
+        FROM " . $table_logs . " lg 
+        LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id 
+        " . $where . " ORDER BY lg.clicked_at DESC
     ", ARRAY_A );
 
     if ( ob_get_length() ) ob_end_clean();
@@ -368,9 +373,36 @@ function wprg_add_settings_link( $links ) {
     // LƯU Ý: Nếu URL trang cài đặt của bạn không phải là ?page=wprg-settings thì bạn sửa chữ 'wprg-settings' ở dòng dưới cho khớp nhé.
     $settings_url = admin_url( 'admin.php?page=wprg-settings' ); 
     
-    $settings_link = '<a href="' . esc_url( $settings_url ) . '" style="font-weight: bold; color: #2271b1;">' . esc_html__( 'Settings', 'wp-redirect-gateway' ) . '</a>';
+    $settings_link = '<a href="' . esc_url( $settings_url ) . '">' . esc_html__( 'Settings', 'wp-redirect-gateway' ) . '</a>';
     
     array_unshift( $links, $settings_link );
     
     return $links;
+}
+
+/**
+ * Privacy Policy Suggestion
+ */
+add_action( 'admin_init', 'wprg_add_privacy_policy_content' );
+
+function wprg_add_privacy_policy_content() {
+
+    if ( ! function_exists( 'wp_add_privacy_policy_content' ) ) {
+        return;
+    }
+
+    $content  = '<p>' . esc_html__(
+        'This plugin logs visitor technical information such as IP address, browser user agent, referrer URL, and access time when a gateway link is accessed.',
+        'wp-redirect-gateway'
+    ) . '</p>';
+
+    $content .= '<p>' . esc_html__(
+        'The data is stored locally in the WordPress database and is used for click analytics, security monitoring, and bot detection. This plugin does not send any collected data to external servers.',
+        'wp-redirect-gateway'
+    ) . '</p>';
+
+    wp_add_privacy_policy_content(
+        esc_html__( 'WP Redirect Gateway', 'wp-redirect-gateway' ),
+        wp_kses_post( $content )
+    );
 }

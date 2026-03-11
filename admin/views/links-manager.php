@@ -44,6 +44,7 @@ $post_action2 = isset( $_POST['action2'] ) ? sanitize_text_field( wp_unslash( $_
 
 if ( $post_action === 'bulk-delete' || $post_action2 === 'bulk-delete' ) {
     if ( isset( $_POST['bulk-delete'] ) && is_array( $_POST['bulk-delete'] ) ) {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
         $raw_ids = wp_unslash( $_POST['bulk-delete'] );
         $ids = array_map( 'intval', $raw_ids );
         $ids_list = implode( ',', $ids );

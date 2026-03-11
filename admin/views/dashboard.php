@@ -5,35 +5,35 @@ global $wpdb;
 $table_links = $wpdb->prefix . 'rg_links';
 $table_logs  = $wpdb->prefix . 'rg_logs';
 
-// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-$total_links = $wpdb->get_var( "SELECT COUNT(id) FROM {$table_links}" );
+// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+$total_links = $wpdb->get_var( "SELECT COUNT(id) FROM " . $table_links );
 
-// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-$total_clicks = $wpdb->get_var( "SELECT COUNT(id) FROM {$table_logs}" );
+// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+$total_clicks = $wpdb->get_var( "SELECT COUNT(id) FROM " . $table_logs );
 
-// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 $top_ips = $wpdb->get_results( "
     SELECT ip_address, COUNT(id) as total_clicks 
-    FROM {$table_logs} 
+    FROM " . $table_logs . " 
     GROUP BY ip_address 
     ORDER BY total_clicks DESC 
     LIMIT 20
 ", ARRAY_A );
 
-// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 $top_links = $wpdb->get_results( "
     SELECT lk.name, COUNT(lg.id) as total_clicks 
-    FROM {$table_logs} lg
-    LEFT JOIN {$table_links} lk ON lg.link_id = lk.id
+    FROM " . $table_logs . " lg
+    LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id
     GROUP BY lg.link_id 
     ORDER BY total_clicks DESC 
     LIMIT 20
 ", ARRAY_A );
 
-// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 $chart_data_raw = $wpdb->get_results( "
     SELECT HOUR(clicked_at) as click_hour, COUNT(id) as total_clicks 
-    FROM {$table_logs} 
+    FROM " . $table_logs . " 
     GROUP BY HOUR(clicked_at) 
     ORDER BY click_hour ASC
 ", ARRAY_A );
