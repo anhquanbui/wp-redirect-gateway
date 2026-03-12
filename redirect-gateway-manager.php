@@ -9,7 +9,7 @@
  * Requires at least: 5.6
  * Tested up to: 6.9
  * Requires PHP: 7.4
- * Text Domain: wp-redirect-gateway
+ * Text Domain: redirect-gateway-manager
  * Domain Path: /languages
  * License:     GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -30,7 +30,7 @@ define( 'WPRG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
  */
 /** function wprg_load_textdomain() {
 *   load_plugin_textdomain( 
-*      'wp-redirect-gateway', 
+*      'redirect-gateway-manager', 
 *      false, 
 *      dirname( plugin_basename( __FILE__ ) ) . '/languages/' 
 *  );
@@ -107,10 +107,10 @@ require_once WPRG_PLUGIN_DIR . 'public/class-frontend-ajax.php';
 add_action( 'admin_post_wprg_export_settings', 'wprg_handle_export_settings' );
 function wprg_handle_export_settings() {
     if ( ! isset( $_POST['wprg_export_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_export_nonce'] ) ), 'wprg_export_nonce_action' ) ) {
-        wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
+        wp_die( esc_html__( 'Lỗi bảo mật!', 'redirect-gateway-manager' ) );
     }
     if ( ! current_user_can( 'manage_options' ) ) {
-        wp_die( esc_html__( 'Bạn không có quyền thực hiện hành động này.', 'wp-redirect-gateway' ) );
+        wp_die( esc_html__( 'Bạn không có quyền thực hiện hành động này.', 'redirect-gateway-manager' ) );
     }
 
     $option_keys = array(
@@ -134,7 +134,7 @@ function wprg_handle_export_settings() {
     );
 
     $export_data = array(
-        'plugin'      => 'wp-redirect-gateway',
+        'plugin'      => 'redirect-gateway-manager',
         'version'     => WPRG_VERSION,
         'export_date' => current_time( 'Y-m-d H:i:s' ),
         'settings'    => array()
@@ -162,21 +162,21 @@ function wprg_handle_export_settings() {
 add_action( 'admin_post_wprg_import_settings', 'wprg_handle_import_settings' );
 function wprg_handle_import_settings() {
     if ( ! isset( $_POST['wprg_import_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_import_nonce'] ) ), 'wprg_import_nonce_action' ) ) {
-        wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
+        wp_die( esc_html__( 'Lỗi bảo mật!', 'redirect-gateway-manager' ) );
     }
     if ( ! current_user_can( 'manage_options' ) ) {
-        wp_die( esc_html__( 'Bạn không có quyền thực hiện hành động này.', 'wp-redirect-gateway' ) );
+        wp_die( esc_html__( 'Bạn không có quyền thực hiện hành động này.', 'redirect-gateway-manager' ) );
     }
     if ( empty( $_FILES['wprg_import_file']['tmp_name'] ) ) {
-        wp_die( esc_html__( 'Vui lòng chọn file hợp lệ.', 'wp-redirect-gateway' ) );
+        wp_die( esc_html__( 'Vui lòng chọn file hợp lệ.', 'redirect-gateway-manager' ) );
     }
 
     $tmp_name = sanitize_text_field( wp_unslash( $_FILES['wprg_import_file']['tmp_name'] ) );
     $file_content = file_get_contents( $tmp_name );
     $decoded_data = json_decode( $file_content, true );
 
-    if ( ! $decoded_data || ! isset( $decoded_data['plugin'] ) || $decoded_data['plugin'] !== 'wp-redirect-gateway' ) {
-        wp_die( esc_html__( 'File không hợp lệ hoặc không phải của plugin WP Redirect Gateway.', 'wp-redirect-gateway' ) );
+    if ( ! $decoded_data || ! isset( $decoded_data['plugin'] ) || $decoded_data['plugin'] !== 'redirect-gateway-manager' ) {
+        wp_die( esc_html__( 'File không hợp lệ hoặc không phải của plugin WP Redirect Gateway.', 'redirect-gateway-manager' ) );
     }
 
     if ( isset( $decoded_data['settings'] ) && is_array( $decoded_data['settings'] ) ) {
@@ -195,16 +195,16 @@ function wprg_handle_import_settings() {
 add_action( 'admin_post_wprg_export_links_csv', 'wprg_handle_export_links_csv' );
 function wprg_handle_export_links_csv() {
     if ( ! isset( $_POST['wprg_export_links_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_export_links_nonce'] ) ), 'wprg_export_links_action' ) ) {
-        wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
+        wp_die( esc_html__( 'Lỗi bảo mật!', 'redirect-gateway-manager' ) );
     }
     if ( ! current_user_can( 'manage_options' ) ) {
-        wp_die( esc_html__( 'Bạn không có quyền!', 'wp-redirect-gateway' ) );
+        wp_die( esc_html__( 'Bạn không có quyền!', 'redirect-gateway-manager' ) );
     }
 
     global $wpdb;
     $table_links = $wpdb->prefix . 'rg_links';
     
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
     $links = $wpdb->get_results( "SELECT * FROM {$table_links} ORDER BY id DESC", ARRAY_A );
 
     if ( ob_get_length() ) ob_end_clean(); // Xóa đệm tránh lỗi file
@@ -218,16 +218,16 @@ function wprg_handle_export_links_csv() {
 
     // Đã bọc dịch cho dòng tiêu đề file CSV
     fputcsv( $output, array( 
-        __( 'ID', 'wp-redirect-gateway' ), 
-        __( 'Tên Link', 'wp-redirect-gateway' ), 
-        __( 'Nhãn (Tag)', 'wp-redirect-gateway' ),
-        __( 'Link Gốc', 'wp-redirect-gateway' ), 
-        __( 'Slug', 'wp-redirect-gateway' ), 
-        __( 'Số QC', 'wp-redirect-gateway' ), 
-        __( 'Thời gian chờ', 'wp-redirect-gateway' ), 
-        __( 'Mật khẩu', 'wp-redirect-gateway' ), 
-        __( 'Mã Gateway', 'wp-redirect-gateway' ), 
-        __( 'Ngày tạo', 'wp-redirect-gateway' ) 
+        __( 'ID', 'redirect-gateway-manager' ), 
+        __( 'Tên Link', 'redirect-gateway-manager' ), 
+        __( 'Nhãn (Tag)', 'redirect-gateway-manager' ),
+        __( 'Link Gốc', 'redirect-gateway-manager' ), 
+        __( 'Slug', 'redirect-gateway-manager' ), 
+        __( 'Số QC', 'redirect-gateway-manager' ), 
+        __( 'Thời gian chờ', 'redirect-gateway-manager' ), 
+        __( 'Mật khẩu', 'redirect-gateway-manager' ), 
+        __( 'Mã Gateway', 'redirect-gateway-manager' ), 
+        __( 'Ngày tạo', 'redirect-gateway-manager' ) 
     ) );
 
     // Dữ liệu
@@ -249,10 +249,10 @@ function wprg_handle_export_links_csv() {
 add_action( 'admin_post_wprg_export_logs_csv', 'wprg_handle_export_logs_csv' );
 function wprg_handle_export_logs_csv() {
     if ( ! isset( $_POST['wprg_export_logs_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_export_logs_nonce'] ) ), 'wprg_export_logs_action' ) ) {
-        wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
+        wp_die( esc_html__( 'Lỗi bảo mật!', 'redirect-gateway-manager' ) );
     }
     if ( ! current_user_can( 'manage_options' ) ) {
-        wp_die( esc_html__( 'Bạn không có quyền!', 'wp-redirect-gateway' ) );
+        wp_die( esc_html__( 'Bạn không có quyền!', 'redirect-gateway-manager' ) );
     }
 
     global $wpdb;
@@ -268,13 +268,8 @@ function wprg_handle_export_logs_csv() {
         $filename_suffix = $month;
     }
 
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-    $logs = $wpdb->get_results( "
-        SELECT lg.*, lk.name as link_name 
-        FROM " . $table_logs . " lg 
-        LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id 
-        " . $where . " ORDER BY lg.clicked_at DESC
-    ", ARRAY_A );
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
+    $logs = $wpdb->get_results( "SELECT lg.*, lk.name as link_name FROM " . $table_logs . " lg LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id " . $where . " ORDER BY lg.clicked_at DESC", ARRAY_A );
 
     if ( ob_get_length() ) ob_end_clean();
 
@@ -287,20 +282,20 @@ function wprg_handle_export_logs_csv() {
 
     // Đã bọc dịch cho tiêu đề file CSV Logs
     fputcsv( $output, array( 
-        __( 'Thời gian', 'wp-redirect-gateway' ), 
-        __( 'Trạng thái', 'wp-redirect-gateway' ), 
-        __( 'Tên Link', 'wp-redirect-gateway' ), 
-        __( 'Sub-ID', 'wp-redirect-gateway' ), 
-        __( 'Tham số UTM', 'wp-redirect-gateway' ), 
-        __( 'IP', 'wp-redirect-gateway' ), 
-        __( 'Nguồn (Referrer)', 'wp-redirect-gateway' ), 
-        __( 'Thiết bị (User Agent)', 'wp-redirect-gateway' ) 
+        __( 'Thời gian', 'redirect-gateway-manager' ), 
+        __( 'Trạng thái', 'redirect-gateway-manager' ), 
+        __( 'Tên Link', 'redirect-gateway-manager' ), 
+        __( 'Sub-ID', 'redirect-gateway-manager' ), 
+        __( 'Tham số UTM', 'redirect-gateway-manager' ), 
+        __( 'IP', 'redirect-gateway-manager' ), 
+        __( 'Nguồn (Referrer)', 'redirect-gateway-manager' ), 
+        __( 'Thiết bị (User Agent)', 'redirect-gateway-manager' ) 
     ) );
 
     if ( ! empty( $logs ) ) {
         foreach ( $logs as $log ) {
             // Dịch trạng thái bên trong file CSV luôn
-            $status = ( $log['status'] === 'completed' ) ? __( 'Hoàn thành', 'wp-redirect-gateway' ) : __( 'Truy cập', 'wp-redirect-gateway' );
+            $status = ( $log['status'] === 'completed' ) ? __( 'Hoàn thành', 'redirect-gateway-manager' ) : __( 'Truy cập', 'redirect-gateway-manager' );
             fputcsv( $output, array(
                 $log['clicked_at'], $status, $log['link_name'], $log['sub_id'],
                 $log['url_params'], $log['ip_address'], $log['referrer'], $log['user_agent']
@@ -373,7 +368,7 @@ function wprg_add_settings_link( $links ) {
     // LƯU Ý: Nếu URL trang cài đặt của bạn không phải là ?page=wprg-settings thì bạn sửa chữ 'wprg-settings' ở dòng dưới cho khớp nhé.
     $settings_url = admin_url( 'admin.php?page=wprg-settings' ); 
     
-    $settings_link = '<a href="' . esc_url( $settings_url ) . '">' . esc_html__( 'Settings', 'wp-redirect-gateway' ) . '</a>';
+    $settings_link = '<a href="' . esc_url( $settings_url ) . '">' . esc_html__( 'Settings', 'redirect-gateway-manager' ) . '</a>';
     
     array_unshift( $links, $settings_link );
     
@@ -393,16 +388,16 @@ function wprg_add_privacy_policy_content() {
 
     $content  = '<p>' . esc_html__(
         'This plugin logs visitor technical information such as IP address, browser user agent, referrer URL, and access time when a gateway link is accessed.',
-        'wp-redirect-gateway'
+        'redirect-gateway-manager'
     ) . '</p>';
 
     $content .= '<p>' . esc_html__(
         'The data is stored locally in the WordPress database and is used for click analytics, security monitoring, and bot detection. This plugin does not send any collected data to external servers.',
-        'wp-redirect-gateway'
+        'redirect-gateway-manager'
     ) . '</p>';
 
     wp_add_privacy_policy_content(
-        esc_html__( 'WP Redirect Gateway', 'wp-redirect-gateway' ),
+        esc_html__( 'Redirect Gateway Manager', 'redirect-gateway-manager' ),
         wp_kses_post( $content )
     );
 }

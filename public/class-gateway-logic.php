@@ -26,7 +26,7 @@ class WPRG_Gateway_Logic {
             $table_links = $wpdb->prefix . 'rg_links';
             $table_logs  = $wpdb->prefix . 'rg_logs';
 
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
             $link_data = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table_links} WHERE slug = %s", $slug ), ARRAY_A );
 
             if ( $link_data ) {
@@ -53,7 +53,7 @@ class WPRG_Gateway_Logic {
                         $referrer = rtrim( $referrer, '/' );
                     }
                 }
-                
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->insert( $table_logs, array(
                     'link_id'    => $link_data['id'],
                     'ip_address' => $ip,
@@ -82,10 +82,10 @@ class WPRG_Gateway_Logic {
                         wp_redirect( $redirect_url, 302 );
                         exit;
                     } else {
-                        wp_die( esc_html__( 'Trang Gateway chứa shortcode không tồn tại hoặc đã bị xóa.', 'wp-redirect-gateway' ) );
+                        wp_die( esc_html__( 'Trang Gateway chứa shortcode không tồn tại hoặc đã bị xóa.', 'redirect-gateway-manager' ) );
                     }
                 } else {
-                    wp_die( esc_html__('Link này chưa được gán Gateway hoặc Gateway đã bị vô hiệu hóa.','wp-redirect-gateway') );
+                    wp_die( esc_html__('Link này chưa được gán Gateway hoặc Gateway đã bị vô hiệu hóa.','redirect-gateway-manager') );
                 }
             } else {
                 global $wp_query;

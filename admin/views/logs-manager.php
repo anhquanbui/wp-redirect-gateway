@@ -1,22 +1,22 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
-
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 // Hàm dịch User Agent thành loại Thiết bị giao diện thân thiện
 if ( ! function_exists( 'wprg_get_device_type' ) ) {
     function wprg_get_device_type( $user_agent ) {
         $ua = strtolower( $user_agent );
-        if ( empty( $ua ) || $ua === 'unknown' ) return __( '❓ Không rõ', 'wp-redirect-gateway' ); 
+        if ( empty( $ua ) || $ua === 'unknown' ) return __( '❓ Không rõ', 'redirect-gateway-manager' ); 
         
         if ( preg_match( '/bot|crawl|slurp|spider|mediapartners|google|bing|yandex|facebook/i', $ua ) ) {
-            return __( '🤖 Robot (Bot)', 'wp-redirect-gateway' ); 
+            return __( '🤖 Robot (Bot)', 'redirect-gateway-manager' ); 
         }
         if ( preg_match( '/ipad|tablet|kindle|playbook|silk/i', $ua ) ) {
-            return __( '💊 Máy tính bảng', 'wp-redirect-gateway' ); 
+            return __( '💊 Máy tính bảng', 'redirect-gateway-manager' ); 
         }
         if ( preg_match( '/mobile|android|iphone|ipod|blackberry|windows phone/i', $ua ) ) {
-            return __( '📱 Điện thoại', 'wp-redirect-gateway' ); 
+            return __( '📱 Điện thoại', 'redirect-gateway-manager' ); 
         }
-        return __( '💻 Máy tính', 'wp-redirect-gateway' ); 
+        return __( '💻 Máy tính', 'redirect-gateway-manager' ); 
     }
 }
 
@@ -29,16 +29,15 @@ if ( isset( $_POST['wprg_delete_logs'] ) && check_admin_referer( 'wprg_delete_lo
     $delete_type = isset( $_POST['delete_type'] ) ? sanitize_text_field( wp_unslash( $_POST['delete_type'] ) ) : '';
     
     if ( $delete_type === 'all' ) {
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        $wpdb->query( "TRUNCATE TABLE {$table_logs}" );
-        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Đã xóa sạch toàn bộ Log!', 'wp-redirect-gateway' ) . '</p></div>';
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter        $wpdb->query( "TRUNCATE TABLE {$table_logs}" );
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Đã xóa sạch toàn bộ Log!', 'redirect-gateway-manager' ) . '</p></div>';
     } elseif ( $delete_type === 'month' && !empty($_POST['filter_month']) ) {
         $month_year = sanitize_text_field( wp_unslash( $_POST['filter_month'] ) ); 
         
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        $wpdb->query( $wpdb->prepare( "DELETE FROM {$table_logs} WHERE DATE_FORMAT(clicked_at, '%%Y-%%m') = %s", $month_year ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
+        $wpdb->query( $wpdb->prepare( "DELETE FROM " . $table_logs . " WHERE DATE_FORMAT(clicked_at, '%%Y-%%m') = %s", $month_year ) );
         /* translators: %s: Month and year */
-        echo '<div class="notice notice-success is-dismissible"><p>' . sprintf( esc_html__( 'Đã xóa log của tháng %s thành công.', 'wp-redirect-gateway' ), esc_html( $month_year ) ) . '</p></div>';
+        echo '<div class="notice notice-success is-dismissible"><p>' . sprintf( esc_html__( 'Đã xóa log của tháng %s thành công.', 'redirect-gateway-manager' ), esc_html( $month_year ) ) . '</p></div>';
     }
 }
 
@@ -46,127 +45,85 @@ if ( isset( $_POST['wprg_delete_logs'] ) && check_admin_referer( 'wprg_delete_lo
 $selected_month = isset( $_GET['filter_month'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_month'] ) ) : '';
 
 // 1. Query Lấy Danh Sách Logs
+// 1. Query Lấy Danh Sách Logs
 if ( ! empty( $selected_month ) ) {
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-    $logs = $wpdb->get_results( $wpdb->prepare( "
-        SELECT lg.*, lk.name as link_name 
-        FROM " . $table_logs . " lg
-        LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id
-        WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s
-        ORDER BY lg.clicked_at DESC
-        LIMIT 500
-    ", $selected_month ), ARRAY_A );
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
+    $logs = $wpdb->get_results( $wpdb->prepare( "SELECT lg.*, lk.name as link_name FROM " . $table_logs . " lg LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s ORDER BY lg.clicked_at DESC LIMIT 500", $selected_month ), ARRAY_A );
 } else {
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-    $logs = $wpdb->get_results( "
-        SELECT lg.*, lk.name as link_name 
-        FROM " . $table_logs . " lg
-        LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id
-        ORDER BY lg.clicked_at DESC
-        LIMIT 500
-    ", ARRAY_A );
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
+    $logs = $wpdb->get_results( "SELECT lg.*, lk.name as link_name FROM " . $table_logs . " lg LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id ORDER BY lg.clicked_at DESC LIMIT 500", ARRAY_A );
 }
 
 // 2. Query Lấy Danh Sách Tháng
-// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 $available_months = $wpdb->get_col( "SELECT DISTINCT DATE_FORMAT(clicked_at, '%Y-%m') as month_year FROM " . $table_logs . " ORDER BY month_year DESC" );
 
 // --- TRUY VẤN THỐNG KÊ NHANH ---
 if ( ! empty( $selected_month ) ) {
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
     $total_clicks = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM " . $table_logs . " lg WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s", $selected_month ) );
     
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
     $completed_clicks = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM " . $table_logs . " lg WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s AND status = 'completed'", $selected_month ) );
     
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-    $top_link = $wpdb->get_row( $wpdb->prepare( "
-        SELECT lk.name, COUNT(lg.id) as clicks 
-        FROM " . $table_logs . " lg 
-        LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id 
-        WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s 
-        GROUP BY lg.link_id 
-        ORDER BY clicks DESC 
-        LIMIT 1
-    ", $selected_month ) );
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
+    $top_link = $wpdb->get_row( $wpdb->prepare( "SELECT lk.name, COUNT(lg.id) as clicks FROM " . $table_logs . " lg LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s GROUP BY lg.link_id ORDER BY clicks DESC LIMIT 1", $selected_month ) );
 
     // 3. Query Top Referrers
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-    $top_referrers = $wpdb->get_results( $wpdb->prepare( "
-        SELECT referrer, COUNT(id) as clicks 
-        FROM " . $table_logs . " lg 
-        WHERE referrer != 'Direct / None' AND referrer != 'Trực tiếp' AND referrer IS NOT NULL AND referrer != '' 
-        AND DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s
-        GROUP BY referrer 
-        ORDER BY clicks DESC 
-        LIMIT 3
-    ", $selected_month ) );
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
+    $top_referrers = $wpdb->get_results( $wpdb->prepare( "SELECT referrer, COUNT(id) as clicks FROM " . $table_logs . " lg WHERE referrer != 'Direct / None' AND referrer != 'Trực tiếp' AND referrer IS NOT NULL AND referrer != '' AND DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s GROUP BY referrer ORDER BY clicks DESC LIMIT 3", $selected_month ) );
 } else {
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
     $total_clicks = $wpdb->get_var( "SELECT COUNT(id) FROM " . $table_logs . " lg" );
     
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
     $completed_clicks = $wpdb->get_var( "SELECT COUNT(id) FROM " . $table_logs . " lg WHERE status = 'completed'" );
     
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-    $top_link = $wpdb->get_row( "
-        SELECT lk.name, COUNT(lg.id) as clicks 
-        FROM " . $table_logs . " lg 
-        LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id 
-        GROUP BY lg.link_id 
-        ORDER BY clicks DESC 
-        LIMIT 1
-    " );
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
+    $top_link = $wpdb->get_row( "SELECT lk.name, COUNT(lg.id) as clicks FROM " . $table_logs . " lg LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id GROUP BY lg.link_id ORDER BY clicks DESC LIMIT 1" );
 
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-    $top_referrers = $wpdb->get_results( "
-        SELECT referrer, COUNT(id) as clicks 
-        FROM " . $table_logs . " lg 
-        WHERE referrer != 'Direct / None' AND referrer != 'Trực tiếp' AND referrer IS NOT NULL AND referrer != ''
-        GROUP BY referrer 
-        ORDER BY clicks DESC 
-        LIMIT 3
-    " );
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
+    $top_referrers = $wpdb->get_results( "SELECT referrer, COUNT(id) as clicks FROM " . $table_logs . " lg WHERE referrer != 'Direct / None' AND referrer != 'Trực tiếp' AND referrer IS NOT NULL AND referrer != '' GROUP BY referrer ORDER BY clicks DESC LIMIT 3" );
 }
 
 $conversion_rate = ($total_clicks > 0) ? round(($completed_clicks / $total_clicks) * 100, 2) : 0;
 ?>
 
 <div class="wrap">
-    <h1 class="wp-heading-inline"><?php esc_html_e( 'Thống kê & Lịch sử Click', 'wp-redirect-gateway' ); ?></h1>
+    <h1 class="wp-heading-inline"><?php esc_html_e( 'Thống kê & Lịch sử Click', 'redirect-gateway-manager' ); ?></h1>
     <hr class="wp-header-end">
 
     <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
         <div class="wprg-stat-card success">
             <h4>
-                <?php esc_html_e( 'Tổng Truy Cập / Hoàn Thành', 'wp-redirect-gateway' ); ?>
-                <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Số lượt click vào link / Số lượt xem xong quảng cáo để lấy link đích.', 'wp-redirect-gateway' ); ?></span></span>
+                <?php esc_html_e( 'Tổng Truy Cập / Hoàn Thành', 'redirect-gateway-manager' ); ?>
+                <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Số lượt click vào link / Số lượt xem xong quảng cáo để lấy link đích.', 'redirect-gateway-manager' ); ?></span></span>
             </h4>
             <span style="font-size: 32px; font-weight: bold; color: #0073aa; line-height: 1;"><?php echo esc_html( number_format_i18n( $total_clicks ?: 0 ) ); ?></span>
             <span style="font-size: 18px; color: #00a32a; font-weight: bold;"> / <?php echo esc_html( number_format_i18n( $completed_clicks ?: 0 ) ); ?></span>
-            <span style="font-size: 14px; color: #d63638; font-weight: bold; margin-left: 5px;" title="<?php esc_attr_e( 'Conversion Rate (Tỉ lệ chuyển đổi)', 'wp-redirect-gateway' ); ?>">(CR: <?php echo esc_html( $conversion_rate ); ?>%)</span>
+            <span style="font-size: 14px; color: #d63638; font-weight: bold; margin-left: 5px;" title="<?php esc_attr_e( 'Conversion Rate (Tỉ lệ chuyển đổi)', 'redirect-gateway-manager' ); ?>">(CR: <?php echo esc_html( $conversion_rate ); ?>%)</span>
         </div>
         
         <div class="wprg-stat-card">
             <h4>
-                <?php esc_html_e( 'Link Nhấp Nhiều Nhất', 'wp-redirect-gateway' ); ?>
+                <?php esc_html_e( 'Link Nhấp Nhiều Nhất', 'redirect-gateway-manager' ); ?>
             </h4>
             <?php if ( $top_link ) : ?>
-                <span style="font-size: 16px; font-weight: bold; display: block; margin-bottom: 5px;"><?php echo esc_html( $top_link->name ? $top_link->name : __( 'Link đã xóa', 'wp-redirect-gateway' ) ); ?></span>
+                <span style="font-size: 16px; font-weight: bold; display: block; margin-bottom: 5px;"><?php echo esc_html( $top_link->name ? $top_link->name : __( 'Link đã xóa', 'redirect-gateway-manager' ) ); ?></span>
                 <span style="color: #00a32a; font-weight: bold;">
                 <?php 
                     /* translators: %s: Number of clicks */
-                    printf( esc_html__( '%s click', 'wp-redirect-gateway' ), esc_html( number_format_i18n( $top_link->clicks ) ) ); 
+                    printf( esc_html__( '%s click', 'redirect-gateway-manager' ), esc_html( number_format_i18n( $top_link->clicks ) ) ); 
                 ?>
             <?php else: ?>
-                <span style="color: #999;"><?php esc_html_e( 'Chưa có dữ liệu', 'wp-redirect-gateway' ); ?></span>
+                <span style="color: #999;"><?php esc_html_e( 'Chưa có dữ liệu', 'redirect-gateway-manager' ); ?></span>
             <?php endif; ?>
         </div>
 
         <div class="wprg-stat-card warning">
             <h4>
-                <?php esc_html_e( 'Top 3 Nguồn Truy Cập (Referrer)', 'wp-redirect-gateway' ); ?>
-                <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Nơi người dùng nhấp vào link của bạn (Facebook, Youtube, Website khác...).', 'wp-redirect-gateway' ); ?></span></span>
+                <?php esc_html_e( 'Top 3 Nguồn Truy Cập (Referrer)', 'redirect-gateway-manager' ); ?>
+                <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Nơi người dùng nhấp vào link của bạn (Facebook, Youtube, Website khác...).', 'redirect-gateway-manager' ); ?></span></span>
             </h4>
             <?php if ( ! empty( $top_referrers ) ) : ?>
                 <ul style="margin: 0; padding: 0; list-style: none;">
@@ -178,55 +135,55 @@ $conversion_rate = ($total_clicks > 0) ? round(($completed_clicks / $total_click
                     <?php endforeach; ?>
                 </ul>
             <?php else: ?>
-                <span style="color: #999;"><?php esc_html_e( 'Chưa có nguồn truy cập ngoại', 'wp-redirect-gateway' ); ?></span>
+                <span style="color: #999;"><?php esc_html_e( 'Chưa có nguồn truy cập ngoại', 'redirect-gateway-manager' ); ?></span>
             <?php endif; ?>
         </div>
     </div>
     
     <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; position: relative; z-index: 1;">
         <div class="wprg-form-container" style="flex: 1; min-width: 300px;">
-            <h3>🔍 <?php esc_html_e( 'Lọc hiển thị', 'wp-redirect-gateway' ); ?></h3>
+            <h3>🔍 <?php esc_html_e( 'Lọc hiển thị', 'redirect-gateway-manager' ); ?></h3>
             <form method="get" action="" style="display: flex; gap: 10px; align-items: center;">
                 <input type="hidden" name="page" value="wprg-logs">
                 <select name="filter_month" style="width: 60%;">
-                    <option value=""><?php esc_html_e( '-- Tất cả các tháng --', 'wp-redirect-gateway' ); ?></option>
+                    <option value=""><?php esc_html_e( '-- Tất cả các tháng --', 'redirect-gateway-manager' ); ?></option>
                     <?php foreach ( $available_months as $m ) : ?>
                         <option value="<?php echo esc_attr($m); ?>" <?php selected( $selected_month, $m ); ?>>
-                            <?php echo esc_html__( 'Tháng ', 'wp-redirect-gateway' ) . esc_html($m); ?>
+                            <?php echo esc_html__( 'Tháng ', 'redirect-gateway-manager' ) . esc_html($m); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <input type="submit" class="button" value="<?php esc_attr_e( 'Lọc Log', 'wp-redirect-gateway' ); ?>">
+                <input type="submit" class="button" value="<?php esc_attr_e( 'Lọc Log', 'redirect-gateway-manager' ); ?>">
             </form>
         </div>
 
         <div class="wprg-form-container" style="flex: 1; min-width: 300px; border-left: 4px solid #d63638;">
-            <h3 style="color: #d63638;">🗑️ <?php esc_html_e( 'Dọn dẹp Database', 'wp-redirect-gateway' ); ?></h3>
-            <form method="post" action="" onsubmit="return confirm('<?php esc_js( esc_html_e( 'Hành động này không thể hoàn tác. Bạn chắc chắn chứ?', 'wp-redirect-gateway' ) ); ?>');" style="display: flex; gap: 10px; align-items: center;">
+            <h3 style="color: #d63638;">🗑️ <?php esc_html_e( 'Dọn dẹp Database', 'redirect-gateway-manager' ); ?></h3>
+            <form method="post" action="" onsubmit="return confirm('<?php esc_js( esc_html_e( 'Hành động này không thể hoàn tác. Bạn chắc chắn chứ?', 'redirect-gateway-manager' ) ); ?>');" style="display: flex; gap: 10px; align-items: center;">
                 <?php wp_nonce_field( 'wprg_delete_logs_nonce' ); ?>
                 <select name="delete_type" required style="width: 60%;">
-                    <option value=""><?php esc_html_e( '-- Chọn kiểu xóa --', 'wp-redirect-gateway' ); ?></option>
+                    <option value=""><?php esc_html_e( '-- Chọn kiểu xóa --', 'redirect-gateway-manager' ); ?></option>
                     <?php if ( ! empty( $selected_month ) ) : ?>
                         <option value="month">
                             <?php 
                             /* translators: %s: Month and year */
-                            printf( esc_html__( 'Xóa Log tháng %s', 'wp-redirect-gateway' ), esc_html( $selected_month ) ); 
+                            printf( esc_html__( 'Xóa Log tháng %s', 'redirect-gateway-manager' ), esc_html( $selected_month ) ); 
                             ?>
                         </option>
                     <?php endif; ?>
-                    <option value="all"><?php esc_html_e( 'Xóa sạch toàn bộ Log', 'wp-redirect-gateway' ); ?></option>
+                    <option value="all"><?php esc_html_e( 'Xóa sạch toàn bộ Log', 'redirect-gateway-manager' ); ?></option>
                 </select>
                 
                 <?php if ( ! empty( $selected_month ) ) : ?>
                     <input type="hidden" name="filter_month" value="<?php echo esc_attr($selected_month); ?>">
                 <?php endif; ?>
 
-                <input type="submit" name="wprg_delete_logs" class="button" style="color: #d63638; border-color: #d63638;" value="<?php esc_attr_e( 'Thực thi Xóa', 'wp-redirect-gateway' ); ?>">
+                <input type="submit" name="wprg_delete_logs" class="button" style="color: #d63638; border-color: #d63638;" value="<?php esc_attr_e( 'Thực thi Xóa', 'redirect-gateway-manager' ); ?>">
             </form>
         </div>
 
         <div class="wprg-form-container" style="flex: 1; min-width: 300px; border-left: 4px solid #00a32a;">
-            <h3 style="color: #00a32a;">📊 <?php esc_html_e( 'Xuất Dữ Liệu (Excel)', 'wp-redirect-gateway' ); ?></h3>
+            <h3 style="color: #00a32a;">📊 <?php esc_html_e( 'Xuất Dữ Liệu (Excel)', 'redirect-gateway-manager' ); ?></h3>
             <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display: flex; gap: 10px; align-items: center;">
                 <input type="hidden" name="action" value="wprg_export_logs_csv">
                 <?php wp_nonce_field( 'wprg_export_logs_action', 'wprg_export_logs_nonce' ); ?>
@@ -236,17 +193,17 @@ $conversion_rate = ($total_clicks > 0) ? round(($completed_clicks / $total_click
                         <input type="hidden" name="filter_month" value="<?php echo esc_attr($selected_month); ?>">
                         <?php 
                             /* translators: %s: Month and year */
-                            printf( esc_html__( 'Đang xuất tháng: %s', 'wp-redirect-gateway' ), '<strong>' . esc_html($selected_month) . '</strong>' ); 
+                            printf( esc_html__( 'Đang xuất tháng: %s', 'redirect-gateway-manager' ), '<strong>' . esc_html($selected_month) . '</strong>' ); 
                         ?>
                     <?php else: ?>
                         <?php 
                             /* translators: %s: Type of export (All) */
-                            printf( esc_html__( 'Xuất %s (Có thể nặng)', 'wp-redirect-gateway' ), '<strong>' . esc_html__( 'Tất cả', 'wp-redirect-gateway' ) . '</strong>' ); 
+                            printf( esc_html__( 'Xuất %s (Có thể nặng)', 'redirect-gateway-manager' ), '<strong>' . esc_html__( 'Tất cả', 'redirect-gateway-manager' ) . '</strong>' ); 
                         ?>
                     <?php endif; ?>
                 </div>
 
-                <button type="submit" class="button" style="color: #00a32a; border-color: #00a32a;"><span class="dashicons dashicons-download" style="margin-top: 3px;"></span> <?php esc_attr_e( 'Tải file CSV', 'wp-redirect-gateway' ); ?></button>
+                <button type="submit" class="button" style="color: #00a32a; border-color: #00a32a;"><span class="dashicons dashicons-download" style="margin-top: 3px;"></span> <?php esc_attr_e( 'Tải file CSV', 'redirect-gateway-manager' ); ?></button>
             </form>
         </div>
     </div>
@@ -255,33 +212,33 @@ $conversion_rate = ($total_clicks > 0) ? round(($completed_clicks / $total_click
         <table class="wp-list-table widefat fixed striped" style="border: none; border-top-left-radius: 8px; border-top-right-radius: 8px;">
             <thead>
                 <tr>
-                    <th style="width: 12%; border-bottom: 2px solid #ccd0d4;"><?php esc_html_e( 'Thời gian', 'wp-redirect-gateway' ); ?></th>
+                    <th style="width: 12%; border-bottom: 2px solid #ccd0d4;"><?php esc_html_e( 'Thời gian', 'redirect-gateway-manager' ); ?></th>
                     <th style="width: 10%; border-bottom: 2px solid #ccd0d4;">
-                        <?php esc_html_e( 'Trạng thái', 'wp-redirect-gateway' ); ?>
-                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Truy cập: Mới bấm vào link. Hoàn thành: Đã xem xong quảng cáo.', 'wp-redirect-gateway' ); ?></span></span>
+                        <?php esc_html_e( 'Trạng thái', 'redirect-gateway-manager' ); ?>
+                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Truy cập: Mới bấm vào link. Hoàn thành: Đã xem xong quảng cáo.', 'redirect-gateway-manager' ); ?></span></span>
                     </th>
-                    <th style="width: 16%; border-bottom: 2px solid #ccd0d4;"><?php esc_html_e( 'Tên Link', 'wp-redirect-gateway' ); ?></th>
+                    <th style="width: 16%; border-bottom: 2px solid #ccd0d4;"><?php esc_html_e( 'Tên Link', 'redirect-gateway-manager' ); ?></th>
                     
                     <th style="width: 10%; border-bottom: 2px solid #ccd0d4; text-align: center;">
-                        <?php esc_html_e( 'Sub-ID', 'wp-redirect-gateway' ); ?>
-                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'ID chiến dịch theo dõi (ví dụ: ?subid=facebook_ads).', 'wp-redirect-gateway' ); ?></span></span>
+                        <?php esc_html_e( 'Sub-ID', 'redirect-gateway-manager' ); ?>
+                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'ID chiến dịch theo dõi (ví dụ: ?subid=facebook_ads).', 'redirect-gateway-manager' ); ?></span></span>
                     </th>
                     <th style="width: 12%; border-bottom: 2px solid #ccd0d4; text-align: center;">
-                        <?php esc_html_e( 'Tham số', 'wp-redirect-gateway' ); ?>
-                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Các đuôi tracking UTM gắn kèm sau link.', 'wp-redirect-gateway' ); ?></span></span>
+                        <?php esc_html_e( 'Tham số', 'redirect-gateway-manager' ); ?>
+                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Các đuôi tracking UTM gắn kèm sau link.', 'redirect-gateway-manager' ); ?></span></span>
                     </th>
                     
-                    <th style="width: 11%; border-bottom: 2px solid #ccd0d4;"><?php esc_html_e( 'Địa chỉ IP', 'wp-redirect-gateway' ); ?></th>
+                    <th style="width: 11%; border-bottom: 2px solid #ccd0d4;"><?php esc_html_e( 'Địa chỉ IP', 'redirect-gateway-manager' ); ?></th>
                     <th style="width: 17%; border-bottom: 2px solid #ccd0d4;">
-                        <?php esc_html_e( 'Nguồn (Referrer)', 'wp-redirect-gateway' ); ?>
-                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Trang web mà khách hàng đang đứng trước khi click.', 'wp-redirect-gateway' ); ?></span></span>
+                        <?php esc_html_e( 'Nguồn (Referrer)', 'redirect-gateway-manager' ); ?>
+                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Trang web mà khách hàng đang đứng trước khi click.', 'redirect-gateway-manager' ); ?></span></span>
                     </th>
-                    <th style="width: 12%; border-bottom: 2px solid #ccd0d4;"><?php esc_html_e( 'Thiết bị', 'wp-redirect-gateway' ); ?></th>
+                    <th style="width: 12%; border-bottom: 2px solid #ccd0d4;"><?php esc_html_e( 'Thiết bị', 'redirect-gateway-manager' ); ?></th>
                 </tr>
             </thead>
             <tbody>
                 <?php if ( empty( $logs ) ) : ?>
-                    <tr><td colspan="8" style="padding: 20px; text-align: center; color: #666;"><?php esc_html_e( 'Chưa có dữ liệu log nào.', 'wp-redirect-gateway' ); ?></td></tr>
+                    <tr><td colspan="8" style="padding: 20px; text-align: center; color: #666;"><?php esc_html_e( 'Chưa có dữ liệu log nào.', 'redirect-gateway-manager' ); ?></td></tr>
                 <?php else : ?>
                     <?php foreach ( $logs as $log ) : ?>
                         <tr>
@@ -289,17 +246,17 @@ $conversion_rate = ($total_clicks > 0) ? round(($completed_clicks / $total_click
 
                             <td>
                                 <?php if ( isset($log['status']) && $log['status'] === 'completed' ) : ?>
-                                    <span style="background: #e1fbd6; color: #00a32a; padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: bold;"><?php esc_html_e( 'Hoàn thành', 'wp-redirect-gateway' ); ?></span>
+                                    <span style="background: #e1fbd6; color: #00a32a; padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: bold;"><?php esc_html_e( 'Hoàn thành', 'redirect-gateway-manager' ); ?></span>
                                 <?php else : ?>
-                                    <span style="background: #f0f0f1; color: #666; padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: bold;"><?php esc_html_e( 'Truy cập', 'wp-redirect-gateway' ); ?></span>
+                                    <span style="background: #f0f0f1; color: #666; padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: bold;"><?php esc_html_e( 'Truy cập', 'redirect-gateway-manager' ); ?></span>
                                 <?php endif; ?>
                             </td>
 
-                            <td><span style="color:#0073aa; font-weight:bold;"><?php echo esc_html( $log['link_name'] ? $log['link_name'] : __( 'Link đã xóa', 'wp-redirect-gateway' ) ); ?></span></td>
+                            <td><span style="color:#0073aa; font-weight:bold;"><?php echo esc_html( $log['link_name'] ? $log['link_name'] : __( 'Link đã xóa', 'redirect-gateway-manager' ) ); ?></span></td>
                             
                             <td style="text-align: center;">
                                 <?php if ( !empty($log['sub_id']) ) : ?>
-                                    <input type="text" readonly value="<?php echo esc_attr( $log['sub_id'] ); ?>" title="<?php esc_attr_e( 'Click để bôi đen', 'wp-redirect-gateway' ); ?>" onfocus="this.select();" style="width: 100%; border: 1px solid #ddd; background: #fafafa; border-radius: 4px; padding: 4px 6px; font-size: 11px; color: #d63638; font-weight: bold; font-family: monospace; cursor: copy; text-align: center; box-shadow: none;" />
+                                    <input type="text" readonly value="<?php echo esc_attr( $log['sub_id'] ); ?>" title="<?php esc_attr_e( 'Click để bôi đen', 'redirect-gateway-manager' ); ?>" onfocus="this.select();" style="width: 100%; border: 1px solid #ddd; background: #fafafa; border-radius: 4px; padding: 4px 6px; font-size: 11px; color: #d63638; font-weight: bold; font-family: monospace; cursor: copy; text-align: center; box-shadow: none;" />
                                 <?php else: ?>
                                     <span style="color: #ccc;">-</span>
                                 <?php endif; ?>
@@ -307,7 +264,7 @@ $conversion_rate = ($total_clicks > 0) ? round(($completed_clicks / $total_click
                             
                             <td style="text-align: center;">
                                 <?php if ( !empty($log['url_params']) ) : ?>
-                                    <input type="text" readonly value="?<?php echo esc_attr( $log['url_params'] ); ?>" title="<?php esc_attr_e( 'Click để bôi đen', 'wp-redirect-gateway' ); ?>" onfocus="this.select();" style="width: 100%; border: 1px solid #ddd; background: #fafafa; border-radius: 4px; padding: 4px 6px; font-size: 11px; color: #666; font-family: monospace; cursor: copy; box-shadow: none;" />
+                                    <input type="text" readonly value="?<?php echo esc_attr( $log['url_params'] ); ?>" title="<?php esc_attr_e( 'Click để bôi đen', 'redirect-gateway-manager' ); ?>" onfocus="this.select();" style="width: 100%; border: 1px solid #ddd; background: #fafafa; border-radius: 4px; padding: 4px 6px; font-size: 11px; color: #666; font-family: monospace; cursor: copy; box-shadow: none;" />
                                 <?php else: ?>
                                     <span style="color: #ccc;">-</span>
                                 <?php endif; ?>
@@ -320,7 +277,7 @@ $conversion_rate = ($total_clicks > 0) ? round(($completed_clicks / $total_click
                                         <?php echo esc_html( $log['referrer'] ); ?>
                                     </a>
                                 <?php else: ?>
-                                    <em style="color:#999;"><?php esc_html_e( 'Trực tiếp', 'wp-redirect-gateway' ); ?></em>
+                                    <em style="color:#999;"><?php esc_html_e( 'Trực tiếp', 'redirect-gateway-manager' ); ?></em>
                                 <?php endif; ?>
                             </td>
                             
@@ -335,5 +292,5 @@ $conversion_rate = ($total_clicks > 0) ? round(($completed_clicks / $total_click
             </tbody>
         </table>
     </div>
-    <p class="description" style="margin-top: 10px;"><?php esc_html_e( 'Đang hiển thị tối đa 500 click mới nhất.', 'wp-redirect-gateway' ); ?></p>
+    <p class="description" style="margin-top: 10px;"><?php esc_html_e( 'Đang hiển thị tối đa 500 click mới nhất.', 'redirect-gateway-manager' ); ?></p>
 </div>

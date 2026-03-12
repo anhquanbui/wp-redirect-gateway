@@ -3,6 +3,7 @@
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
     exit;
 }
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
 // Kiểm tra xem user có tick chọn "Xóa toàn bộ dữ liệu" không
 $delete_data = get_option( 'wprg_delete_data', 'no' );
@@ -14,10 +15,10 @@ if ( $delete_data === 'yes' ) {
     $table_links = $wpdb->prefix . 'rg_links';
     $table_logs  = $wpdb->prefix . 'rg_logs';
     
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, PluginCheck.Security.DirectDB.UnescapedDBParameter
     $wpdb->query( "DROP TABLE IF EXISTS {$table_links}" );
     
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, PluginCheck.Security.DirectDB.UnescapedDBParameter
     $wpdb->query( "DROP TABLE IF EXISTS {$table_logs}" );
 
     // 2. Xóa sạch mọi Cài đặt (Bao gồm cả bộ nhớ thông báo)

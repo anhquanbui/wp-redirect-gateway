@@ -21,22 +21,22 @@ class WPRG_Shortcode_Gateway {
         $log_id_val = isset( $_GET['wprg_log_id'] ) ? intval( wp_unslash( $_GET['wprg_log_id'] ) ) : 0;
 
         if ( empty( $slug ) ) {
-            return '<div class="wprg-shortcode-error"><h2>' . esc_html__( 'Bạn không có quyền truy cập trực tiếp trang này!', 'wp-redirect-gateway' ) . '</h2></div>';
+            return '<div class="wprg-shortcode-error"><h2>' . esc_html__( 'Bạn không có quyền truy cập trực tiếp trang này!', 'redirect-gateway-manager' ) . '</h2></div>';
         }
 
         $atts = shortcode_atts( array( 'id' => '' ), $atts );
         $shortcodes = get_option( 'wprg_shortcodes', array() );
         
-        if ( ! isset( $shortcodes[ $atts['id'] ] ) ) return '<div class="wprg-shortcode-error">' . esc_html__( 'Lỗi: Gateway không tồn tại.', 'wp-redirect-gateway' ) . '</div>';
+        if ( ! isset( $shortcodes[ $atts['id'] ] ) ) return '<div class="wprg-shortcode-error">' . esc_html__( 'Lỗi: Gateway không tồn tại.', 'redirect-gateway-manager' ) . '</div>';
         $sc_data = $shortcodes[ $atts['id'] ];
 
         global $wpdb;
         $table_links = $wpdb->prefix . 'rg_links';
         
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $link_data = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table_links} WHERE slug = %s", $slug ), ARRAY_A );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
+        $link_data = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . $table_links . " WHERE slug = %s", $slug ), ARRAY_A );
         
-        if ( ! $link_data ) return '<div class="wprg-shortcode-error">' . esc_html__( 'Lỗi: Link không tồn tại hoặc đã bị xóa.', 'wp-redirect-gateway' ) . '</div>';
+        if ( ! $link_data ) return '<div class="wprg-shortcode-error">' . esc_html__( 'Lỗi: Link không tồn tại hoặc đã bị xóa.', 'redirect-gateway-manager' ) . '</div>';
 
         $password = isset($link_data['password']) ? $link_data['password'] : '';
         $is_unlocked = false;
@@ -60,10 +60,10 @@ class WPRG_Shortcode_Gateway {
 
         if ( $captcha_type === 'recaptcha' && ! empty( $recap_site ) ) {
             // phpcs:ignore PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent
-            wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js?render=' . esc_attr( $recap_site ), array(), null, true );
+            wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js?render=' . esc_attr( $recap_site ), array(), WPRG_VERSION, true );
         } elseif ( $captcha_type === 'turnstile' && ! empty( $ts_site ) ) {
             // phpcs:ignore PluginCheck.CodeAnalysis.EnqueuedResourceOffloading.OffloadedContent
-            wp_enqueue_script( 'cf-turnstile', 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit', array(), null, true );
+            wp_enqueue_script( 'cf-turnstile', 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit', array(), WPRG_VERSION, true );
         }
 
         $final_wait_time = ! empty( $link_data['wait_time'] ) ? sanitize_text_field( $link_data['wait_time'] ) : sanitize_text_field( $sc_data['wait_time'] );
@@ -97,43 +97,43 @@ class WPRG_Shortcode_Gateway {
             'cookie_time'          => $cookie_time_sec,
             
             'i18n'        => array(
-                'wait_msg'            => __( 'Vui lòng đợi...', 'wp-redirect-gateway' ),
-                'watch_ad'            => __( 'Xem quảng cáo', 'wp-redirect-gateway' ),
-                'link_ready'          => __( 'Link đã sẵn sàng! Bấm để nhận', 'wp-redirect-gateway' ),
-                'getting_link'        => __( 'Đang lấy link...', 'wp-redirect-gateway' ),
-                'checking_sec'        => __( 'Đang lấy link...', 'wp-redirect-gateway' ),
-                'active_warning'      => __( 'Bạn đang có 1 link đang hoạt động!', 'wp-redirect-gateway' ),
-                'active_desc'         => __( 'Hãy hoàn thành link kia, hoặc chờ hệ thống tự mở khóa sau 5 phút.', 'wp-redirect-gateway' ),
-                'error_prefix'        => __( 'Lỗi:', 'wp-redirect-gateway' ),
-                'error_msg'           => __( 'Không thể lấy link đích!', 'wp-redirect-gateway' ),
-                'network_err'         => __( 'Lỗi kết nối mạng, vui lòng thử lại!', 'wp-redirect-gateway' ),
-                'try_again'           => __( 'Thử lại', 'wp-redirect-gateway' ),
-                'step_done'           => __( 'Bạn đã hoàn thành các bước.', 'wp-redirect-gateway' ),
-                'counting'            => __( 'Đang đếm ngược...', 'wp-redirect-gateway' ),
-                'click_to_watch'      => __( 'Bấm để tiếp tục xem quảng cáo', 'wp-redirect-gateway' ),
-                'stop_warning'        => __( '⚠️ Đã dừng đếm. Bạn phải quay lại tab này!', 'wp-redirect-gateway' ), 
-                'verify_sec'          => __( '🔍 Xác minh bảo mật', 'wp-redirect-gateway' ),
-                'verifying'           => __( 'Đang chạy xác minh...', 'wp-redirect-gateway' ),
-                'verify_msg'          => __( 'Hệ thống cần kiểm tra để đảm bảo bạn không phải Robot.', 'wp-redirect-gateway' ),
-                'start_btn'           => __( 'CLICK HERE TO CONTINUE', 'wp-redirect-gateway' ),
-                'start_msg'           => __( 'Vui lòng nhấn nút bên dưới để bắt đầu', 'wp-redirect-gateway' ),
-                'recap_error'         => __( 'reCAPTCHA bị lỗi. Vui lòng tải lại trang.', 'wp-redirect-gateway' ),
-                'script_blocked'      => __( 'Script bảo mật bị chặn. Vui lòng tắt trình chặn quảng cáo để đi tiếp.', 'wp-redirect-gateway' ),
-                'popup_blocked_alert' => __( "⚠️ Trình duyệt đang chặn Cửa sổ bật lên (Popup).\n\nVui lòng cấp quyền mở Popup để tiếp tục!", 'wp-redirect-gateway' ),
-                'popup_blocked_msg'   => __( '⚠️ Vui lòng cấp quyền mở Popup trên thanh địa chỉ để đi tiếp!', 'wp-redirect-gateway' ),
-                'checking_pass' => __( 'ĐANG KIỂM TRA...', 'wp-redirect-gateway' ),
-                'unlock_now'    => __( 'MỞ KHÓA NGAY', 'wp-redirect-gateway' ),
-                'wrong_pass'    => __( 'Mật khẩu sai!', 'wp-redirect-gateway' ),
-                'wait_verify'   => __( 'ĐANG CHỜ XÁC MINH...', 'wp-redirect-gateway' ),
-                'retrying'      => __( 'ĐANG THỬ LẠI...', 'wp-redirect-gateway' ),
-                'network_error_short' => __( 'Lỗi kết nối mạng!', 'wp-redirect-gateway' ),
-                'checking_safe'       => __( 'Hệ thống đang kiểm tra an toàn, vui lòng đợi giây lát...', 'wp-redirect-gateway' ),
-                'cf_load_error'       => __( 'Lỗi: Trình duyệt không thể tải Script Cloudflare. Vui lòng tắt chặn quảng cáo hoặc tải lại trang!', 'wp-redirect-gateway' ),
-                'link_opened_btn'     => __( 'Đã lấy link!', 'wp-redirect-gateway' ),
-                'link_opened_new_tab' => __( 'Link đích đã được mở ở Tab mới.', 'wp-redirect-gateway' ),
-                'auto_retrying'       => __( 'Vấp mạng. Tự động thử lại sau 2 giây', 'wp-redirect-gateway' ),
-                'pass_backend_err'    => __( 'Lỗi bảo mật: Bạn chưa mở khóa mật khẩu cho link này!', 'wp-redirect-gateway' ),
-                'pls_enter_pass'      => __( 'Tốn vài giây để nhập mật khẩu thôi mà, tại sao bạn không cố gắng nhỉ?', 'wp-redirect-gateway' )
+                'wait_msg'            => __( 'Vui lòng đợi...', 'redirect-gateway-manager' ),
+                'watch_ad'            => __( 'Xem quảng cáo', 'redirect-gateway-manager' ),
+                'link_ready'          => __( 'Link đã sẵn sàng! Bấm để nhận', 'redirect-gateway-manager' ),
+                'getting_link'        => __( 'Đang lấy link...', 'redirect-gateway-manager' ),
+                'checking_sec'        => __( 'Đang lấy link...', 'redirect-gateway-manager' ),
+                'active_warning'      => __( 'Bạn đang có 1 link đang hoạt động!', 'redirect-gateway-manager' ),
+                'active_desc'         => __( 'Hãy hoàn thành link kia, hoặc chờ hệ thống tự mở khóa sau 5 phút.', 'redirect-gateway-manager' ),
+                'error_prefix'        => __( 'Lỗi:', 'redirect-gateway-manager' ),
+                'error_msg'           => __( 'Không thể lấy link đích!', 'redirect-gateway-manager' ),
+                'network_err'         => __( 'Lỗi kết nối mạng, vui lòng thử lại!', 'redirect-gateway-manager' ),
+                'try_again'           => __( 'Thử lại', 'redirect-gateway-manager' ),
+                'step_done'           => __( 'Bạn đã hoàn thành các bước.', 'redirect-gateway-manager' ),
+                'counting'            => __( 'Đang đếm ngược...', 'redirect-gateway-manager' ),
+                'click_to_watch'      => __( 'Bấm để tiếp tục xem quảng cáo', 'redirect-gateway-manager' ),
+                'stop_warning'        => __( '⚠️ Đã dừng đếm. Bạn phải quay lại tab này!', 'redirect-gateway-manager' ), 
+                'verify_sec'          => __( '🔍 Xác minh bảo mật', 'redirect-gateway-manager' ),
+                'verifying'           => __( 'Đang chạy xác minh...', 'redirect-gateway-manager' ),
+                'verify_msg'          => __( 'Hệ thống cần kiểm tra để đảm bảo bạn không phải Robot.', 'redirect-gateway-manager' ),
+                'start_btn'           => __( 'CLICK HERE TO CONTINUE', 'redirect-gateway-manager' ),
+                'start_msg'           => __( 'Vui lòng nhấn nút bên dưới để bắt đầu', 'redirect-gateway-manager' ),
+                'recap_error'         => __( 'reCAPTCHA bị lỗi. Vui lòng tải lại trang.', 'redirect-gateway-manager' ),
+                'script_blocked'      => __( 'Script bảo mật bị chặn. Vui lòng tắt trình chặn quảng cáo để đi tiếp.', 'redirect-gateway-manager' ),
+                'popup_blocked_alert' => __( "⚠️ Trình duyệt đang chặn Cửa sổ bật lên (Popup).\n\nVui lòng cấp quyền mở Popup để tiếp tục!", 'redirect-gateway-manager' ),
+                'popup_blocked_msg'   => __( '⚠️ Vui lòng cấp quyền mở Popup trên thanh địa chỉ để đi tiếp!', 'redirect-gateway-manager' ),
+                'checking_pass' => __( 'ĐANG KIỂM TRA...', 'redirect-gateway-manager' ),
+                'unlock_now'    => __( 'MỞ KHÓA NGAY', 'redirect-gateway-manager' ),
+                'wrong_pass'    => __( 'Mật khẩu sai!', 'redirect-gateway-manager' ),
+                'wait_verify'   => __( 'ĐANG CHỜ XÁC MINH...', 'redirect-gateway-manager' ),
+                'retrying'      => __( 'ĐANG THỬ LẠI...', 'redirect-gateway-manager' ),
+                'network_error_short' => __( 'Lỗi kết nối mạng!', 'redirect-gateway-manager' ),
+                'checking_safe'       => __( 'Hệ thống đang kiểm tra an toàn, vui lòng đợi giây lát...', 'redirect-gateway-manager' ),
+                'cf_load_error'       => __( 'Lỗi: Trình duyệt không thể tải Script Cloudflare. Vui lòng tắt chặn quảng cáo hoặc tải lại trang!', 'redirect-gateway-manager' ),
+                'link_opened_btn'     => __( 'Đã lấy link!', 'redirect-gateway-manager' ),
+                'link_opened_new_tab' => __( 'Link đích đã được mở ở Tab mới.', 'redirect-gateway-manager' ),
+                'auto_retrying'       => __( 'Vấp mạng. Tự động thử lại sau 2 giây', 'redirect-gateway-manager' ),
+                'pass_backend_err'    => __( 'Lỗi bảo mật: Bạn chưa mở khóa mật khẩu cho link này!', 'redirect-gateway-manager' ),
+                'pls_enter_pass'      => __( 'Tốn vài giây để nhập mật khẩu thôi mà, tại sao bạn không cố gắng nhỉ?', 'redirect-gateway-manager' )
             )
         ));
 
@@ -143,22 +143,22 @@ class WPRG_Shortcode_Gateway {
         <?php if ( ! $is_unlocked ) : ?>
         <div id="wprg-pass-wrap-<?php echo esc_attr($slug); ?>" class="wprg-gateway-wrapper wprg-password-container">
             <div class="wprg-lock-icon">🔒</div>
-            <h3 class="wprg-title wprg-text-danger"><?php esc_html_e( 'Link Yêu Cầu Mật Khẩu', 'wp-redirect-gateway' ); ?></h3>
-            <p class="wprg-desc"><?php esc_html_e( 'Vui lòng nhập mật khẩu để tiếp tục lấy link đích.', 'wp-redirect-gateway' ); ?></p>
+            <h3 class="wprg-title wprg-text-danger"><?php esc_html_e( 'Link Yêu Cầu Mật Khẩu', 'redirect-gateway-manager' ); ?></h3>
+            <p class="wprg-desc"><?php esc_html_e( 'Vui lòng nhập mật khẩu để tiếp tục lấy link đích.', 'redirect-gateway-manager' ); ?></p>
             <p id="wprg-pass-error-<?php echo esc_attr($slug); ?>" class="wprg-pass-error"></p>
             <form class="wprg-ajax-pass-form" data-slug="<?php echo esc_attr($slug); ?>">
-                <input type="password" class="wprg-pass-input" placeholder="<?php esc_attr_e( 'Nhập mật khẩu vào đây...', 'wp-redirect-gateway' ); ?>" required>
-                <button type="submit" class="wprg-pass-submit"><?php esc_html_e( 'MỞ KHÓA NGAY', 'wp-redirect-gateway' ); ?></button>
+                <input type="password" class="wprg-pass-input" placeholder="<?php esc_attr_e( 'Nhập mật khẩu vào đây...', 'redirect-gateway-manager' ); ?>" required>
+                <button type="submit" class="wprg-pass-submit"><?php esc_html_e( 'MỞ KHÓA NGAY', 'redirect-gateway-manager' ); ?></button>
             </form>
         </div>
         <?php endif; ?>
 
         <div id="wprg-btn-wrap-<?php echo esc_attr($slug); ?>" class="wprg-gateway-wrapper wprg-theme-default" data-slug="<?php echo esc_attr($slug); ?>" data-wait="<?php echo esc_attr($final_wait_time); ?>" data-ads="<?php echo intval( $link_data['ad_count'] ); ?>" data-logid="<?php echo esc_attr($log_id_val); ?>" style="<?php echo ( ! $is_unlocked ) ? 'display:none;' : ''; ?>">
-            <h2 class="wprg-title"><?php esc_html_e( 'Trang đích đang được chuẩn bị...', 'wp-redirect-gateway' ); ?></h2>
-            <p class="wprg-desc"><?php esc_html_e( 'Vui lòng hoàn thành các bước bên dưới để lấy link', 'wp-redirect-gateway' ); ?></p>
+            <h2 class="wprg-title"><?php esc_html_e( 'Trang đích đang được chuẩn bị...', 'redirect-gateway-manager' ); ?></h2>
+            <p class="wprg-desc"><?php esc_html_e( 'Vui lòng hoàn thành các bước bên dưới để lấy link', 'redirect-gateway-manager' ); ?></p>
             
             <button class="wprg-action-btn">
-                <?php esc_html_e( 'Bấm vào đây để tiếp tục', 'wp-redirect-gateway' ); ?>
+                <?php esc_html_e( 'Bấm vào đây để tiếp tục', 'redirect-gateway-manager' ); ?>
             </button>
             <p class="wprg-status-text"></p>
         </div>

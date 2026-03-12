@@ -18,7 +18,7 @@ class WPRG_Backup_Manager {
         $table_logs  = $wpdb->prefix . 'rg_logs';
 
         $data = array(
-            'plugin'      => 'wp-redirect-gateway',
+            'plugin'      => 'redirect-gateway-manager',
             'version'     => defined('WPRG_VERSION') ? WPRG_VERSION : '1.0.0',
             'backup_date' => current_time( 'Y-m-d H:i:s' ),
             'settings'    => array(),
@@ -51,18 +51,18 @@ class WPRG_Backup_Manager {
             $data['settings'][$key] = get_option( $key );
         }
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $data['links'] = $wpdb->get_results( "SELECT * FROM {$table_links}", ARRAY_A );
         
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $data['logs']  = $wpdb->get_results( "SELECT * FROM {$table_logs}", ARRAY_A );
 
         return wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
     }
 
     public function manual_backup_download() {
-        if ( ! isset( $_POST['wprg_backup_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_backup_nonce'] ) ), 'wprg_backup_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
-        if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Bạn không có quyền!', 'wp-redirect-gateway' ) );
+        if ( ! isset( $_POST['wprg_backup_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_backup_nonce'] ) ), 'wprg_backup_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'redirect-gateway-manager' ) );
+        if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Bạn không có quyền!', 'redirect-gateway-manager' ) );
 
         $json_data = $this->get_all_plugin_data();
         $filename = 'wprg-full-backup-' . gmdate( 'Y-m-d-H-i' ) . '.json';
@@ -77,9 +77,9 @@ class WPRG_Backup_Manager {
     }
 
     public function manual_backup_restore() {
-        if ( ! isset( $_POST['wprg_restore_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_restore_nonce'] ) ), 'wprg_restore_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
-        if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Bạn không có quyền!', 'wp-redirect-gateway' ) );
-        if ( empty( $_FILES['wprg_restore_file']['tmp_name'] ) ) wp_die( esc_html__( 'Vui lòng chọn file hợp lệ.', 'wp-redirect-gateway' ) );
+        if ( ! isset( $_POST['wprg_restore_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_restore_nonce'] ) ), 'wprg_restore_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'redirect-gateway-manager' ) );
+        if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Bạn không có quyền!', 'redirect-gateway-manager' ) );
+        if ( empty( $_FILES['wprg_restore_file']['tmp_name'] ) ) wp_die( esc_html__( 'Vui lòng chọn file hợp lệ.', 'redirect-gateway-manager' ) );
 
         $tmp_name = sanitize_text_field( wp_unslash( $_FILES['wprg_restore_file']['tmp_name'] ) );
         $file_content = file_get_contents( $tmp_name );
@@ -88,21 +88,21 @@ class WPRG_Backup_Manager {
     }
 
     public function auto_backup_restore() {
-        if ( ! isset( $_POST['wprg_auto_restore_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_auto_restore_nonce'] ) ), 'wprg_auto_restore_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
-        if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Bạn không có quyền!', 'wp-redirect-gateway' ) );
-        if ( empty( $_POST['backup_file'] ) ) wp_die( esc_html__( 'Thiếu tên file.', 'wp-redirect-gateway' ) );
+        if ( ! isset( $_POST['wprg_auto_restore_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_auto_restore_nonce'] ) ), 'wprg_auto_restore_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'redirect-gateway-manager' ) );
+        if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Bạn không có quyền!', 'redirect-gateway-manager' ) );
+        if ( empty( $_POST['backup_file'] ) ) wp_die( esc_html__( 'Thiếu tên file.', 'redirect-gateway-manager' ) );
 
         $filename = sanitize_file_name( wp_unslash( $_POST['backup_file'] ) );
         
         if ( pathinfo( $filename, PATHINFO_EXTENSION ) !== 'json' || strpos( $filename, 'wprg-autobackup-' ) !== 0 ) {
-            wp_die( esc_html__( 'File không hợp lệ.', 'wp-redirect-gateway' ) );
+            wp_die( esc_html__( 'File không hợp lệ.', 'redirect-gateway-manager' ) );
         }
 
         $upload_dir = wp_upload_dir();
         $filepath = $upload_dir['basedir'] . '/wprg-backups/' . $filename;
 
         if ( ! file_exists( $filepath ) ) {
-            wp_die( esc_html__( 'File backup không tồn tại trên máy chủ.', 'wp-redirect-gateway' ) );
+            wp_die( esc_html__( 'File backup không tồn tại trên máy chủ.', 'redirect-gateway-manager' ) );
         }
 
         $file_content = file_get_contents( $filepath );
@@ -112,8 +112,8 @@ class WPRG_Backup_Manager {
     private function process_restore_data( $file_content ) {
         $decoded_data = json_decode( $file_content, true );
 
-        if ( ! $decoded_data || ! isset( $decoded_data['plugin'] ) || $decoded_data['plugin'] !== 'wp-redirect-gateway' ) {
-            wp_die( esc_html__( 'File không hợp lệ hoặc không phải file Full Backup của plugin WP Redirect Gateway.', 'wp-redirect-gateway' ) );
+        if ( ! $decoded_data || ! isset( $decoded_data['plugin'] ) || $decoded_data['plugin'] !== 'redirect-gateway-manager' ) {
+            wp_die( esc_html__( 'File không hợp lệ hoặc không phải file Full Backup của plugin WP Redirect Gateway.', 'redirect-gateway-manager' ) );
         }
 
         global $wpdb;
@@ -127,15 +127,21 @@ class WPRG_Backup_Manager {
         }
 
         if ( isset( $decoded_data['links'] ) && is_array( $decoded_data['links'] ) ) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            $wpdb->query("TRUNCATE TABLE {$table_links}"); 
-            foreach ( $decoded_data['links'] as $link ) { $wpdb->insert( $table_links, $link ); }
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
+            $wpdb->query("TRUNCATE TABLE " . $table_links); 
+            foreach ( $decoded_data['links'] as $link ) { 
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->insert( $table_links, $link ); 
+            }
         }
 
         if ( isset( $decoded_data['logs'] ) && is_array( $decoded_data['logs'] ) ) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            $wpdb->query("TRUNCATE TABLE {$table_logs}"); 
-            foreach ( $decoded_data['logs'] as $log ) { $wpdb->insert( $table_logs, $log ); }
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
+            $wpdb->query("TRUNCATE TABLE " . $table_logs); 
+            foreach ( $decoded_data['logs'] as $log ) { 
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->insert( $table_logs, $log ); 
+            }
         }
 
         $redirect_url = wp_get_referer();
@@ -178,15 +184,15 @@ class WPRG_Backup_Manager {
     }
 
     public function delete_backup_file() {
-        if ( ! isset( $_POST['wprg_delete_backup_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_delete_backup_nonce'] ) ), 'wprg_delete_backup_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'wp-redirect-gateway' ) );
-        if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Bạn không có quyền!', 'wp-redirect-gateway' ) );
-        if ( empty( $_POST['backup_file'] ) ) wp_die( esc_html__( 'Thiếu tên file.', 'wp-redirect-gateway' ) );
+        if ( ! isset( $_POST['wprg_delete_backup_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_delete_backup_nonce'] ) ), 'wprg_delete_backup_action' ) ) wp_die( esc_html__( 'Lỗi bảo mật!', 'redirect-gateway-manager' ) );
+        if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'Bạn không có quyền!', 'redirect-gateway-manager' ) );
+        if ( empty( $_POST['backup_file'] ) ) wp_die( esc_html__( 'Thiếu tên file.', 'redirect-gateway-manager' ) );
 
         $filename = sanitize_file_name( wp_unslash( $_POST['backup_file'] ) );
         
         // Kiểm tra đúng định dạng file json của hệ thống mới cho xóa
         if ( pathinfo( $filename, PATHINFO_EXTENSION ) !== 'json' || strpos( $filename, 'wprg-autobackup-' ) !== 0 ) {
-            wp_die( esc_html__( 'File không hợp lệ.', 'wp-redirect-gateway' ) );
+            wp_die( esc_html__( 'File không hợp lệ.', 'redirect-gateway-manager' ) );
         }
 
         $upload_dir = wp_upload_dir();

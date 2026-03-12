@@ -18,15 +18,15 @@ class WPRG_Links_Table extends WP_List_Table {
     public function get_columns() {
         return array(
             'cb'               => '<input type="checkbox" />',
-            'name'             => __( 'Tên Link', 'wp-redirect-gateway' ),
-            'tag'              => __( 'Nhãn (Tag)', 'wp-redirect-gateway' ),
-            'original_url'     => __( 'Link Gốc', 'wp-redirect-gateway' ) . ' <span class="wprg-tooltip-icon" style="margin-top:-2px;">?<span class="wprg-tooltip-text">' . esc_attr__( 'Đường dẫn đích mà khách sẽ được chuyển hướng tới.', 'wp-redirect-gateway' ) . '</span></span>',
-            'slug'             => __( 'Link Chia sẻ', 'wp-redirect-gateway' ) . ' <span class="wprg-tooltip-icon" style="margin-top:-2px;">?<span class="wprg-tooltip-text">' . esc_attr__( 'Đây là link redirect của bạn, sẽ mở ra cổng Gateway. Định dạng đầy đủ khi Copy: yourdomain.com/go/[slug]', 'wp-redirect-gateway' ) . '</span></span>',
-            'inline_code'      => __( 'Mã chèn (Nút)', 'wp-redirect-gateway' ) . ' <span class="wprg-tooltip-icon" style="margin-top:-2px;">?<span class="wprg-tooltip-text">' . esc_attr__( 'Đây là mã shortcode dùng để chèn vào page / post. Định dạng đầy đủ khi Copy: [wprg_inline_button slug="[slug]"]', 'wp-redirect-gateway' ) . '</span></span>', 
-            'ad_count'         => __( 'Số QC', 'wp-redirect-gateway' ),
-            'wait_time'        => __( 'Thời gian', 'wp-redirect-gateway' ),
-            'completed_clicks' => __( 'Thành công', 'wp-redirect-gateway' ) . ' <span class="wprg-tooltip-icon" style="margin-top:-2px;">?<span class="wprg-tooltip-text">' . esc_attr__( 'Số lượt khách xem xong quảng cáo và lấy link thành công.', 'wp-redirect-gateway' ) . '</span></span>',
-            'created_at'       => __( 'Ngày tạo', 'wp-redirect-gateway' )
+            'name'             => __( 'Tên Link', 'redirect-gateway-manager' ),
+            'tag'              => __( 'Nhãn (Tag)', 'redirect-gateway-manager' ),
+            'original_url'     => __( 'Link Gốc', 'redirect-gateway-manager' ) . ' <span class="wprg-tooltip-icon" style="margin-top:-2px;">?<span class="wprg-tooltip-text">' . esc_attr__( 'Đường dẫn đích mà khách sẽ được chuyển hướng tới.', 'redirect-gateway-manager' ) . '</span></span>',
+            'slug'             => __( 'Link Chia sẻ', 'redirect-gateway-manager' ) . ' <span class="wprg-tooltip-icon" style="margin-top:-2px;">?<span class="wprg-tooltip-text">' . esc_attr__( 'Đây là link redirect của bạn, sẽ mở ra cổng Gateway. Định dạng đầy đủ khi Copy: yourdomain.com/go/[slug]', 'redirect-gateway-manager' ) . '</span></span>',
+            'inline_code'      => __( 'Mã chèn (Nút)', 'redirect-gateway-manager' ) . ' <span class="wprg-tooltip-icon" style="margin-top:-2px;">?<span class="wprg-tooltip-text">' . esc_attr__( 'Đây là mã shortcode dùng để chèn vào page / post. Định dạng đầy đủ khi Copy: [wprg_inline_button slug="[slug]"]', 'redirect-gateway-manager' ) . '</span></span>', 
+            'ad_count'         => __( 'Số QC', 'redirect-gateway-manager' ),
+            'wait_time'        => __( 'Thời gian', 'redirect-gateway-manager' ),
+            'completed_clicks' => __( 'Thành công', 'redirect-gateway-manager' ) . ' <span class="wprg-tooltip-icon" style="margin-top:-2px;">?<span class="wprg-tooltip-text">' . esc_attr__( 'Số lượt khách xem xong quảng cáo và lấy link thành công.', 'redirect-gateway-manager' ) . '</span></span>',
+            'created_at'       => __( 'Ngày tạo', 'redirect-gateway-manager' )
         );
     }
 
@@ -41,7 +41,7 @@ class WPRG_Links_Table extends WP_List_Table {
 
     protected function get_bulk_actions() {
         return array(
-            'bulk-delete' => __( 'Xóa', 'wp-redirect-gateway' )
+            'bulk-delete' => __( 'Xóa', 'redirect-gateway-manager' )
         );
     }
 
@@ -51,9 +51,9 @@ class WPRG_Links_Table extends WP_List_Table {
         global $wpdb;
         $table_name = $wpdb->prefix . 'rg_links';
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $ad_counts = $wpdb->get_col( "SELECT DISTINCT ad_count FROM {$table_name} ORDER BY ad_count ASC" );
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $months = $wpdb->get_results( "SELECT DISTINCT YEAR(created_at) AS year, MONTH(created_at) AS month FROM {$table_name} ORDER BY created_at DESC" );
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -64,11 +64,11 @@ class WPRG_Links_Table extends WP_List_Table {
         echo '<div class="alignleft actions">';
 
         echo '<select name="filter_ad_count">';
-        echo '<option value="">' . esc_html__( 'Tất cả số QC', 'wp-redirect-gateway' ) . '</option>';
+        echo '<option value="">' . esc_html__( 'Tất cả số QC', 'redirect-gateway-manager' ) . '</option>';
         if ( ! empty( $ad_counts ) ) {
             foreach ( $ad_counts as $count ) {
                 /* translators: %s: Number of ads (QC) */
-                $label = sprintf( esc_html__( '%s QC', 'wp-redirect-gateway' ), esc_html( $count ) );
+                $label = sprintf( esc_html__( '%s QC', 'redirect-gateway-manager' ), esc_html( $count ) );
                 
                 printf( '<option value="%s" %s>%s</option>', esc_attr( $count ), selected( $selected_ad, $count, false ), esc_html( $label ) );
             }
@@ -76,7 +76,7 @@ class WPRG_Links_Table extends WP_List_Table {
         echo '</select>';
 
         echo '<select name="filter_month">';
-        echo '<option value="">' . esc_html__( 'Tất cả các tháng', 'wp-redirect-gateway' ) . '</option>';
+        echo '<option value="">' . esc_html__( 'Tất cả các tháng', 'redirect-gateway-manager' ) . '</option>';
         if ( ! empty( $months ) ) {
             foreach ( $months as $m ) {
                 $val = sprintf( '%04d-%02d', $m->year, $m->month );
@@ -86,7 +86,7 @@ class WPRG_Links_Table extends WP_List_Table {
         }
         echo '</select>';
 
-        submit_button( __( 'Lọc', 'wp-redirect-gateway' ), 'button', 'filter_action', false );
+        submit_button( __( 'Lọc', 'redirect-gateway-manager' ), 'button', 'filter_action', false );
         echo '</div>';
     }
 
@@ -98,12 +98,12 @@ class WPRG_Links_Table extends WP_List_Table {
         $req_page = isset( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : '';
         
         $actions = array(
-            'edit'      => sprintf( '<a href="?page=%s&action=%s&link_id=%s&_wpnonce=%s">%s</a>', esc_attr( $req_page ), 'edit', absint( $item['id'] ), $edit_nonce, __( 'Sửa', 'wp-redirect-gateway' ) ),
-            'duplicate' => sprintf( '<a href="?page=%s&action=%s&link_id=%s">%s</a>', esc_attr( $req_page ), 'duplicate', absint( $item['id'] ), __( 'Nhân bản', 'wp-redirect-gateway' ) ),
-            'delete'    => sprintf( '<a href="?page=%s&action=%s&link_id=%s&_wpnonce=%s" class="submitdelete" onclick="return confirm(\'%s\');">%s</a>', esc_attr( $req_page ), 'delete', absint( $item['id'] ), $delete_nonce, esc_js( __( 'Bạn có chắc chắn muốn xóa link này?', 'wp-redirect-gateway' ) ), __( 'Xóa', 'wp-redirect-gateway' ) ),
+            'edit'      => sprintf( '<a href="?page=%s&action=%s&link_id=%s&_wpnonce=%s">%s</a>', esc_attr( $req_page ), 'edit', absint( $item['id'] ), $edit_nonce, __( 'Sửa', 'redirect-gateway-manager' ) ),
+            'duplicate' => sprintf( '<a href="?page=%s&action=%s&link_id=%s">%s</a>', esc_attr( $req_page ), 'duplicate', absint( $item['id'] ), __( 'Nhân bản', 'redirect-gateway-manager' ) ),
+            'delete'    => sprintf( '<a href="?page=%s&action=%s&link_id=%s&_wpnonce=%s" class="submitdelete" onclick="return confirm(\'%s\');">%s</a>', esc_attr( $req_page ), 'delete', absint( $item['id'] ), $delete_nonce, esc_js( __( 'Bạn có chắc chắn muốn xóa link này?', 'redirect-gateway-manager' ) ), __( 'Xóa', 'redirect-gateway-manager' ) ),
         );
 
-        $lock_icon = !empty($item['password']) ? ' <span title="' . esc_attr__( 'Có mật khẩu bảo vệ', 'wp-redirect-gateway' ) . ': ' . esc_attr($item['password']) . '" style="color: #d63638; font-size: 14px;">🔒</span>' : '';
+        $lock_icon = !empty($item['password']) ? ' <span title="' . esc_attr__( 'Có mật khẩu bảo vệ', 'redirect-gateway-manager' ) . ': ' . esc_attr($item['password']) . '" style="color: #d63638; font-size: 14px;">🔒</span>' : '';
         $display_name = mb_strimwidth( $item['name'], 0, 80, '...' );
 
         return sprintf( '%1$s%2$s %3$s', '<strong style="font-size:14px; color:#2271b1; display:block; word-wrap:break-word; white-space:normal; line-height:1.4;">' . esc_html( $display_name ) . '</strong>', $lock_icon, $this->row_actions( $actions ) );
@@ -118,8 +118,8 @@ class WPRG_Links_Table extends WP_List_Table {
             case 'original_url':
                 return '<div style="display:flex; align-items:center; gap:4px; max-width: 100%;">
                             <input type="text" readonly value="' . esc_attr( $item['original_url'] ) . '" title="' . esc_attr( $item['original_url'] ) . '" onfocus="this.select();" style="flex: 1; min-width: 40px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; padding: 4px 6px; font-size: 11px; color: #666; box-shadow: none; font-family: monospace; cursor: text;" />
-                            <a href="' . esc_url( $item['original_url'] ) . '" target="_blank" class="button button-small" title="' . esc_attr__( 'Mở Link Đích', 'wp-redirect-gateway' ) . '" style="padding: 0 4px; flex-shrink: 0;"><span class="dashicons dashicons-external" style="font-size: 14px; margin-top: 3px;"></span></a>
-                            <button type="button" class="button button-small wprg-btn-copy" data-copy="' . esc_attr( $item['original_url'] ) . '" title="' . esc_attr__( 'Copy Link gốc', 'wp-redirect-gateway' ) . '" style="padding: 0 4px; flex-shrink: 0;"><span class="dashicons dashicons-admin-page" style="font-size: 14px; margin-top: 3px;"></span></button>
+                            <a href="' . esc_url( $item['original_url'] ) . '" target="_blank" class="button button-small" title="' . esc_attr__( 'Mở Link Đích', 'redirect-gateway-manager' ) . '" style="padding: 0 4px; flex-shrink: 0;"><span class="dashicons dashicons-external" style="font-size: 14px; margin-top: 3px;"></span></a>
+                            <button type="button" class="button button-small wprg-btn-copy" data-copy="' . esc_attr( $item['original_url'] ) . '" title="' . esc_attr__( 'Copy Link gốc', 'redirect-gateway-manager' ) . '" style="padding: 0 4px; flex-shrink: 0;"><span class="dashicons dashicons-admin-page" style="font-size: 14px; margin-top: 3px;"></span></button>
                         </div>';
             
             case 'tag':
@@ -131,16 +131,16 @@ class WPRG_Links_Table extends WP_List_Table {
             case 'slug':
                 $redirect_url = site_url( '/go/' . $item['slug'] );
                 return '<div style="display:flex; align-items:center; gap:4px;">
-                            <input type="text" readonly value="' . esc_attr( $item['slug'] ) . '" title="' . esc_attr__( 'Hiện Slug rút gọn - Bấm Copy để lấy Full Link', 'wp-redirect-gateway' ) . '" onfocus="this.select();" style="flex: 1; min-width: 40px; border: 1px solid #85c2e1; background: #f0f8ff; border-radius: 4px; padding: 4px 6px; font-size: 11px; color: #0073aa; font-weight: bold; font-family: monospace; text-align: center; box-shadow: none;" />
-                            <a href="' . esc_url( $redirect_url ) . '" target="_blank" class="button button-small" title="' . esc_attr__( 'Mở Link Chia Sẻ', 'wp-redirect-gateway' ) . '" style="padding: 0 4px; flex-shrink: 0;"><span class="dashicons dashicons-external" style="font-size: 14px; margin-top: 3px;"></span></a>
-                            <button type="button" class="button button-small wprg-btn-copy" data-copy="' . esc_attr( $redirect_url ) . '" title="' . esc_attr__( 'Copy Full Link', 'wp-redirect-gateway' ) . '" style="padding: 0 4px; flex-shrink: 0;"><span class="dashicons dashicons-admin-page" style="font-size: 14px; margin-top: 3px;"></span></button>
+                            <input type="text" readonly value="' . esc_attr( $item['slug'] ) . '" title="' . esc_attr__( 'Hiện Slug rút gọn - Bấm Copy để lấy Full Link', 'redirect-gateway-manager' ) . '" onfocus="this.select();" style="flex: 1; min-width: 40px; border: 1px solid #85c2e1; background: #f0f8ff; border-radius: 4px; padding: 4px 6px; font-size: 11px; color: #0073aa; font-weight: bold; font-family: monospace; text-align: center; box-shadow: none;" />
+                            <a href="' . esc_url( $redirect_url ) . '" target="_blank" class="button button-small" title="' . esc_attr__( 'Mở Link Chia Sẻ', 'redirect-gateway-manager' ) . '" style="padding: 0 4px; flex-shrink: 0;"><span class="dashicons dashicons-external" style="font-size: 14px; margin-top: 3px;"></span></a>
+                            <button type="button" class="button button-small wprg-btn-copy" data-copy="' . esc_attr( $redirect_url ) . '" title="' . esc_attr__( 'Copy Full Link', 'redirect-gateway-manager' ) . '" style="padding: 0 4px; flex-shrink: 0;"><span class="dashicons dashicons-admin-page" style="font-size: 14px; margin-top: 3px;"></span></button>
                         </div>';
             
             case 'inline_code': 
                 $inline_code = '[wprg_inline_button slug="' . esc_attr( $item['slug'] ) . '"]';
                 return '<div style="display:flex; align-items:center; gap:4px;">
-                            <input type="text" readonly value="' . esc_attr( $item['slug'] ) . '" title="' . esc_attr__( 'Hiện Slug rút gọn - Bấm Copy để lấy Full Mã chèn', 'wp-redirect-gateway' ) . '" onfocus="this.select();" style="flex: 1; min-width: 40px; border: 1px solid #ddd; background: #fafafa; border-radius: 4px; padding: 4px 6px; font-size: 11px; color: #d63638; font-weight: bold; font-family: monospace; text-align: center; box-shadow: none;" />
-                            <button type="button" class="button button-small wprg-btn-copy" data-copy="' . esc_attr( $inline_code ) . '" title="' . esc_attr__( 'Copy Full Mã chèn', 'wp-redirect-gateway' ) . '" style="padding: 0 4px; flex-shrink: 0;"><span class="dashicons dashicons-admin-page" style="font-size: 14px; margin-top: 3px;"></span></button>
+                            <input type="text" readonly value="' . esc_attr( $item['slug'] ) . '" title="' . esc_attr__( 'Hiện Slug rút gọn - Bấm Copy để lấy Full Mã chèn', 'redirect-gateway-manager' ) . '" onfocus="this.select();" style="flex: 1; min-width: 40px; border: 1px solid #ddd; background: #fafafa; border-radius: 4px; padding: 4px 6px; font-size: 11px; color: #d63638; font-weight: bold; font-family: monospace; text-align: center; box-shadow: none;" />
+                            <button type="button" class="button button-small wprg-btn-copy" data-copy="' . esc_attr( $inline_code ) . '" title="' . esc_attr__( 'Copy Full Mã chèn', 'redirect-gateway-manager' ) . '" style="padding: 0 4px; flex-shrink: 0;"><span class="dashicons dashicons-admin-page" style="font-size: 14px; margin-top: 3px;"></span></button>
                         </div>';
             
             case 'ad_count':
@@ -150,7 +150,7 @@ class WPRG_Links_Table extends WP_List_Table {
                 if ( ! empty( $item['wait_time'] ) ) {
                     return '<span style="color: #d63638; font-weight: bold;">' . esc_html( $item['wait_time'] ) . 's</span>';
                 } else {
-                    return '<span style="color: #999; font-style: italic;">' . esc_html__( 'Mặc định', 'wp-redirect-gateway' ) . '</span>';
+                    return '<span style="color: #999; font-style: italic;">' . esc_html__( 'Mặc định', 'redirect-gateway-manager' ) . '</span>';
                 }
             
             case 'completed_clicks':
@@ -203,10 +203,10 @@ class WPRG_Links_Table extends WP_List_Table {
         $where_sql = implode( ' AND ', $where_clauses );
 
         if ( empty( $query_args ) ) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.PlaceholdersReplacements, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
             $total_items = $wpdb->get_var( "SELECT COUNT(id) FROM " . $table_name . " WHERE " . $where_sql );
         } else {
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.PlaceholdersReplacements, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.PlaceholdersReplacements, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
             $total_items = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM " . $table_name . " WHERE " . $where_sql, $query_args ) );
         }
 
@@ -233,15 +233,8 @@ class WPRG_Links_Table extends WP_List_Table {
         $query_args[] = $per_page;
         $query_args[] = $offset;
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.PlaceholdersReplacements, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        $this->items = $wpdb->get_results( $wpdb->prepare( "
-            SELECT *, 
-            (SELECT COUNT(id) FROM " . $table_logs . " WHERE link_id = " . $table_name . ".id AND status = 'completed') as completed_clicks
-            FROM " . $table_name . " 
-            WHERE " . $where_sql . " 
-            ORDER BY " . $orderby . " " . $order . " 
-            LIMIT %d OFFSET %d
-        ", $query_args ), ARRAY_A );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.PlaceholdersReplacements, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+        $this->items = $wpdb->get_results( $wpdb->prepare( "SELECT *, (SELECT COUNT(id) FROM " . $table_logs . " WHERE link_id = " . $table_name . ".id AND status = 'completed') as completed_clicks FROM " . $table_name . " WHERE " . $where_sql . " ORDER BY " . $orderby . " " . $order . " LIMIT %d OFFSET %d", $query_args ), ARRAY_A );
     }
 
     public function display() {
