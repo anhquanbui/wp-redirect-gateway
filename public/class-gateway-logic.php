@@ -46,7 +46,7 @@ class WPRG_Gateway_Logic {
                         // Link nội bộ: Lấy mỗi đuôi
                         $path = isset($parsed_ref['path']) ? $parsed_ref['path'] : '';
                         $path = trim( $path, '/' );
-                        $referrer = empty( $path ) ? 'Trang chủ' : '/' . $path;
+                        $referrer = empty( $path ) ? 'Homepage' : '/' . $path;
                     } else {
                         // Link bên ngoài: Xóa https:// và www.
                         $referrer = preg_replace( '#^https?://(www\.)?#i', '', $referrer );
@@ -82,10 +82,10 @@ class WPRG_Gateway_Logic {
                         wp_redirect( $redirect_url, 302 );
                         exit;
                     } else {
-                        wp_die( esc_html__( 'Trang Gateway chứa shortcode không tồn tại hoặc đã bị xóa.', 'redirect-gateway-manager' ) );
+                        wp_die( esc_html__( 'The Gateway page containing the shortcode does not exist or has been deleted.', 'redirect-gateway-manager' ) );
                     }
                 } else {
-                    wp_die( esc_html__('Link này chưa được gán Gateway hoặc Gateway đã bị vô hiệu hóa.','redirect-gateway-manager') );
+                    wp_die( esc_html__('This link has not been assigned a Gateway or the Gateway has been disabled.','redirect-gateway-manager') );
                 }
             } else {
                 global $wp_query;

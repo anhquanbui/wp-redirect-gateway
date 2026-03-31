@@ -29,9 +29,8 @@ if ( $delete_data === 'yes' ) {
         'wprg_recaptcha_site',
         'wprg_recaptcha_secret',
         'wprg_delete_data',
-        'wprg_enable_initial_click',
-        'wprg_initial_links',
         'wprg_shortcodes',
+        'wprg_new_tab_delay',
         'wprg_hide_conflict_notice', // Bộ nhớ thông báo cũ
         'wprg_hide_conflict_hash',   // Bộ nhớ thông báo Hash
         'wprg_dismissed_conflicts'   // Bộ nhớ thông báo phân mảnh

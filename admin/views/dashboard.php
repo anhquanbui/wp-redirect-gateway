@@ -29,40 +29,44 @@ if ( $chart_data_raw ) {
 ?>
 
 <div class="wrap">
-    <h1 class="wp-heading-inline"><?php esc_html_e( 'Thống kê Tổng quan (Dashboard)', 'redirect-gateway-manager' ); ?></h1>
+    <h1 class="wp-heading-inline"><?php esc_html_e( 'Overview Statistics (Dashboard)', 'redirect-gateway-manager' ); ?></h1>
     <hr class="wp-header-end">
 
     <div style="display: flex; gap: 20px; margin-bottom: 20px; margin-top: 20px;">
         <div style="flex: 1; background: #fff; padding: 20px; border-left: 4px solid #0073aa; box-shadow: 0 1px 1px rgba(0,0,0,.04);">
-            <h3 style="margin: 0 0 10px 0; color: #666;"><?php esc_html_e( 'Tổng số Link đã tạo', 'redirect-gateway-manager' ); ?></h3>
+            <h3 style="margin: 0 0 10px 0; color: #666;"><?php esc_html_e( 'Total Links Created', 'redirect-gateway-manager' ); ?></h3>
             <span style="font-size: 32px; font-weight: bold; color: #0073aa;"><?php echo number_format( intval( $total_links ) ); ?></span>
         </div>
         <div style="flex: 1; background: #fff; padding: 20px; border-left: 4px solid #d63638; box-shadow: 0 1px 1px rgba(0,0,0,.04);">
-            <h3 style="margin: 0 0 10px 0; color: #666;"><?php esc_html_e( 'Tổng lượt Click hệ thống', 'redirect-gateway-manager' ); ?></h3>
+            <h3 style="margin: 0 0 10px 0; color: #666;"><?php esc_html_e( 'Total System Clicks', 'redirect-gateway-manager' ); ?></h3>
             <span style="font-size: 32px; font-weight: bold; color: #d63638;"><?php echo number_format( intval( $total_clicks ) ); ?></span>
         </div>
     </div>
 
     <div style="background: #fff; padding: 20px; border: 1px solid #ccd0d4; margin-bottom: 20px;">
-        <h3><?php esc_html_e( 'Biểu đồ lượt Click theo giờ trong ngày (Giờ Server)', 'redirect-gateway-manager' ); ?></h3>
+        <h3><?php esc_html_e( 'Hourly Clicks Chart (Server Time)', 'redirect-gateway-manager' ); ?></h3>
         <div style="position: relative; height: 350px; width: 100%;">
-            <canvas id="clicksChart"></canvas>
+            <canvas id="clicksChart" 
+                data-chart="<?php echo esc_attr( wp_json_encode( array_values( $hours_array ) ) ); ?>" 
+                data-label="<?php esc_attr_e( 'Number of link clicks', 'redirect-gateway-manager' ); ?>" 
+                data-title="<?php esc_attr_e( 'Time slot: ', 'redirect-gateway-manager' ); ?>">
+            </canvas>
         </div>
     </div>
 
     <div style="display: flex; gap: 20px; flex-wrap: wrap;">
         <div style="flex: 1; min-width: 300px; background: #fff; border: 1px solid #ccd0d4;">
-            <h3 style="margin: 0; padding: 15px; background: #f9f9f9; border-bottom: 1px solid #ccd0d4;"><?php esc_html_e( 'Top 20 Link nhấp nhiều nhất', 'redirect-gateway-manager' ); ?></h3>
+            <h3 style="margin: 0; padding: 15px; background: #f9f9f9; border-bottom: 1px solid #ccd0d4;"><?php esc_html_e( 'Top 20 Most Clicked Links', 'redirect-gateway-manager' ); ?></h3>
             <div style="padding: 15px;">
                 <table class="wp-list-table widefat striped">
-                    <thead><tr><th><?php esc_html_e( 'Tên Link', 'redirect-gateway-manager' ); ?></th><th><?php esc_html_e( 'Số lượt Click', 'redirect-gateway-manager' ); ?></th></tr></thead>
+                    <thead><tr><th><?php esc_html_e( 'Link Name', 'redirect-gateway-manager' ); ?></th><th><?php esc_html_e( 'Clicks Count', 'redirect-gateway-manager' ); ?></th></tr></thead>
                     <tbody>
                         <?php if ( empty($top_links) ) : ?>
-                            <tr><td colspan="2"><?php esc_html_e( 'Chưa có dữ liệu.', 'redirect-gateway-manager' ); ?></td></tr>
+                            <tr><td colspan="2"><?php esc_html_e( 'No data available.', 'redirect-gateway-manager' ); ?></td></tr>
                         <?php else : ?>
                             <?php foreach ( $top_links as $link ) : ?>
                                 <tr>
-                                    <td><strong><?php echo esc_html( $link['name'] ? $link['name'] : __( 'Link đã xóa', 'redirect-gateway-manager' ) ); ?></strong></td>
+                                    <td><strong><?php echo esc_html( $link['name'] ? $link['name'] : __( 'Deleted Link', 'redirect-gateway-manager' ) ); ?></strong></td>
                                     <td><?php echo number_format( intval( $link['total_clicks'] ) ); ?></td>
                                 </tr>
                             <?php endforeach; ?>
@@ -73,13 +77,13 @@ if ( $chart_data_raw ) {
         </div>
 
         <div style="flex: 1; min-width: 300px; background: #fff; border: 1px solid #ccd0d4;">
-            <h3 style="margin: 0; padding: 15px; background: #f9f9f9; border-bottom: 1px solid #ccd0d4;"><?php esc_html_e( 'Top 20 IP nhấp nhiều nhất', 'redirect-gateway-manager' ); ?></h3>
+            <h3 style="margin: 0; padding: 15px; background: #f9f9f9; border-bottom: 1px solid #ccd0d4;"><?php esc_html_e( 'Top 20 Most Active IPs', 'redirect-gateway-manager' ); ?></h3>
             <div style="padding: 15px;">
                 <table class="wp-list-table widefat striped">
-                    <thead><tr><th><?php esc_html_e( 'Địa chỉ IP', 'redirect-gateway-manager' ); ?></th><th><?php esc_html_e( 'Số lượt Click', 'redirect-gateway-manager' ); ?></th></tr></thead>
+                    <thead><tr><th><?php esc_html_e( 'IP Address', 'redirect-gateway-manager' ); ?></th><th><?php esc_html_e( 'Clicks Count', 'redirect-gateway-manager' ); ?></th></tr></thead>
                     <tbody>
                         <?php if ( empty($top_ips) ) : ?>
-                            <tr><td colspan="2"><?php esc_html_e( 'Chưa có dữ liệu.', 'redirect-gateway-manager' ); ?></td></tr>
+                            <tr><td colspan="2"><?php esc_html_e( 'No data available.', 'redirect-gateway-manager' ); ?></td></tr>
                         <?php else : ?>
                             <?php foreach ( $top_ips as $ip ) : ?>
                                 <tr>
@@ -94,44 +98,3 @@ if ( $chart_data_raw ) {
         </div>
     </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const chartData = <?php echo json_encode( array_values( $hours_array ) ); ?>;
-    const chartLabels = ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'];
-
-    const ctx = document.getElementById('clicksChart').getContext('2d');
-    const clicksChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: chartLabels,
-            datasets: [{
-                label: '<?php echo esc_js( __( 'Số lượt nhấp link', 'redirect-gateway-manager' ) ); ?>',
-                data: chartData,
-                backgroundColor: 'rgba(0, 115, 170, 0.7)',
-                borderColor: 'rgba(0, 115, 170, 1)',
-                borderWidth: 1,
-                borderRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { precision: 0 } 
-                }
-            },
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        title: function(context) { return '<?php echo esc_js( __( 'Khung giờ: ', 'redirect-gateway-manager' ) ); ?>' + context[0].label; }
-                    }
-                }
-            }
-        }
-    });
-});
-</script>

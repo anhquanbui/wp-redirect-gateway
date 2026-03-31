@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof wprgData === 'undefined') return;
 
-    // --- 1. XỬ LÝ FORM MẬT KHẨU (Đã hỗ trợ nhiều form từ trước) ---
+    // --- 1. PASSWORD FORM HANDLING (Supports multiple forms) ---
     const passForms = document.querySelectorAll('.wprg-ajax-pass-form');
     passForms.forEach(function(form) {
         form.addEventListener('submit', function(e) {
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     errorText.innerText = data.data || wprgData.i18n.wrong_pass;
                     errorText.style.display = "block";
-                    btnSubmit.innerText = wprgData.i18n.unlock_now
+                    btnSubmit.innerText = wprgData.i18n.unlock_now;
                     btnSubmit.style.cursor = "pointer";
                     btnSubmit.style.opacity = "1";
                 }
@@ -58,18 +58,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // --- 2. LOGIC ĐẾM NGƯỢC (ĐA LUỒNG - HỖ TRỢ NỀN TẢNG NHIỀU NÚT) ---
+    // --- 2. COUNTDOWN LOGIC (MULTI-THREAD - SUPPORTS MULTIPLE BUTTONS) ---
     const wrappers = document.querySelectorAll('.wprg-gateway-wrapper');
     if (wrappers.length === 0) return;
 
-    // Lặp qua từng nút để tạo không gian chạy riêng biệt
+    // Loop through each button to create an isolated execution space
     wrappers.forEach(function(wrapper) {
         const btn = wrapper.querySelector('.wprg-action-btn');
         const statusText = wrapper.querySelector('.wprg-status-text');
         
         if (!btn || !statusText) return; 
 
-        // Lấy dữ liệu riêng của nút đó từ HTML
+        // Get specific data for the button from HTML attributes
         const slug = wrapper.dataset.slug;
         const totalAds = parseInt(wrapper.dataset.ads) || 0;
         const logId = parseInt(wrapper.dataset.logid) || 0;
@@ -89,8 +89,9 @@ document.addEventListener('DOMContentLoaded', function() {
         let countdownInterval;
         let isCounting = false;
         let recapToken = '';
+        let linkOpenedSuccess = false;
 
-        // Khóa nếu Single Link Mode bật (Khóa tính trên toàn website)
+        // Lock if Single Link Mode is enabled (Global lock across the site)
         if (wprgData.single_link === '1') {
             const activeDataStr = localStorage.getItem(globalActiveKey);
             if (activeDataStr) {
@@ -102,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     btn.style.cursor = 'not-allowed';
                     btn.disabled = true;
                     statusText.innerHTML = i18n.active_desc;
-                    return; // Ngừng thiết lập nút này nếu đang có link khác chạy
+                    return; // Prevent further execution for this button
                 }
             }
         }
@@ -143,45 +144,63 @@ document.addEventListener('DOMContentLoaded', function() {
                         let tsWaitInterval = setInterval(function() {
                             if (typeof turnstile !== 'undefined') {
                                 clearInterval(tsWaitInterval);
-                                // Tạo ID riêng biệt cho mỗi khung Cloudflare
-                                let tsContainerId = 'wprg-turnstile-container-' + slug;
-                                let tsContainer = document.getElementById(tsContainerId);
-                                if (!tsContainer) {
-                                    tsContainer = document.createElement('div');
-                                    tsContainer.id = tsContainerId;
-                                    tsContainer.style.margin = '15px auto';
-                                    tsContainer.style.display = 'flex';
-                                    tsContainer.style.justifyContent = 'center';
-                                    btn.parentNode.insertBefore(tsContainer, btn);
-                                    
-                                    window['wprgTsId_' + slug] = turnstile.render('#' + tsContainerId, {
-                                        sitekey: wprgData.turnstile_site,
-                                        callback: function(token) {
-                                            recapToken = token;
-                                            state.isVerified = true;
-                                            saveState();
-                                            document.getElementById(tsContainerId).style.display = 'none';
-                                            btn.disabled = false;
-                                            btn.dataset.step = "get_link";
-                                            btn.click(); 
-                                        },
-                                        "error-callback": function() {
-                                            alert(i18n.error_prefix + " Cloudflare Turnstile error.");
-                                            btn.disabled = false;
-                                            btn.innerText = i18n.try_again;
-                                            btn.dataset.step = "wait_turnstile";
-                                            turnstile.reset(window['wprgTsId_' + slug]);
-                                        }
-                                    });
-                                }
+                                renderTurnstileWidget();
                             } else {
                                 tsWaitCount++;
-                                if (tsWaitCount > 20) {
+                                // Dynamically load Turnstile if missing (e.g., after Adblock is turned off)
+                                if (tsWaitCount === 5) {
+                                    const script = document.createElement('script');
+                                    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+                                    script.onerror = function() {
+                                        clearInterval(tsWaitInterval);
+                                        statusText.innerHTML = "<span style='color:#d63638; font-weight:bold;'>" + (i18n.adblock_detected || "Script blocked. Please refresh (F5)!") + "</span>";
+                                    };
+                                    document.head.appendChild(script);
+                                }
+                                if (tsWaitCount > 30) {
                                     clearInterval(tsWaitInterval);
                                     statusText.innerHTML = "<span style='color:#d63638; font-weight:bold;'>" + wprgData.i18n.cf_load_error + "</span>";
                                 }
                             }
                         }, 500);
+
+                        function renderTurnstileWidget() {
+                            // Create a unique ID for each Cloudflare widget
+                            let tsContainerId = 'wprg-turnstile-container-' + slug;
+                            let tsContainer = document.getElementById(tsContainerId);
+                            if (!tsContainer) {
+                                tsContainer = document.createElement('div');
+                                tsContainer.id = tsContainerId;
+                                tsContainer.style.margin = '15px auto';
+                                tsContainer.style.display = 'flex';
+                                tsContainer.style.justifyContent = 'center';
+                                btn.parentNode.insertBefore(tsContainer, btn);
+                                
+                                window['wprgTsId_' + slug] = turnstile.render('#' + tsContainerId, {
+                                    sitekey: wprgData.turnstile_site,
+                                    callback: function(token) {
+                                        recapToken = token;
+                                        state.isVerified = true;
+                                        saveState();
+                                        document.getElementById(tsContainerId).style.display = 'none';
+                                        btn.disabled = false;
+                                        btn.dataset.step = "get_link";
+
+                                        // CHỈ TỰ ĐỘNG CLICK NẾU LINK CHƯA ĐƯỢC MỞ THÀNH CÔNG
+                                        if (!linkOpenedSuccess) {
+                                            btn.click(); 
+                                        }
+                                    },
+                                    "error-callback": function() {
+                                        alert(i18n.error_prefix + " Cloudflare Turnstile error.");
+                                        btn.disabled = false;
+                                        btn.innerText = i18n.try_again;
+                                        btn.dataset.step = "wait_turnstile";
+                                        turnstile.reset(window['wprgTsId_' + slug]);
+                                    }
+                                });
+                            }
+                        }
                     } else if (isRecaptcha) {
                         btn.innerText = i18n.verify_sec; 
                         btn.style.backgroundColor = '#f39c12'; 
@@ -209,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 btn.innerText = i18n.start_btn || 'CLICK HERE TO CONTINUE'; 
                 btn.style.backgroundColor = '#0073aa';
                 btn.style.color = '#fff';
-                statusText.innerText = i18n.start_msg || 'Vui lòng nhấn nút bên dưới để bắt đầu'; 
+                statusText.innerText = i18n.start_msg || 'Please click the button below to start'; 
             } else {
                 btn.innerText = `${i18n.watch_ad} (${state.currentAd}/${totalAds})`; 
                 btn.style.backgroundColor = state.currentAd > 1 ? '#d63638' : '#0073aa';
@@ -265,25 +284,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
         btn.addEventListener('click', function(e) {
             e.preventDefault();
-            if (btn.disabled || isCounting) return;
+            // NẾU LINK ĐÃ MỞ THÀNH CÔNG THÌ KHÔNG LÀM GÌ NỮA
+            if (btn.disabled || isCounting || linkOpenedSuccess) return;
 
-            // [BẢN VÁ LỖI] KIỂM TRA TRỰC TIẾP LÚC CLICK CHUỘT (Cho chế độ 1 Link)
+            // [BUG FIX] DIRECT CHECK ON CLICK (For Single Link Mode)
             if (wprgData.single_link === '1' && !state.isStarted && !state.isReady) {
                 const activeDataStr = localStorage.getItem(globalActiveKey);
                 if (activeDataStr) {
                     const activeData = JSON.parse(activeDataStr);
                     const now = new Date().getTime();
-                    // Nếu có link khác đang chạy và chưa quá 5 phút
+                    // If another link is active and less than 5 minutes have passed
                     if (activeData.slug !== slug && (now - activeData.timestamp < 300000)) {
-                        alert(i18n.active_warning + "\n" + i18n.active_desc); // Bật thông báo Pop-up
+                        alert(i18n.active_warning + "\n" + i18n.active_desc); // Show popup alert
                         
-                        // Khóa cứng nút này lại ngay lập tức
+                        // Immediately disable this button
                         btn.innerText = i18n.active_warning;
                         btn.style.backgroundColor = '#666';
                         btn.style.cursor = 'not-allowed';
                         btn.disabled = true;
                         statusText.innerHTML = i18n.active_desc;
-                        return; // Chặn không cho lệnh bên dưới chạy
+                        return; // Prevent further execution
                     }
                 }
             }
@@ -298,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     btn.innerText = i18n.verifying;
                     btn.style.cursor = 'wait';
                     
-                    if (typeof grecaptcha !== 'undefined') {
+                    function executeRecaptcha() {
                         grecaptcha.ready(function() {
                             grecaptcha.execute(wprgData.recaptcha_site, {action: 'get_link'}).then(function(token) {
                                 recapToken = token;
@@ -312,10 +332,21 @@ document.addEventListener('DOMContentLoaded', function() {
                                 btn.style.cursor = 'pointer';
                             });
                         });
+                    }
+
+                    if (typeof grecaptcha !== 'undefined') {
+                        executeRecaptcha();
                     } else {
-                        alert(i18n.script_blocked || "Script blocked.");
-                        btn.innerText = i18n.try_again;
-                        btn.style.cursor = 'pointer';
+                        // Dynamically load reCAPTCHA script if missing (e.g., after Adblock disabled)
+                        const script = document.createElement('script');
+                        script.src = 'https://www.google.com/recaptcha/api.js?render=' + wprgData.recaptcha_site;
+                        script.onload = executeRecaptcha;
+                        script.onerror = function() {
+                            alert((i18n.adblock_detected || "Script blocked.") + " Please refresh the page (F5)!");
+                            btn.innerText = i18n.try_again;
+                            btn.style.cursor = 'pointer';
+                        };
+                        document.head.appendChild(script);
                     }
                     return;
                 }
@@ -343,44 +374,103 @@ document.addEventListener('DOMContentLoaded', function() {
                             })
                         })
                         .then(response => {
-                            if (!response.ok) throw new Error("HTTP Error"); // Bắt các lỗi do Tường lửa (403, 429)
+                            if (!response.ok) throw new Error("HTTP Error"); // Catch Firewall errors (403, 429)
                             return response.json();
                         })
                         .then(data => {
                             if (data.success && data.data.url) {
+                                linkOpenedSuccess = true; // <-- ĐÁNH DẤU THÀNH CÔNG TẠI ĐÂY
                                 localStorage.removeItem(lsKey);
                                 localStorage.removeItem(globalActiveKey);
                                 if (wprgData.open_new_tab === '1') {
-                                    window.open(data.data.url, '_blank', secFeatures); 
-                                    btn.innerText = wprgData.i18n.link_opened_btn;
-                                    btn.style.backgroundColor = '#666';
-                                    btn.style.cursor = 'not-allowed';
-                                    btn.disabled = true;
-                                    statusText.innerText = wprgData.i18n.link_opened_new_tab;
+                                    // 1. Mở tab mới KHÔNG kèm secFeatures để giữ quyền điều khiển
+                                    let newWin = window.open('', '_blank'); 
+                                    let delaySeconds = parseInt(wprgData.new_tab_delay) || 0; 
+                                    
+                                    if (delaySeconds > 0) {
+                                        // Đổi giao diện nút bấm
+                                        btn.innerText = "Loading...";
+                                        btn.style.backgroundColor = '#666';
+                                        btn.style.cursor = 'not-allowed';
+                                        btn.disabled = true;
+                                        
+                                        // [UX TUYỆT ĐỈNH]: In giao diện chờ vào chính cái Tab trắng đó
+                                        if (newWin) {
+                                            newWin.document.write(`
+                                                <div style="display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif; background:#f0f2f5; color:#444; margin:0;">
+                                                    <div style="text-align:center; background:#fff; padding:30px 50px; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+                                                        <div style="width:40px; height:40px; border:4px solid #f3f3f3; border-top:4px solid #0073aa; border-radius:50%; animation:spin 1s linear infinite; margin: 0 auto 15px;"></div>
+                                                        <h2 style="margin:0 0 10px; font-size:22px;">Preparing destination page...</h2>
+                                                        <p style="margin:0; font-size:15px; color:#666;">Please wait a moment.</p>
+                                                    </div>
+                                                </div>
+                                                <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+                                            `);
+                                        }
+
+                                        let currentSec = delaySeconds;
+                                        statusText.innerHTML = `Please keep the new tab open for <b style="color:#d63638;">${currentSec}</b> seconds...`;
+
+                                        // Bắt đầu đếm ngược từng giây
+                                        let delayInterval = setInterval(function() {
+                                            currentSec--;
+                                            if (currentSec > 0) {
+                                                statusText.innerHTML = `Please keep the new tab open for <b style="color:#d63638;">${currentSec}</b> seconds...`;
+                                            } else {
+                                                clearInterval(delayInterval); // Dừng bộ đếm
+                                                
+                                                // Kiểm tra xem khách có lỡ tay tắt mất tab mới chưa
+                                                if (newWin && !newWin.closed) {
+                                                    newWin.location.href = data.data.url; // Bơm link đích
+                                                    
+                                                    // Chốt chặn bảo mật (noopener) sau khi chuyển link
+                                                    if (wprgData.rel_noopener === '1') newWin.opener = null;
+                                                    
+                                                    statusText.innerText = wprgData.i18n.link_opened_new_tab;
+                                                } else {
+                                                    statusText.innerHTML = `<span style='color:#d63638; font-weight:bold;'>Error: You closed the new tab too early! Please refresh (F5) to try again.</span>`;
+                                                }
+                                            }
+                                        }, 1000);
+
+                                    } else {
+                                        // Nếu Admin cấu hình độ trễ = 0 thì chuyển link ngay lập tức
+                                        if (newWin && !newWin.closed) {
+                                            newWin.location.href = data.data.url;
+                                            if (wprgData.rel_noopener === '1') newWin.opener = null;
+                                            
+                                            btn.innerText = wprgData.i18n.link_opened_btn;
+                                            btn.style.backgroundColor = '#666';
+                                            btn.style.cursor = 'not-allowed';
+                                            btn.disabled = true;
+                                            statusText.innerText = wprgData.i18n.link_opened_new_tab;
+                                        }
+                                    }
+
                                 } else {
                                     window.location.href = data.data.url; 
                                 }
                             } else {
-                                // Lỗi do server trả về (như sai token)
+                                // Server returned error (e.g., invalid token)
                                 handleError(data.data || i18n.error_msg);
                             }
                         })
                         .catch(err => {
-                            // Lỗi mạng hoặc bị chặn ngắt quãng
+                            // Network error or request blocked
                             handleError(i18n.network_err); 
                         });
 
-                        // Hàm xử lý lỗi: Quyết định Auto-Retry hay bắt người dùng bấm
+                        // Error handler: Decide whether to Auto-Retry or ask user to click
                         function handleError(errorMsg) {
                             
-                            // [BẢN VÁ UX ĐA NGÔN NGỮ]: So sánh khớp biến dịch thay vì text cứng
+                            // [UX FIX MULTILINGUAL]: Match translated variable instead of hardcoded text
                             if (errorMsg === wprgData.i18n.pass_backend_err) {
                                 alert("🛑 " + errorMsg + "\n\n" + wprgData.i18n.pls_enter_pass);
-                                window.location.reload(); // Ép tải lại trang để ẩn nút đi
+                                window.location.reload(); // Force reload page to hide button
                                 return;
                             }
 
-                            // Nếu bật chế độ Auto Retry và số lần thử < 2 (Sẽ thử lại tối đa 2 lần)
+                            // If Auto Retry is enabled and attempts < 2 (Will retry max 2 times)
                             if (wprgData.auto_retry === '1' && attempt < 2) {
                                 btn.innerText = wprgData.i18n.retrying;
                                 btn.style.cursor = 'wait';
@@ -390,7 +480,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     executeAjaxLink(token, attempt + 1);
                                 }, 2000);
                             } else {
-                                // Nếu tắt Auto Retry hoặc đã thử quá 2 lần vẫn xịt
+                                // If Auto Retry disabled or max attempts reached
                                 alert(`${i18n.error_prefix} ${errorMsg}`);
                                 btn.innerText = i18n.try_again;
                                 btn.style.cursor = 'pointer';
@@ -403,28 +493,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
+            // Khi khách click lần đầu tiên -> Chuyển ngay sang trạng thái xem quảng cáo
             if (!state.isStarted) {
-                if (wprgData.enable_initial_click === '1') {
-                    let popupBlocked = false; 
-                    let winHome = window.open(wprgData.home_url, '_blank', secFeatures);
-                    if (!winHome || winHome.closed || typeof winHome.closed === 'undefined') popupBlocked = true;
-
-                    let initLinks = wprgData.initial_links;
-                    if (initLinks && initLinks.length > 0) {
-                        initLinks.forEach(function(link) {
-                            if (link && link.trim() !== '') {
-                                let winExtra = window.open(link, '_blank', secFeatures);
-                                if (!winExtra || winExtra.closed || typeof winExtra.closed === 'undefined') popupBlocked = true;
-                            }
-                        });
-                    }
-
-                    if (popupBlocked) {
-                        alert(i18n.popup_blocked_alert || "Popup blocked.");
-                        statusText.innerHTML = `<span style='color:#d63638; font-weight:bold;'>${i18n.popup_blocked_msg || "Enable popups!"}</span>`; 
-                    }
-                }
-
                 state.isStarted = true;
                 statusText.style.color = "#888"; 
                 if (totalAds === 0) { state.isReady = true; state.timeLeft = 0; }
@@ -449,5 +519,5 @@ document.addEventListener('DOMContentLoaded', function() {
             clearInterval(countdownInterval);
             countdownInterval = setInterval(tick, 1000);
         });
-    }); // Kết thúc vòng lặp ForEach
+    }); // End of ForEach loop
 });

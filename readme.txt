@@ -27,6 +27,22 @@ Designed with high performance and clean code in mind, this plugin provides all 
 * **Auto-Backup System:** Automatically back up your entire plugin database and settings on a scheduled basis (WP Cronjob).
 * **100% i18n Ready:** Fully translatable into any language.
 
+== External services ==
+
+This plugin relies on third-party external services to provide anti-bot protection (CAPTCHA) to prevent spam clicks and abuse. Users can choose between two providers in the settings:
+
+1. Google reCAPTCHA v3
+- Purpose: Used to verify if the visitor is human without interrupting their experience.
+- Data Sent: It may send the user's IP address, browser information, and interactions to Google's servers.
+- Privacy Policy: https://policies.google.com/privacy
+- Terms of Service: https://policies.google.com/terms
+
+2. Cloudflare Turnstile
+- Purpose: Used as a privacy-friendly alternative to verify visitors without visual puzzles.
+- Data Sent: It sends necessary browser signals and session data to Cloudflare.
+- Privacy Policy: https://www.cloudflare.com/privacypolicy/
+- Terms of Service: https://www.cloudflare.com/website-terms/
+
 == Installation ==
 
 1. Upload the plugin folder (or `.zip` file) to the `/wp-content/plugins/` directory on your hosting, or install it directly via the **Plugins > Add New** menu in WordPress.
@@ -37,7 +53,9 @@ Designed with high performance and clean code in mind, this plugin provides all 
 == Frequently Asked Questions ==
 
 = How do I create a Gateway page? =
-Go to the "Shortcodes" menu and create a new countdown configuration. The plugin will generate a shortcode for you (e.g., `[wprg_gateway id="xyz"]`). Create a new Page in WordPress and paste this shortcode into the content area.
+Go to the "Shortcodes" menu and create a new countdown configuration.
+The plugin will generate a shortcode for you (e.g., `[wprg_gateway id="xyz"]`).
+Create a new Page in WordPress and paste this shortcode into the content area.
 
 = How does the 'Require active tab' feature work? =
 When this feature is enabled in Settings, the countdown timer will immediately pause if a user switches to another browser tab or minimizes the window. The timer only resumes when the user returns to your exact page.

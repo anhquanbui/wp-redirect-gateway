@@ -12,7 +12,7 @@ if ( $action === 'delete' && isset( $_GET['link_id'] ) ) {
     if ( wp_verify_nonce( $nonce, 'wprg_delete_link' ) ) {
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->delete( $table_links, array( 'id' => intval( $_GET['link_id'] ) ) );
-        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Đã xóa link thành công.', 'redirect-gateway-manager' ) . '</p></div>';
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Link deleted successfully.', 'redirect-gateway-manager' ) . '</p></div>';
     }
 }
 
@@ -35,7 +35,7 @@ if ( $action === 'duplicate' && isset( $_GET['link_id'] ) ) {
             'password'     => isset($original_link['password']) ? $original_link['password'] : '',
             'shortcode_id' => $original_link['shortcode_id']
         ));
-        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Đã nhân bản link thành công.', 'redirect-gateway-manager' ) . '</p></div>';
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Link duplicated successfully.', 'redirect-gateway-manager' ) . '</p></div>';
     }
 }
 
@@ -54,7 +54,7 @@ if ( $post_action === 'bulk-delete' || $post_action2 === 'bulk-delete' ) {
         $wpdb->query( "DELETE FROM " . $table_links . " WHERE id IN (" . $ids_list . ")" );
         
         /* translators: %d: Number of deleted links */
-        echo '<div class="notice notice-success is-dismissible"><p>' . sprintf( esc_html__( 'Đã xóa %d link thành công.', 'redirect-gateway-manager' ), count($ids) ) . '</p></div>';
+        echo '<div class="notice notice-success is-dismissible"><p>' . sprintf( esc_html__( 'Successfully deleted %d links.', 'redirect-gateway-manager' ), count($ids) ) . '</p></div>';
     }
 }
 
@@ -73,7 +73,7 @@ if ( isset( $_POST['wprg_submit_link'] ) && check_admin_referer( 'wprg_add_link_
         'password'     => isset( $_POST['password'] ) ? sanitize_text_field( wp_unslash( $_POST['password'] ) ) : '',
         'shortcode_id' => isset( $_POST['shortcode_id'] ) ? sanitize_text_field( wp_unslash( $_POST['shortcode_id'] ) ) : ''
     ));
-    echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Đã tạo link thành công!', 'redirect-gateway-manager' ) . '</p></div>';
+    echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Link created successfully!', 'redirect-gateway-manager' ) . '</p></div>';
 }
 
 // --- 5. XỬ LÝ CẬP NHẬT (EDIT) LINK ---
@@ -94,7 +94,7 @@ if ( isset( $_POST['wprg_update_link'] ) && check_admin_referer( 'wprg_edit_link
         ),
         array( 'id' => $edit_id )
     );
-    echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Đã cập nhật link thành công!', 'redirect-gateway-manager' ) . '</p></div>';
+    echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Link updated successfully!', 'redirect-gateway-manager' ) . '</p></div>';
     $action = ''; 
 }
 
@@ -112,21 +112,21 @@ if ( $max_ads < 1 ) $max_ads = 1;
 ?>
 
 <div class="wrap">
-    <h1 class="wp-heading-inline" style="display: inline-block; vertical-align: middle;"><?php esc_html_e( 'Quản lý Link Redirect', 'redirect-gateway-manager' ); ?></h1>
+    <h1 class="wp-heading-inline" style="display: inline-block; vertical-align: middle;"><?php esc_html_e( 'Redirect Links Manager', 'redirect-gateway-manager' ); ?></h1>
     
     <?php if ( $action !== 'edit' ) : ?>
-        <a href="#form-tao-link" class="page-title-action" style="vertical-align: middle;"><?php esc_html_e( 'Tạo Link Mới', 'redirect-gateway-manager' ); ?></a>
+        <a href="#form-tao-link" class="page-title-action" style="vertical-align: middle;"><?php esc_html_e( 'Create New Link', 'redirect-gateway-manager' ); ?></a>
         
         <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display: inline-flex; align-items: center; margin-left: 4px; vertical-align: middle;">
             <input type="hidden" name="action" value="wprg_export_links_csv">
             <?php wp_nonce_field( 'wprg_export_links_action', 'wprg_export_links_nonce' ); ?>
             <button type="submit" class="page-title-action" style="background: #00a32a; color: #fff; border-color: #008a20; margin: 0; padding: 4px 10px; line-height: 1.5; display: inline-flex; align-items: center; gap: 4px;">
-                <span class="dashicons dashicons-media-spreadsheet" style="font-size: 16px; width: 16px; height: 16px; margin-top: 1px;"></span> <?php esc_html_e( 'Xuất Excel (CSV)', 'redirect-gateway-manager' ); ?>
+                <span class="dashicons dashicons-media-spreadsheet" style="font-size: 16px; width: 16px; height: 16px; margin-top: 1px;"></span> <?php esc_html_e( 'Export Excel (CSV)', 'redirect-gateway-manager' ); ?>
             </button>
         </form>
 
     <?php else: ?>
-        <a href="?page=wprg-links" class="page-title-action" style="vertical-align: middle;"><?php esc_html_e( 'Quay lại danh sách', 'redirect-gateway-manager' ); ?></a>
+        <a href="?page=wprg-links" class="page-title-action" style="vertical-align: middle;"><?php esc_html_e( 'Back to list', 'redirect-gateway-manager' ); ?></a>
     <?php endif; ?>
     <hr class="wp-header-end">
 
@@ -136,7 +136,7 @@ if ( $max_ads < 1 ) $max_ads = 1;
         if ( $edit_data ) :
     ?>
         <div class="wprg-form-container">
-            <h3>📝 <?php esc_html_e( 'Chỉnh sửa Link', 'redirect-gateway-manager' ); ?></h3>
+            <h3>📝 <?php esc_html_e( 'Edit Link', 'redirect-gateway-manager' ); ?></h3>
             <form method="post" action="">
                 <?php wp_nonce_field( 'wprg_edit_link_nonce' ); ?>
                 <input type="hidden" name="edit_link_id" value="<?php echo esc_attr( $edit_data['id'] ); ?>">
@@ -144,24 +144,24 @@ if ( $max_ads < 1 ) $max_ads = 1;
                 <div class="wprg-form-group" style="display: flex; gap: 20px;">
                     <div style="flex: 2;">
                         <label for="link_name">
-                            <?php esc_html_e( 'Tên hiển thị', 'redirect-gateway-manager' ); ?>
-                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Tên gọi nội bộ để bạn dễ nhận biết và tìm kiếm trong danh sách.', 'redirect-gateway-manager' ); ?></span></span>
+                            <?php esc_html_e( 'Display Name', 'redirect-gateway-manager' ); ?>
+                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Internal name to easily identify and search in the list.', 'redirect-gateway-manager' ); ?></span></span>
                         </label>
-                        <input name="link_name" type="text" id="link_name" placeholder="<?php esc_attr_e( 'VD: Link tải Game...', 'redirect-gateway-manager' ); ?>" value="<?php echo esc_attr( $edit_data['name'] ); ?>" required>
+                        <input name="link_name" type="text" id="link_name" placeholder="<?php esc_attr_e( 'Ex: Game download link...', 'redirect-gateway-manager' ); ?>" value="<?php echo esc_attr( $edit_data['name'] ); ?>" required>
                     </div>
                     <div style="flex: 1;">
                         <label for="link_tag">
-                            <?php esc_html_e( 'Nhãn (Tag) phân loại', 'redirect-gateway-manager' ); ?>
-                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Dùng để phân loại Khách hàng hoặc Chiến dịch. Bạn có thể tìm kiếm Link bằng thẻ Tag này.', 'redirect-gateway-manager' ); ?></span></span>
+                            <?php esc_html_e( 'Classification Tag', 'redirect-gateway-manager' ); ?>
+                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Used to classify Customers or Campaigns. You can search for Links using this Tag.', 'redirect-gateway-manager' ); ?></span></span>
                         </label>
-                        <input name="link_tag" type="text" id="link_tag" placeholder="<?php esc_attr_e( 'VD: KhachHang_A', 'redirect-gateway-manager' ); ?>" value="<?php echo esc_attr( isset($edit_data['tag']) ? $edit_data['tag'] : '' ); ?>">
+                        <input name="link_tag" type="text" id="link_tag" placeholder="<?php esc_attr_e( 'Ex: Customer_A', 'redirect-gateway-manager' ); ?>" value="<?php echo esc_attr( isset($edit_data['tag']) ? $edit_data['tag'] : '' ); ?>">
                     </div>
                 </div>
 
                 <div class="wprg-form-group">
                     <label for="original_url">
-                        <?php esc_html_e( 'Link Gốc (Đích đến)', 'redirect-gateway-manager' ); ?>
-                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Đường dẫn thực sự mà bạn muốn người dùng truy cập tới sau khi xem xong quảng cáo.', 'redirect-gateway-manager' ); ?></span></span>
+                        <?php esc_html_e( 'Original Link (Destination)', 'redirect-gateway-manager' ); ?>
+                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'The actual URL you want users to visit after viewing the ad.', 'redirect-gateway-manager' ); ?></span></span>
                     </label>
                     <input name="original_url" type="url" id="original_url" value="<?php echo esc_url( $edit_data['original_url'] ); ?>" placeholder="<?php esc_attr_e( 'https://...', 'redirect-gateway-manager' ); ?>" required>
                 </div>
@@ -169,11 +169,11 @@ if ( $max_ads < 1 ) $max_ads = 1;
                 <div class="wprg-form-group" style="display: flex; gap: 20px;">
                     <div style="flex: 1;">
                         <label for="shortcode_id">
-                            <?php esc_html_e( 'Chọn Gateway', 'redirect-gateway-manager' ); ?>
-                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Chọn giao diện đếm ngược mà bạn đã tạo ở phần Shortcodes.', 'redirect-gateway-manager' ); ?></span></span>
+                            <?php esc_html_e( 'Select Gateway', 'redirect-gateway-manager' ); ?>
+                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Select the countdown interface you created in the Shortcodes section.', 'redirect-gateway-manager' ); ?></span></span>
                         </label>
                         <select name="shortcode_id" id="shortcode_id" required>
-                            <option value=""><?php esc_html_e( '-- Chọn Gateway --', 'redirect-gateway-manager' ); ?></option>
+                            <option value=""><?php esc_html_e( '-- Select Gateway --', 'redirect-gateway-manager' ); ?></option>
                             <?php foreach ( $shortcodes as $sc ) : ?>
                                 <option value="<?php echo esc_attr( $sc['id'] ); ?>" <?php selected( $edit_data['shortcode_id'], $sc['id'] ); ?>><?php echo esc_html( $sc['name'] ); ?></option>
                             <?php endforeach; ?>
@@ -181,8 +181,8 @@ if ( $max_ads < 1 ) $max_ads = 1;
                     </div>
                     <div style="width: 150px;">
                         <label for="ad_count">
-                            <?php esc_html_e( 'Số lần Xem QC', 'redirect-gateway-manager' ); ?>
-                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Nhập 0 để lấy link ngay. Tối đa bằng số lượng Link Affiliate bạn nhập trong phần Cài đặt.', 'redirect-gateway-manager' ); ?></span></span>
+                            <?php esc_html_e( 'Ad Views Count', 'redirect-gateway-manager' ); ?>
+                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Enter 0 to get the link immediately. The maximum is equal to the number of Affiliate Links you entered in the Settings.', 'redirect-gateway-manager' ); ?></span></span>
                         </label>
                         <input name="ad_count" type="number" id="ad_count" value="<?php echo esc_attr( $edit_data['ad_count'] ); ?>" min="0" max="<?php echo esc_attr( $max_ads ); ?>">
                     </div>
@@ -190,23 +190,23 @@ if ( $max_ads < 1 ) $max_ads = 1;
 
                 <div class="wprg-form-group">
                     <label for="wait_time">
-                        <?php esc_html_e( 'Thời gian chờ riêng (Tùy chọn)', 'redirect-gateway-manager' ); ?>
-                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Nhập dạng 15,10,5 để ghi đè thời gian của Gateway. Để trống nếu muốn dùng thời gian mặc định.', 'redirect-gateway-manager' ); ?></span></span>
+                        <?php esc_html_e( 'Custom Wait Time (Optional)', 'redirect-gateway-manager' ); ?>
+                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Enter in the format 15,10,5 to override the Gateway time. Leave blank to use the default time.', 'redirect-gateway-manager' ); ?></span></span>
                     </label>
-                    <input name="wait_time" type="text" id="wait_time" placeholder="<?php esc_attr_e( 'VD: 15,10,5', 'redirect-gateway-manager' ); ?>" value="<?php echo esc_attr( isset($edit_data['wait_time']) ? $edit_data['wait_time'] : '' ); ?>">
+                    <input name="wait_time" type="text" id="wait_time" placeholder="<?php esc_attr_e( 'Ex: 15,10,5', 'redirect-gateway-manager' ); ?>" value="<?php echo esc_attr( isset($edit_data['wait_time']) ? $edit_data['wait_time'] : '' ); ?>">
                 </div>
 
                 <div class="wprg-form-group">
                     <label for="password">
-                        <?php esc_html_e( 'Mật khẩu bảo vệ (Tùy chọn)', 'redirect-gateway-manager' ); ?>
-                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Người dùng bắt buộc nhập đúng Mật khẩu này mới có thể bắt đầu đếm ngược lấy link.', 'redirect-gateway-manager' ); ?></span></span>
+                        <?php esc_html_e( 'Password Protection (Optional)', 'redirect-gateway-manager' ); ?>
+                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Users must enter this password correctly to start the countdown to get the link.', 'redirect-gateway-manager' ); ?></span></span>
                     </label>
-                    <input name="password" type="text" id="password" placeholder="<?php esc_attr_e( 'Để trống nếu không đặt mật khẩu', 'redirect-gateway-manager' ); ?>" value="<?php echo esc_attr( isset($edit_data['password']) ? $edit_data['password'] : '' ); ?>">
+                    <input name="password" type="text" id="password" placeholder="<?php esc_attr_e( 'Leave blank for no password', 'redirect-gateway-manager' ); ?>" value="<?php echo esc_attr( isset($edit_data['password']) ? $edit_data['password'] : '' ); ?>">
                 </div>
 
                 <div style="margin-top: 30px;">
-                    <input type="submit" name="wprg_update_link" class="button button-primary button-large" value="<?php esc_attr_e( 'Lưu Cập Nhật', 'redirect-gateway-manager' ); ?>">
-                    <a href="?page=wprg-links" class="button button-large" style="margin-left: 10px;"><?php esc_html_e( 'Hủy bỏ', 'redirect-gateway-manager' ); ?></a>
+                    <input type="submit" name="wprg_update_link" class="button button-primary button-large" value="<?php esc_attr_e( 'Save Update', 'redirect-gateway-manager' ); ?>">
+                    <a href="?page=wprg-links" class="button button-large" style="margin-left: 10px;"><?php esc_html_e( 'Cancel', 'redirect-gateway-manager' ); ?></a>
                 </div>
             </form>
         </div>
@@ -216,7 +216,7 @@ if ( $max_ads < 1 ) $max_ads = 1;
     else : ?>
         <form method="post" id="links-filter">
             <?php 
-                $links_table->search_box( __( 'Tìm Link', 'redirect-gateway-manager' ), 'search_id' );
+                $links_table->search_box( __( 'Search Links', 'redirect-gateway-manager' ), 'search_id' );
                 $links_table->display(); 
             ?>
         </form>
@@ -224,31 +224,31 @@ if ( $max_ads < 1 ) $max_ads = 1;
         <br><br>
         
         <div id="form-tao-link" class="wprg-form-container">
-            <h3>✨ <?php esc_html_e( 'Tạo Link Redirect Mới', 'redirect-gateway-manager' ); ?></h3>
+            <h3>✨ <?php esc_html_e( 'Create New Redirect Link', 'redirect-gateway-manager' ); ?></h3>
             <form method="post" action="">
                 <?php wp_nonce_field( 'wprg_add_link_nonce' ); ?>
                 
                 <div class="wprg-form-group" style="display: flex; gap: 20px;">
                     <div style="flex: 2;">
                         <label for="link_name">
-                            <?php esc_html_e( 'Tên hiển thị', 'redirect-gateway-manager' ); ?>
-                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Tên gọi nội bộ để bạn dễ nhận biết và tìm kiếm trong danh sách.', 'redirect-gateway-manager' ); ?></span></span>
+                            <?php esc_html_e( 'Display Name', 'redirect-gateway-manager' ); ?>
+                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Internal name to easily identify and search in the list.', 'redirect-gateway-manager' ); ?></span></span>
                         </label>
-                        <input name="link_name" type="text" id="link_name" placeholder="<?php esc_attr_e( 'VD: Link tải Game...', 'redirect-gateway-manager' ); ?>" required>
+                        <input name="link_name" type="text" id="link_name" placeholder="<?php esc_attr_e( 'Ex: Game download link...', 'redirect-gateway-manager' ); ?>" required>
                     </div>
                     <div style="flex: 1;">
                         <label for="link_tag">
-                            <?php esc_html_e( 'Nhãn (Tag) phân loại', 'redirect-gateway-manager' ); ?>
-                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Dùng để phân loại Khách hàng hoặc Chiến dịch. Bạn có thể tìm kiếm Link bằng thẻ Tag này.', 'redirect-gateway-manager' ); ?></span></span>
+                            <?php esc_html_e( 'Classification Tag', 'redirect-gateway-manager' ); ?>
+                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Used to classify Customers or Campaigns. You can search for Links using this Tag.', 'redirect-gateway-manager' ); ?></span></span>
                         </label>
-                        <input name="link_tag" type="text" id="link_tag" placeholder="<?php esc_attr_e( 'VD: KhachHang_A', 'redirect-gateway-manager' ); ?>">
+                        <input name="link_tag" type="text" id="link_tag" placeholder="<?php esc_attr_e( 'Ex: Customer_A', 'redirect-gateway-manager' ); ?>">
                     </div>
                 </div>
 
                 <div class="wprg-form-group">
                     <label for="original_url">
-                        <?php esc_html_e( 'Link Gốc (Đích đến)', 'redirect-gateway-manager' ); ?>
-                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Đường dẫn thực sự mà bạn muốn người dùng truy cập tới sau khi xem xong quảng cáo.', 'redirect-gateway-manager' ); ?></span></span>
+                        <?php esc_html_e( 'Original Link (Destination)', 'redirect-gateway-manager' ); ?>
+                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'The actual URL you want users to visit after viewing the ad.', 'redirect-gateway-manager' ); ?></span></span>
                     </label>
                     <input name="original_url" type="url" id="original_url" placeholder="<?php esc_attr_e( 'https://...', 'redirect-gateway-manager' ); ?>" required>
                 </div>
@@ -256,11 +256,11 @@ if ( $max_ads < 1 ) $max_ads = 1;
                 <div class="wprg-form-group" style="display: flex; gap: 20px;">
                     <div style="flex: 1;">
                         <label for="shortcode_id">
-                            <?php esc_html_e( 'Chọn Gateway', 'redirect-gateway-manager' ); ?>
-                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Chọn giao diện đếm ngược mà bạn đã tạo ở phần Shortcodes.', 'redirect-gateway-manager' ); ?></span></span>
+                            <?php esc_html_e( 'Select Gateway', 'redirect-gateway-manager' ); ?>
+                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Select the countdown interface you created in the Shortcodes section.', 'redirect-gateway-manager' ); ?></span></span>
                         </label>
                         <select name="shortcode_id" id="shortcode_id" required>
-                            <option value=""><?php esc_html_e( '-- Chọn Gateway --', 'redirect-gateway-manager' ); ?></option>
+                            <option value=""><?php esc_html_e( '-- Select Gateway --', 'redirect-gateway-manager' ); ?></option>
                             <?php foreach ( $shortcodes as $sc ) : ?>
                                 <option value="<?php echo esc_attr( $sc['id'] ); ?>"><?php echo esc_html( $sc['name'] ); ?></option>
                             <?php endforeach; ?>
@@ -268,8 +268,8 @@ if ( $max_ads < 1 ) $max_ads = 1;
                     </div>
                     <div style="width: 150px;">
                         <label for="ad_count">
-                            <?php esc_html_e( 'Số lần Xem QC', 'redirect-gateway-manager' ); ?>
-                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Nhập 0 để lấy link ngay. Tối đa bằng số lượng Link Affiliate bạn nhập trong phần Cài đặt.', 'redirect-gateway-manager' ); ?></span></span>
+                            <?php esc_html_e( 'Ad Views Count', 'redirect-gateway-manager' ); ?>
+                            <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Enter 0 to get the link immediately. The maximum is equal to the number of Affiliate Links you entered in the Settings.', 'redirect-gateway-manager' ); ?></span></span>
                         </label>
                         <input name="ad_count" type="number" id="ad_count" value="1" min="0" max="<?php echo esc_attr( $max_ads ); ?>">
                     </div>
@@ -277,22 +277,22 @@ if ( $max_ads < 1 ) $max_ads = 1;
 
                 <div class="wprg-form-group">
                     <label for="wait_time">
-                        <?php esc_html_e( 'Thời gian chờ riêng (Tùy chọn)', 'redirect-gateway-manager' ); ?>
-                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Nhập dạng 15,10,5 để ghi đè thời gian của Gateway. Để trống nếu muốn dùng thời gian mặc định.', 'redirect-gateway-manager' ); ?></span></span>
+                        <?php esc_html_e( 'Custom Wait Time (Optional)', 'redirect-gateway-manager' ); ?>
+                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Enter in the format 15,10,5 to override the Gateway time. Leave blank to use the default time.', 'redirect-gateway-manager' ); ?></span></span>
                     </label>
-                    <input name="wait_time" type="text" id="wait_time" placeholder="<?php esc_attr_e( 'VD: 15,10,5', 'redirect-gateway-manager' ); ?>">
+                    <input name="wait_time" type="text" id="wait_time" placeholder="<?php esc_attr_e( 'Ex: 15,10,5', 'redirect-gateway-manager' ); ?>">
                 </div>
 
                 <div class="wprg-form-group">
                     <label for="password">
-                        <?php esc_html_e( 'Mật khẩu bảo vệ (Tùy chọn)', 'redirect-gateway-manager' ); ?>
-                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Người dùng bắt buộc nhập đúng Mật khẩu này mới có thể bắt đầu đếm ngược lấy link.', 'redirect-gateway-manager' ); ?></span></span>
+                        <?php esc_html_e( 'Password Protection (Optional)', 'redirect-gateway-manager' ); ?>
+                        <span class="wprg-tooltip-icon">?<span class="wprg-tooltip-text"><?php esc_html_e( 'Users must enter this password correctly to start the countdown to get the link.', 'redirect-gateway-manager' ); ?></span></span>
                     </label>
-                    <input name="password" type="text" id="password" placeholder="<?php esc_attr_e( 'Để trống nếu không đặt mật khẩu', 'redirect-gateway-manager' ); ?>">
+                    <input name="password" type="text" id="password" placeholder="<?php esc_attr_e( 'Leave blank for no password', 'redirect-gateway-manager' ); ?>">
                 </div>
 
                 <div style="margin-top: 30px;">
-                    <input type="submit" name="wprg_submit_link" class="button button-primary button-large" value="<?php esc_attr_e( 'Lưu Link Mới', 'redirect-gateway-manager' ); ?>">
+                    <input type="submit" name="wprg_submit_link" class="button button-primary button-large" value="<?php esc_attr_e( 'Save New Link', 'redirect-gateway-manager' ); ?>">
                 </div>
             </form>
         </div>
