@@ -176,7 +176,7 @@ function wprg_handle_import_settings() {
     $decoded_data = json_decode( $file_content, true );
 
     if ( ! $decoded_data || ! isset( $decoded_data['plugin'] ) || $decoded_data['plugin'] !== 'redirect-gateway-manager' ) {
-        wp_die( esc_html__( 'Invalid file or not from WP Redirect Gateway plugin.', 'redirect-gateway-manager' ) );
+        wp_die( esc_html__( 'Invalid file or not from Redirect Gateway Manager plugin.', 'redirect-gateway-manager' ) );
     }
 
     if ( isset( $decoded_data['settings'] ) && is_array( $decoded_data['settings'] ) ) {
