@@ -99,7 +99,7 @@ class WPRG_Links_Table extends WP_List_Table {
         
         $actions = array(
             'edit'      => sprintf( '<a href="?page=%s&action=%s&link_id=%s&_wpnonce=%s">%s</a>', esc_attr( $req_page ), 'edit', absint( $item['id'] ), $edit_nonce, __( 'Edit', 'redirect-gateway-manager' ) ),
-            'duplicate' => sprintf( '<a href="?page=%s&action=%s&link_id=%s">%s</a>', esc_attr( $req_page ), 'duplicate', absint( $item['id'] ), __( 'Duplicate', 'redirect-gateway-manager' ) ),
+            'duplicate' => sprintf( '<a href="?page=%s&action=%s&link_id=%s&_wpnonce=%s">%s</a>', esc_attr( $req_page ), 'duplicate', absint( $item['id'] ), wp_create_nonce( 'wprg_duplicate_link_' . absint( $item['id'] ) ), __( 'Duplicate', 'redirect-gateway-manager' ) ),
             'delete'    => sprintf( '<a href="?page=%s&action=%s&link_id=%s&_wpnonce=%s" class="submitdelete" onclick="return confirm(\'%s\');">%s</a>', esc_attr( $req_page ), 'delete', absint( $item['id'] ), $delete_nonce, esc_js( __( 'Are you sure you want to delete this link?', 'redirect-gateway-manager' ) ), __( 'Delete', 'redirect-gateway-manager' ) ),
         );
 
@@ -129,7 +129,7 @@ class WPRG_Links_Table extends WP_List_Table {
                 return '<span style="color: #ccc;">-</span>';        
 
             case 'slug':
-                $redirect_url = site_url( '/go/' . $item['slug'] );
+                $redirect_url = apply_filters( 'wprg_build_gateway_link', site_url( '/go/' . $item['slug'] ), $item['slug'] );
                 return '<div style="display:flex; align-items:center; gap:4px;">
                             <input type="text" readonly value="' . esc_attr( $item['slug'] ) . '" title="' . esc_attr__( 'Showing short Slug - Click Copy to get Full Link', 'redirect-gateway-manager' ) . '" onfocus="this.select();" style="flex: 1; min-width: 40px; border: 1px solid #85c2e1; background: #f0f8ff; border-radius: 4px; padding: 4px 6px; font-size: 11px; color: #0073aa; font-weight: bold; font-family: monospace; text-align: center; box-shadow: none;" />
                             <a href="' . esc_url( $redirect_url ) . '" target="_blank" class="button button-small" title="' . esc_attr__( 'Open Shareable Link', 'redirect-gateway-manager' ) . '" style="padding: 0 4px; flex-shrink: 0;"><span class="dashicons dashicons-external" style="font-size: 14px; margin-top: 3px;"></span></a>
@@ -174,40 +174,37 @@ class WPRG_Links_Table extends WP_List_Table {
         $per_page = 20; 
         $current_page = $this->get_pagenum();
 
-        $where_clauses = array("1=1"); 
+        // [BẢN VÁ WPCS]: Chuyển sang cấu trúc nối chuỗi trước khi prepare
+        $query = "SELECT *, (SELECT COUNT(id) FROM {$table_logs} WHERE link_id = {$table_name}.id AND status = 'completed') as completed_clicks FROM {$table_name} WHERE 1=1";
+        $count_query = "SELECT COUNT(id) FROM {$table_name} WHERE 1=1";
         $query_args = array();
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $search_req = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
         if ( ! empty( $search_req ) ) {
-            $where_clauses[] = "(name LIKE %s OR original_url LIKE %s OR tag LIKE %s)";
-            $query_args[] = '%' . $wpdb->esc_like( $search_req ) . '%';
-            $query_args[] = '%' . $wpdb->esc_like( $search_req ) . '%';
-            $query_args[] = '%' . $wpdb->esc_like( $search_req ) . '%';
+            $query .= " AND (name LIKE %s OR original_url LIKE %s OR tag LIKE %s)";
+            $count_query .= " AND (name LIKE %s OR original_url LIKE %s OR tag LIKE %s)";
+            $like = '%' . $wpdb->esc_like( $search_req ) . '%';
+            array_push( $query_args, $like, $like, $like );
         }
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $filter_ad_count = isset( $_REQUEST['filter_ad_count'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['filter_ad_count'] ) ) : '';
         if ( $filter_ad_count !== '' ) {
-            $where_clauses[] = "ad_count = %d";
+            $query .= " AND ad_count = %d";
+            $count_query .= " AND ad_count = %d";
             $query_args[] = intval( $filter_ad_count );
         }
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $filter_month = isset( $_REQUEST['filter_month'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['filter_month'] ) ) : '';
         if ( ! empty( $filter_month ) ) {
-            $where_clauses[] = "DATE_FORMAT(created_at, '%%Y-%%m') = %s"; 
+            $query .= " AND DATE_FORMAT(created_at, '%%Y-%%m') = %s"; 
+            $count_query .= " AND DATE_FORMAT(created_at, '%%Y-%%m') = %s"; 
             $query_args[] = $filter_month;
         }
 
-        $where_sql = implode( ' AND ', $where_clauses );
-
         if ( empty( $query_args ) ) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.PlaceholdersReplacements, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-            $total_items = $wpdb->get_var( "SELECT COUNT(id) FROM " . $table_name . " WHERE " . $where_sql );
+            $total_items = $wpdb->get_var( $count_query );
         } else {
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.PlaceholdersReplacements, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-            $total_items = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM " . $table_name . " WHERE " . $where_sql, $query_args ) );
+            $total_items = $wpdb->get_var( $wpdb->prepare( $count_query, $query_args ) );
         }
 
         $this->set_pagination_args( array(
@@ -215,26 +212,33 @@ class WPRG_Links_Table extends WP_List_Table {
             'per_page'    => $per_page
         ) );
 
-        $columns  = $this->get_columns();
-        $hidden   = array();
-        $sortable = $this->get_sortable_columns(); 
-        $this->_column_headers = array( $columns, $hidden, $sortable );
+        $this->_column_headers = array( $this->get_columns(), array(), $this->get_sortable_columns() );
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        $req_orderby = isset( $_REQUEST['orderby'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) ) : '';
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        $req_order = isset( $_REQUEST['order'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) : '';
+        // Quản lý Whitelist ORDER BY cứng ngắc theo chuẩn WPCS
+        $allowed_orderby = array( 'name', 'tag', 'created_at', 'completed_clicks', 'id' );
+        $orderby = 'id';
+        if ( isset( $_REQUEST['orderby'] ) ) {
+            $req_orderby = sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) );
+            if ( in_array( $req_orderby, $allowed_orderby, true ) ) {
+                $orderby = $req_orderby;
+            }
+        }
 
-        $orderby = ( ! empty( $req_orderby ) && in_array( $req_orderby, array( 'name', 'tag', 'created_at', 'completed_clicks', 'id' ) ) ) ? $req_orderby : 'id';
-        $order = ( ! empty( $req_order ) && in_array( strtoupper( $req_order ), array( 'ASC', 'DESC' ) ) ) ? strtoupper( $req_order ) : 'DESC';
+        $order = 'DESC';
+        if ( isset( $_REQUEST['order'] ) ) {
+            $req_order = strtoupper( sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) );
+            if ( in_array( $req_order, array( 'ASC', 'DESC' ), true ) ) {
+                $order = $req_order;
+            }
+        }
 
+        // Ép cứng cột sắp xếp an toàn vào query
+        $query .= " ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d";
         $offset = ( $current_page - 1 ) * $per_page;
-        
         $query_args[] = $per_page;
         $query_args[] = $offset;
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.PlaceholdersReplacements, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-        $this->items = $wpdb->get_results( $wpdb->prepare( "SELECT *, (SELECT COUNT(id) FROM " . $table_logs . " WHERE link_id = " . $table_name . ".id AND status = 'completed') as completed_clicks FROM " . $table_name . " WHERE " . $where_sql . " ORDER BY " . $orderby . " " . $order . " LIMIT %d OFFSET %d", $query_args ), ARRAY_A );
+        $this->items = $wpdb->get_results( $wpdb->prepare( $query, $query_args ), ARRAY_A );
     }
 
     public function display() {

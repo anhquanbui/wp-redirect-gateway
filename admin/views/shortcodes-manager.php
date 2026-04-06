@@ -2,7 +2,6 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
-// --- XỬ LÝ LƯU SHORTCODE MỚI ---
 if ( isset( $_POST['wprg_submit_shortcode'] ) && check_admin_referer( 'wprg_add_shortcode_nonce' ) ) {
     $name      = isset( $_POST['sc_name'] ) ? sanitize_text_field( wp_unslash( $_POST['sc_name'] ) ) : '';
     $wait_time = isset( $_POST['sc_wait_time'] ) ? sanitize_text_field( wp_unslash( $_POST['sc_wait_time'] ) ) : '';
@@ -22,12 +21,12 @@ if ( isset( $_POST['wprg_submit_shortcode'] ) && check_admin_referer( 'wprg_add_
     echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Shortcode created successfully!', 'redirect-gateway-manager' ) . '</p></div>';
 }
 
-// --- XỬ LÝ XÓA SHORTCODE (Đã bổ sung Nonce bảo mật CSRF) ---
 if ( isset( $_GET['action'] ) && $_GET['action'] === 'delete_sc' && isset( $_GET['sc_id'] ) ) {
     $delete_id = sanitize_text_field( wp_unslash( $_GET['sc_id'] ) );
     
-    // Kiểm tra Nonce trước khi xóa
-    if ( isset( $_GET['_wpnonce'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'delete_sc_' . $delete_id ) ) {
+    // [BẢN VÁ WPCS]: Bóc tách và làm sạch Nonce trước khi verify
+    $nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
+    if ( ! empty( $nonce ) && wp_verify_nonce( $nonce, 'delete_sc_' . $delete_id ) ) {
         $shortcodes = get_option( 'wprg_shortcodes', array() );
         if ( isset( $shortcodes[ $delete_id ] ) ) {
             unset( $shortcodes[ $delete_id ] );

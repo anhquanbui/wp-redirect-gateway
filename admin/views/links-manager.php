@@ -10,48 +10,53 @@ $action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( $_GET['act
 if ( $action === 'delete' && isset( $_GET['link_id'] ) ) {
     $nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
     if ( wp_verify_nonce( $nonce, 'wprg_delete_link' ) ) {
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->delete( $table_links, array( 'id' => intval( $_GET['link_id'] ) ) );
         echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Link deleted successfully.', 'redirect-gateway-manager' ) . '</p></div>';
     }
 }
 
-// --- 2. XỬ LÝ NHÂN BẢN LINK ---
+// --- 2. XỬ LÝ NHÂN BẢN LINK (ĐÃ THÊM NONCE CHECK BẢO MẬT) ---
 if ( $action === 'duplicate' && isset( $_GET['link_id'] ) ) {
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-    $original_link = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . $table_links . " WHERE id = %d", intval( $_GET['link_id'] ) ), ARRAY_A );
-    if ( $original_link ) {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $new_slug = substr( str_shuffle( str_repeat( $characters, 5 ) ), 0, 30 );
-        
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-        $wpdb->insert( $table_links, array(
-            'name'         => $original_link['name'] . ' ' . __( '(Copy)', 'redirect-gateway-manager' ),
-            'tag'          => isset($original_link['tag']) ? $original_link['tag'] : '',
-            'original_url' => $original_link['original_url'],
-            'slug'         => $new_slug,
-            'ad_count'     => $original_link['ad_count'],
-            'wait_time'    => isset($original_link['wait_time']) ? $original_link['wait_time'] : '', 
-            'password'     => isset($original_link['password']) ? $original_link['password'] : '',
-            'shortcode_id' => $original_link['shortcode_id']
-        ));
-        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Link duplicated successfully.', 'redirect-gateway-manager' ) . '</p></div>';
+    $nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
+    $link_id = intval( $_GET['link_id'] );
+    
+    if ( wp_verify_nonce( $nonce, 'wprg_duplicate_link_' . $link_id ) ) {
+        $original_link = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table_links} WHERE id = %d", $link_id ), ARRAY_A );
+        if ( $original_link ) {
+            $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $new_slug = substr( str_shuffle( str_repeat( $characters, 5 ) ), 0, 30 );
+            
+            $wpdb->insert( $table_links, array(
+                'name'         => $original_link['name'] . ' ' . __( '(Copy)', 'redirect-gateway-manager' ),
+                'tag'          => isset($original_link['tag']) ? $original_link['tag'] : '',
+                'original_url' => $original_link['original_url'],
+                'slug'         => $new_slug,
+                'ad_count'     => $original_link['ad_count'],
+                'wait_time'    => isset($original_link['wait_time']) ? $original_link['wait_time'] : '', 
+                'password'     => isset($original_link['password']) ? $original_link['password'] : '',
+                'shortcode_id' => $original_link['shortcode_id']
+            ));
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Link duplicated successfully.', 'redirect-gateway-manager' ) . '</p></div>';
+        }
     }
 }
 
-// --- 3. XỬ LÝ XÓA HÀNG LOẠT (BULK DELETE) ---
+// --- 3. XỬ LÝ XÓA HÀNG LOẠT BULK DELETE (ĐÃ SỬA CHUẨN SQL) ---
 $post_action = isset( $_POST['action'] ) ? sanitize_text_field( wp_unslash( $_POST['action'] ) ) : '';
 $post_action2 = isset( $_POST['action2'] ) ? sanitize_text_field( wp_unslash( $_POST['action2'] ) ) : '';
 
 if ( $post_action === 'bulk-delete' || $post_action2 === 'bulk-delete' ) {
+    // Gọi hàm kiểm tra Nonce mặc định của WP_List_Table
+    check_admin_referer( 'bulk-links' ); 
+    
     if ( isset( $_POST['bulk-delete'] ) && is_array( $_POST['bulk-delete'] ) ) {
-        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
         $raw_ids = wp_unslash( $_POST['bulk-delete'] );
         $ids = array_map( 'intval', $raw_ids );
-        $ids_list = implode( ',', $ids );
         
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-        $wpdb->query( "DELETE FROM " . $table_links . " WHERE id IN (" . $ids_list . ")" );
+        // Tạo dấu giữ chỗ (placeholders) thay vì nối mảng trực tiếp vào SQL
+        $placeholders = implode( ', ', array_fill( 0, count( $ids ), '%d' ) );
+        
+        $wpdb->query( $wpdb->prepare( "DELETE FROM {$table_links} WHERE id IN ( $placeholders )", $ids ) );
         
         /* translators: %d: Number of deleted links */
         echo '<div class="notice notice-success is-dismissible"><p>' . sprintf( esc_html__( 'Successfully deleted %d links.', 'redirect-gateway-manager' ), count($ids) ) . '</p></div>';
@@ -63,7 +68,6 @@ if ( isset( $_POST['wprg_submit_link'] ) && check_admin_referer( 'wprg_add_link_
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $slug = substr( str_shuffle( str_repeat( $characters, 5 ) ), 0, 30 );
     
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
     $wpdb->insert( $table_links, array(
         'name'         => isset( $_POST['link_name'] ) ? sanitize_text_field( wp_unslash( $_POST['link_name'] ) ) : '',
         'original_url' => isset( $_POST['original_url'] ) ? esc_url_raw( wp_unslash( $_POST['original_url'] ) ) : '',
@@ -80,7 +84,6 @@ if ( isset( $_POST['wprg_submit_link'] ) && check_admin_referer( 'wprg_add_link_
 if ( isset( $_POST['wprg_update_link'] ) && check_admin_referer( 'wprg_edit_link_nonce' ) ) {
     $edit_id = isset( $_POST['edit_link_id'] ) ? intval( $_POST['edit_link_id'] ) : 0;
     
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     $wpdb->update( 
         $table_links, 
         array(
@@ -99,16 +102,14 @@ if ( isset( $_POST['wprg_update_link'] ) && check_admin_referer( 'wprg_edit_link
 }
 
 $shortcodes = get_option( 'wprg_shortcodes', array() );
-
 require_once WPRG_PLUGIN_DIR . 'admin/class-links-table.php';
 $links_table = new WPRG_Links_Table();
 $links_table->prepare_items();
 
-// Lấy danh sách link để đếm số lượng Max
 $raw_aff_links = get_option( 'wprg_affiliate_links', '' );
 $aff_links_array = array_filter( array_map( 'trim', preg_split( '/\r\n|\r|\n/', $raw_aff_links ) ) );
 $max_ads = count( $aff_links_array );
-if ( $max_ads < 1 ) $max_ads = 1; 
+if ( $max_ads < 1 ) $max_ads = 1;
 ?>
 
 <div class="wrap">

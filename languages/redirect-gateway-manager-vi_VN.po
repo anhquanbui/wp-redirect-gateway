@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Redirect Gateway Manager\n"
-"POT-Creation-Date: 2026-03-31 19:18-0600\n"
-"PO-Revision-Date: 2026-03-31 19:19-0600\n"
+"POT-Creation-Date: 2026-04-04 06:32-0600\n"
+"PO-Revision-Date: 2026-04-04 06:33-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: vi_VN\n"
@@ -16,19 +16,19 @@ msgstr ""
 
 #: admin/backup-manager.php:64 admin/backup-manager.php:80
 #: admin/backup-manager.php:91 admin/backup-manager.php:187
-#: admin/class-admin-menu.php:51 redirect-gateway-manager.php:110
-#: redirect-gateway-manager.php:165 redirect-gateway-manager.php:198
-#: redirect-gateway-manager.php:252
+#: admin/class-admin-menu.php:51 redirect-gateway-manager.php:109
+#: redirect-gateway-manager.php:164 redirect-gateway-manager.php:197
+#: redirect-gateway-manager.php:251
 msgid "Security error!"
 msgstr "Lỗi bảo mật!"
 
 #: admin/backup-manager.php:65 admin/backup-manager.php:81
 #: admin/backup-manager.php:92 admin/backup-manager.php:188
-#: redirect-gateway-manager.php:201 redirect-gateway-manager.php:255
+#: redirect-gateway-manager.php:200 redirect-gateway-manager.php:254
 msgid "You do not have permission!"
 msgstr "Bạn không có quyền truy cập!"
 
-#: admin/backup-manager.php:82 redirect-gateway-manager.php:171
+#: admin/backup-manager.php:82 redirect-gateway-manager.php:170
 msgid "Please select a valid file."
 msgstr "Vui lòng chọn một tệp hợp lệ."
 
@@ -67,7 +67,7 @@ msgstr "Quản lý liên kết"
 msgid "Shortcodes"
 msgstr "Shortcodes"
 
-#: admin/class-admin-menu.php:36 redirect-gateway-manager.php:388
+#: admin/class-admin-menu.php:36 redirect-gateway-manager.php:387
 msgid "Settings"
 msgstr "Thiết lập"
 
@@ -120,16 +120,16 @@ msgid "Understood the note for %s, Hide this!"
 msgstr "Đã hiểu lưu ý cho %s, Ẩn thông báo này!"
 
 #: admin/class-links-table.php:21 admin/views/dashboard.php:62
-#: admin/views/logs-manager.php:221 redirect-gateway-manager.php:222
-#: redirect-gateway-manager.php:287
+#: admin/views/logs-manager.php:221 redirect-gateway-manager.php:221
+#: redirect-gateway-manager.php:286
 msgid "Link Name"
 msgstr "Tên liên kết"
 
-#: admin/class-links-table.php:22 redirect-gateway-manager.php:223
+#: admin/class-links-table.php:22 redirect-gateway-manager.php:222
 msgid "Tag"
 msgstr "Thẻ"
 
-#: admin/class-links-table.php:23 redirect-gateway-manager.php:224
+#: admin/class-links-table.php:23 redirect-gateway-manager.php:223
 msgid "Original Link"
 msgstr "Liên kết gốc"
 
@@ -161,16 +161,16 @@ msgstr ""
 "Đây là mã shortcode dùng để chèn vào trang / bài viết. Định dạng đầy đủ khi "
 "sao chép: [wprg_inline_button slug=\"[slug]\"]"
 
-#: admin/class-links-table.php:26 redirect-gateway-manager.php:226
+#: admin/class-links-table.php:26 redirect-gateway-manager.php:225
 msgid "Ads Count"
 msgstr "Số lượng QC"
 
-#: admin/class-links-table.php:27 redirect-gateway-manager.php:227
+#: admin/class-links-table.php:27 redirect-gateway-manager.php:226
 msgid "Wait Time"
 msgstr "Thời gian chờ"
 
 #: admin/class-links-table.php:28 admin/views/logs-manager.php:250
-#: redirect-gateway-manager.php:298
+#: redirect-gateway-manager.php:297
 msgid "Completed"
 msgstr "Hoàn thành"
 
@@ -181,7 +181,7 @@ msgid ""
 msgstr ""
 "Số lượng khách truy cập đã xem xong quảng cáo và lấy liên kết thành công."
 
-#: admin/class-links-table.php:29 redirect-gateway-manager.php:230
+#: admin/class-links-table.php:29 redirect-gateway-manager.php:229
 msgid "Created At"
 msgstr "Ngày tạo"
 
@@ -604,11 +604,11 @@ msgid "Download CSV"
 msgstr "Tải xuống CSV"
 
 #: admin/views/logs-manager.php:216 admin/views/shortcodes-manager.php:108
-#: redirect-gateway-manager.php:285
+#: redirect-gateway-manager.php:284
 msgid "Time"
 msgstr "Thời gian"
 
-#: admin/views/logs-manager.php:218 redirect-gateway-manager.php:286
+#: admin/views/logs-manager.php:218 redirect-gateway-manager.php:285
 msgid "Status"
 msgstr "Trạng thái"
 
@@ -616,7 +616,7 @@ msgstr "Trạng thái"
 msgid "Accessed: Just clicked the link. Completed: Finished viewing the ad."
 msgstr "Truy cập: Mới nhấp vào liên kết. Hoàn thành: Đã xem xong quảng cáo."
 
-#: admin/views/logs-manager.php:224 redirect-gateway-manager.php:288
+#: admin/views/logs-manager.php:224 redirect-gateway-manager.php:287
 msgid "Sub-ID"
 msgstr "Sub-ID"
 
@@ -648,7 +648,7 @@ msgstr "Thiết bị"
 msgid "No log data available yet."
 msgstr "Chưa có dữ liệu nhật ký."
 
-#: admin/views/logs-manager.php:252 redirect-gateway-manager.php:298
+#: admin/views/logs-manager.php:252 redirect-gateway-manager.php:297
 msgid "Accessed"
 msgstr "Đã truy cập"
 
@@ -1198,12 +1198,12 @@ msgstr "Lỗi bảo mật: Bạn chưa mở khóa mật khẩu cho liên kết n
 msgid "Link not found in the database."
 msgstr "Không tìm thấy liên kết trong cơ sở dữ liệu."
 
-#: public/class-gateway-logic.php:85
+#: public/class-gateway-logic.php:112
 msgid ""
 "The Gateway page containing the shortcode does not exist or has been deleted."
 msgstr "Trang Gateway chứa shortcode không tồn tại hoặc đã bị xóa."
 
-#: public/class-gateway-logic.php:88
+#: public/class-gateway-logic.php:115
 msgid ""
 "This link has not been assigned a Gateway or the Gateway has been disabled."
 msgstr "Liên kết này chưa được gán Gateway hoặc Gateway đã bị vô hiệu hóa."
@@ -1329,7 +1329,7 @@ msgid "CHECKING..."
 msgstr "ĐANG KIỂM TRA..."
 
 #: public/class-shortcode-gateway.php:125
-#: public/class-shortcode-gateway.php:151 public/class-shortcode-inline.php:113
+#: public/class-shortcode-gateway.php:153 public/class-shortcode-inline.php:113
 msgid "UNLOCK NOW"
 msgstr "MỞ KHÓA NGAY"
 
@@ -1378,27 +1378,35 @@ msgid ""
 "It only takes a few seconds to enter the password, why not give it a try?"
 msgstr "Chỉ mất vài giây để nhập mật khẩu thôi mà, tại sao bạn không thử xem?"
 
-#: public/class-shortcode-gateway.php:146
+#: public/class-shortcode-gateway.php:137 public/class-shortcode-inline.php:125
+msgid "Preparing the destination page..."
+msgstr "Đang chuẩn bị trang đích..."
+
+#: public/class-shortcode-gateway.php:138 public/class-shortcode-inline.php:126
+msgid "Please wait a moment."
+msgstr "Xin vui lòng đợi một chút."
+
+#: public/class-shortcode-gateway.php:148
 msgid "Password Required Link"
 msgstr "Liên kết Yêu cầu Mật khẩu"
 
-#: public/class-shortcode-gateway.php:147
+#: public/class-shortcode-gateway.php:149
 msgid "Please enter the password to continue getting the destination link."
 msgstr "Vui lòng nhập mật khẩu để tiếp tục lấy liên kết đích."
 
-#: public/class-shortcode-gateway.php:150
+#: public/class-shortcode-gateway.php:152
 msgid "Enter password here..."
 msgstr "Nhập mật khẩu vào đây..."
 
-#: public/class-shortcode-gateway.php:157
+#: public/class-shortcode-gateway.php:159
 msgid "Destination page is being prepared..."
 msgstr "Trang đích đang được chuẩn bị..."
 
-#: public/class-shortcode-gateway.php:158
+#: public/class-shortcode-gateway.php:160
 msgid "Please complete the steps below to get the link"
 msgstr "Vui lòng hoàn thành các bước bên dưới để lấy liên kết"
 
-#: public/class-shortcode-gateway.php:161
+#: public/class-shortcode-gateway.php:163
 msgid "Click here to continue"
 msgstr "Nhấn vào đây để tiếp tục"
 
@@ -1422,67 +1430,67 @@ msgstr "Bạn đang có một liên kết khác đang hoạt động!"
 msgid "Click to continue"
 msgstr "Nhấn để tiếp tục"
 
-#: public/class-shortcode-inline.php:134
+#: public/class-shortcode-inline.php:136
 msgid "Password Required"
 msgstr "Yêu cầu Mật khẩu"
 
-#: public/class-shortcode-inline.php:137
+#: public/class-shortcode-inline.php:139
 msgid "Enter password..."
 msgstr "Nhập mật khẩu..."
 
-#: public/class-shortcode-inline.php:138
+#: public/class-shortcode-inline.php:140
 msgid "UNLOCK BUTTON"
 msgstr "MỞ KHÓA NÚT"
 
-#: public/class-shortcode-inline.php:145
+#: public/class-shortcode-inline.php:147
 msgid "Click the button below to get the link:"
 msgstr "Nhấn nút bên dưới để lấy liên kết:"
 
-#: public/class-shortcode-inline.php:147
+#: public/class-shortcode-inline.php:149
 msgid "START GETTING LINK"
 msgstr "BẮT ĐẦU LẤY LIÊN KẾT"
 
-#: redirect-gateway-manager.php:113 redirect-gateway-manager.php:168
+#: redirect-gateway-manager.php:112 redirect-gateway-manager.php:167
 msgid "You do not have permission to perform this action."
 msgstr "Bạn không có quyền thực hiện hành động này."
 
-#: redirect-gateway-manager.php:179
+#: redirect-gateway-manager.php:178
 msgid "Invalid file or not from Redirect Gateway Manager plugin."
 msgstr "Tệp không hợp lệ hoặc không phải từ plugin Redirect Gateway Manager."
 
-#: redirect-gateway-manager.php:221
+#: redirect-gateway-manager.php:220
 msgid "ID"
 msgstr "ID"
 
-#: redirect-gateway-manager.php:225
+#: redirect-gateway-manager.php:224
 msgid "Slug"
 msgstr "Slug"
 
-#: redirect-gateway-manager.php:228
+#: redirect-gateway-manager.php:227
 msgid "Password"
 msgstr "Mật khẩu"
 
-#: redirect-gateway-manager.php:229
+#: redirect-gateway-manager.php:228
 msgid "Gateway Code"
 msgstr "Mã Gateway"
 
-#: redirect-gateway-manager.php:289
+#: redirect-gateway-manager.php:288
 msgid "UTM Parameters"
 msgstr "Tham số UTM"
 
-#: redirect-gateway-manager.php:290
+#: redirect-gateway-manager.php:289
 msgid "IP"
 msgstr "IP"
 
-#: redirect-gateway-manager.php:291
+#: redirect-gateway-manager.php:290
 msgid "Referrer"
 msgstr "Nguồn giới thiệu (Referrer)"
 
-#: redirect-gateway-manager.php:292
+#: redirect-gateway-manager.php:291
 msgid "User Agent"
 msgstr "Trình duyệt (User Agent)"
 
-#: redirect-gateway-manager.php:407
+#: redirect-gateway-manager.php:406
 msgid ""
 "This plugin logs visitor technical information such as IP address, browser "
 "user agent, referrer URL, and access time when a gateway link is accessed."
@@ -1491,7 +1499,7 @@ msgstr ""
 "IP, trình duyệt (User Agent), URL giới thiệu (Referrer) và thời điểm truy "
 "cập khi một liên kết gateway được mở."
 
-#: redirect-gateway-manager.php:412
+#: redirect-gateway-manager.php:411
 msgid ""
 "The data is stored locally in the WordPress database and is used for click "
 "analytics, security monitoring, and bot detection. This plugin does not send "
@@ -1501,6 +1509,6 @@ msgstr ""
 "dụng cho mục đích phân tích lượt nhấp, giám sát bảo mật và phát hiện bot. "
 "Plugin này không gửi bất kỳ dữ liệu nào được thu thập tới máy chủ bên ngoài."
 
-#: redirect-gateway-manager.php:417
+#: redirect-gateway-manager.php:416
 msgid "Redirect Gateway Manager"
 msgstr "Redirect Gateway Manager"

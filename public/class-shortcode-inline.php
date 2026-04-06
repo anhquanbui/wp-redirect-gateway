@@ -121,7 +121,9 @@ class WPRG_Shortcode_Inline {
                 'link_opened_new_tab' => __( 'Destination link has been opened in a new tab.', 'redirect-gateway-manager' ),
                 'auto_retrying'       => __( 'Network hiccup. Auto-retrying in 2 seconds', 'redirect-gateway-manager' ),
                 'pass_backend_err'    => __( 'Security error: You have not unlocked the password for this link!', 'redirect-gateway-manager' ),
-                'pls_enter_pass'      => __( 'It only takes a few seconds to enter the password, why not give it a try?', 'redirect-gateway-manager' )
+                'pls_enter_pass'      => __( 'It only takes a few seconds to enter the password, why not give it a try?', 'redirect-gateway-manager' ),
+                'preparing_tab_title' => __( 'Preparing the destination page...', 'redirect-gateway-manager' ),
+                'preparing_tab_desc'  => __( 'Please wait a moment.', 'redirect-gateway-manager' )
             )
         ));
 

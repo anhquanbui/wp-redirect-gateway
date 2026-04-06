@@ -400,8 +400,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                                 <div style="display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif; background:#f0f2f5; color:#444; margin:0;">
                                                     <div style="text-align:center; background:#fff; padding:30px 50px; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
                                                         <div style="width:40px; height:40px; border:4px solid #f3f3f3; border-top:4px solid #0073aa; border-radius:50%; animation:spin 1s linear infinite; margin: 0 auto 15px;"></div>
-                                                        <h2 style="margin:0 0 10px; font-size:22px;">Preparing destination page...</h2>
-                                                        <p style="margin:0; font-size:15px; color:#666;">Please wait a moment.</p>
+                                                        <h2 style="margin:0 0 10px; font-size:22px;">${wprgData.i18n.preparing_tab_title}</h2>
+                                                        <p style="margin:0; font-size:15px; color:#666;">${wprgData.i18n.preparing_tab_desc}</p>
                                                     </div>
                                                 </div>
                                                 <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>

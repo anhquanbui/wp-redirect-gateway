@@ -10,6 +10,10 @@ class WPRG_Gateway_Logic {
     }
 
     public function add_rewrite_rules() {
+        // Luật 1: Bắt URL có thư mục ngôn ngữ (VD: /zh-hans/go/slug) -> Truyền cả lang và slug
+        add_rewrite_rule( '^([a-z]{2}(?:-[a-z0-9]+)?)/go/([a-zA-Z0-9]+)/?$', 'index.php?lang=$matches[1]&wprg_slug=$matches[2]', 'top' );
+        
+        // Luật 2: Bắt URL mặc định tiếng Anh (VD: /go/slug)
         add_rewrite_rule( '^go/([a-zA-Z0-9]+)/?$', 'index.php?wprg_slug=$matches[1]', 'top' );
     }
 
@@ -34,7 +38,7 @@ class WPRG_Gateway_Logic {
                 $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_textarea_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : 'Unknown';
                 $referrer = isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER']) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : 'Trực tiếp';
                 
-                // [ĐÃ FIX CHUẨN] Tối ưu Referrer: So sánh bằng HTTP_HOST
+                // Tối ưu Referrer: So sánh bằng HTTP_HOST
                 if ( $referrer !== 'Trực tiếp' ) {
                     $parsed_ref = wp_parse_url( $referrer );
                     $ref_host = isset($parsed_ref['host']) ? str_replace('www.', '', strtolower($parsed_ref['host'])) : '';
@@ -53,6 +57,7 @@ class WPRG_Gateway_Logic {
                         $referrer = rtrim( $referrer, '/' );
                     }
                 }
+                
                 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->insert( $table_logs, array(
                     'link_id'    => $link_data['id'],
@@ -68,17 +73,27 @@ class WPRG_Gateway_Logic {
                 $shortcodes = get_option( 'wprg_shortcodes', array() );
 
                 if ( ! empty( $sc_id ) && isset( $shortcodes[ $sc_id ] ) ) {
-                    $page_id = $shortcodes[ $sc_id ]['page_id'];
+                    $page_id = apply_filters( 'wprg_gateway_page_id', $shortcodes[ $sc_id ]['page_id'] );
                     $gateway_url = get_permalink( $page_id );
 
+                    // [THÊM DÒNG NÀY] Cho phép Module WPML can thiệp ép ngôn ngữ vào URL cuối cùng
+                    $gateway_url = apply_filters( 'wprg_final_gateway_url', $gateway_url );
+
                     if ( $gateway_url ) {
-                        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-                        $query_args = isset( $_GET ) ? array_map( 'sanitize_text_field', wp_unslash( $_GET ) ) : array(); 
+                        $query_args = array(); 
+                        
+                        // [BẢN VÁ WPCS]: Chỉ cho phép các tham số sạch (UTM) được vượt qua Gateway
+                        $allowed_params = array( 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'fbclid', 'gclid', 'lang', 'ref' );
+                        foreach ( $allowed_params as $param ) {
+                            if ( isset( $_GET[ $param ] ) ) {
+                                $query_args[ $param ] = sanitize_text_field( wp_unslash( $_GET[ $param ] ) );
+                            }
+                        }
+                        
                         $query_args['wprg_link'] = $slug; 
                         $query_args['wprg_log_id'] = $log_id; 
                         
                         $redirect_url = add_query_arg( $query_args, $gateway_url );
-                        // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
                         wp_redirect( $redirect_url, 302 );
                         exit;
                     } else {

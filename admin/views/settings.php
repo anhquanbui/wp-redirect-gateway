@@ -15,6 +15,7 @@ if ( isset( $_POST['wprg_save_settings'] ) && check_admin_referer( 'wprg_setting
     update_option( 'wprg_auto_retry_error', isset( $_POST['wprg_auto_retry_error'] ) ? '1' : '0' );
     update_option( 'wprg_cookie_pass_val', isset( $_POST['wprg_cookie_pass_val'] ) ? intval( $_POST['wprg_cookie_pass_val'] ) : 24 );
     update_option( 'wprg_cookie_pass_unit', isset( $_POST['wprg_cookie_pass_unit'] ) ? sanitize_text_field( wp_unslash( $_POST['wprg_cookie_pass_unit'] ) ) : 'hours' );
+    update_option( 'wprg_enable_wpml', isset( $_POST['wprg_enable_wpml'] ) ? '1' : '0' );
     
     // Cài đặt bảo mật (Security Settings)
     update_option( 'wprg_captcha_type', isset( $_POST['wprg_captcha_type'] ) ? sanitize_text_field( wp_unslash( $_POST['wprg_captcha_type'] ) ) : 'recaptcha' );
@@ -77,6 +78,7 @@ $new_tab_delay = get_option( 'wprg_new_tab_delay', 0 );
 $auto_retry_error = get_option( 'wprg_auto_retry_error', '0' );
 $cookie_pass_val = get_option( 'wprg_cookie_pass_val', 24 );
 $cookie_pass_unit = get_option( 'wprg_cookie_pass_unit', 'hours' );
+$enable_wpml = get_option( 'wprg_enable_wpml', '0' );
 
 // Dữ liệu bảo mật (Security Data)
 $captcha_type = get_option( 'wprg_captcha_type', 'recaptcha' );
@@ -271,6 +273,23 @@ if ( file_exists( $backup_dir ) ) {
             </div>
 
             <div id="tab-system" class="wprg-tab-content" style="<?php echo ($active_tab === 'tab-system') ? 'display:block;' : 'display:none;'; ?>">
+                <h3 style="margin-top: 0; color: #2271b1;">🔌 <?php esc_html_e( 'Third-party Integrations', 'redirect-gateway-manager' ); ?></h3>
+                <table class="form-table" style="margin-bottom: 30px;">
+                    <tr>
+                        <th scope="row"><?php esc_html_e( 'WPML Compatibility', 'redirect-gateway-manager' ); ?></th>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="wprg_enable_wpml" value="1" <?php checked( $enable_wpml, '1' ); ?>>
+                                <strong><?php esc_html_e( 'Enable WPML Multi-language Support', 'redirect-gateway-manager' ); ?></strong>
+                            </label>
+                            <p class="description" style="margin-top: 5px; color: #d63638;">
+                                <?php esc_html_e( '* Note: You must manually create translated versions of your Gateway page in WPML for this feature to work properly.', 'redirect-gateway-manager' ); ?>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+
+                <hr style="border: 0; border-top: 1px dashed #ccc; margin: 30px 0;">
                 <h3 style="margin-top: 0; color: #d63638;"><?php esc_html_e( 'Data & Uninstall', 'redirect-gateway-manager' ); ?></h3>
                 <table class="form-table">
                     <tr>

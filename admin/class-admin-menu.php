@@ -13,13 +13,12 @@ class WPRG_Admin_Menu {
     public function enqueue_admin_styles( $hook_suffix ) {
         if ( strpos( $hook_suffix, 'wprg-' ) !== false ) {
             wp_enqueue_style( 'wprg-admin-css', WPRG_PLUGIN_URL . 'assets/css/wprg-admin.css', array(), WPRG_VERSION );
-            
-            // THÊM DÒNG NÀY ĐỂ NẠP CHART.JS CHUẨN WORDPRESS:
             wp_enqueue_script( 'chart-js', WPRG_PLUGIN_URL . 'assets/js/chart.min.js', array(), '3.9.1', true );
         }
     }
     
     public function register_menus() {
+        // [ĐÃ SỬA]: Chuyển vị trí từ 25 xuống 99 để chuẩn mực với UI của WordPress
         add_menu_page(
             __( 'Gateway Redirect', 'redirect-gateway-manager' ),         
             __( 'Gateway Redirect', 'redirect-gateway-manager' ),         
@@ -27,7 +26,7 @@ class WPRG_Admin_Menu {
             'wprg-dashboard',           
             array( $this, 'render_dashboard' ), 
             'dashicons-randomize',      
-            25                          
+            99                          
         );
 
         add_submenu_page( 'wprg-dashboard', __( 'Dashboard', 'redirect-gateway-manager' ), __( 'Dashboard', 'redirect-gateway-manager' ), 'manage_options', 'wprg-dashboard', array( $this, 'render_dashboard' ) );
@@ -44,26 +43,19 @@ class WPRG_Admin_Menu {
     public function render_links_page() { require_once WPRG_PLUGIN_DIR . 'admin/views/links-manager.php'; }
 
     public function wprg_dismiss_notice_handler() {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         if ( isset( $_GET['wprg_dismiss_plugin'] ) ) {
             $nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
             if ( ! wp_verify_nonce( $nonce, 'wprg_dismiss_notice' ) ) {
                 wp_die( esc_html__( 'Security error!', 'redirect-gateway-manager' ) );
             }
-            
-            // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             $plugin_to_dismiss = sanitize_text_field( wp_unslash( $_GET['wprg_dismiss_plugin'] ) );
-            
             $dismissed = get_option( 'wprg_dismissed_conflicts', array() );
-            if ( ! is_array( $dismissed ) ) {
-                $dismissed = array();
-            }
+            if ( ! is_array( $dismissed ) ) $dismissed = array();
             
             if ( ! in_array( $plugin_to_dismiss, $dismissed ) ) {
                 $dismissed[] = $plugin_to_dismiss;
                 update_option( 'wprg_dismissed_conflicts', $dismissed );
             }
-            
             $clean_url = remove_query_arg( array( 'wprg_dismiss_plugin', '_wpnonce' ) );
             wp_safe_redirect( $clean_url );
             exit;
@@ -71,21 +63,11 @@ class WPRG_Admin_Menu {
     }
 
     public function wprg_admin_notices() {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        if ( ! isset( $_GET['page'] ) ) {
-            return;
-        }
-
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if ( ! isset( $_GET['page'] ) ) return;
         $current_page = sanitize_text_field( wp_unslash( $_GET['page'] ) );
-        
-        if ( strpos( $current_page, 'wprg-' ) === false ) {
-            return;
-        }
+        if ( strpos( $current_page, 'wprg-' ) === false ) return;
 
-        if ( ! function_exists( 'is_plugin_active' ) ) {
-            include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-        }
+        if ( ! function_exists( 'is_plugin_active' ) ) include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 
         $cache_plugins = array(
             'wp-rocket/wp-rocket.php'             => 'WP Rocket',
@@ -107,39 +89,21 @@ class WPRG_Admin_Menu {
 
         foreach ( $cache_plugins as $path => $name ) {
             if ( is_plugin_active( $path ) && ! in_array( $path, $dismissed ) ) {
-                // Sửa thành wp_nonce_url để thêm mã bảo mật vào nút bấm
                 $dismiss_url = wp_nonce_url( add_query_arg( 'wprg_dismiss_plugin', urlencode($path) ), 'wprg_dismiss_notice' );
-                
                 echo '<div class="notice notice-warning" style="padding-bottom: 10px;">';
-                
-                /* translators: %s: Plugin name */
                 echo '<p><strong>' . esc_html__( '⚠️ Attention (From WP Redirect Gateway):', 'redirect-gateway-manager' ) . '</strong> ' . sprintf( esc_html__( 'Detected that the website has %s installed.', 'redirect-gateway-manager' ), '<strong>' . esc_html( $name ) . '</strong>' ) . '<br>';
-                
                 echo wp_kses_post( __( 'Please go to the Cache settings and add the <strong>Gateway Page</strong> URL to the <strong>Never Cache URL</strong> list.', 'redirect-gateway-manager' ) ) . '</p>';
-                
-                /* translators: %s: Plugin name */
-                echo '<a href="' . esc_url( $dismiss_url ) . '" class="button button-primary">' . sprintf( esc_html__( 'Setup completed for %s, Hide this!', 'redirect-gateway-manager' ), esc_html( $name ) ) . '</a>';
-                
-                echo '</div>';
+                echo '<a href="' . esc_url( $dismiss_url ) . '" class="button button-primary">' . sprintf( esc_html__( 'Setup completed for %s, Hide this!', 'redirect-gateway-manager' ), esc_html( $name ) ) . '</a></div>';
             }
         }
 
         foreach ( $security_plugins as $path => $name ) {
             if ( is_plugin_active( $path ) && ! in_array( $path, $dismissed ) ) {
-                // Sửa thành wp_nonce_url để thêm mã bảo mật vào nút bấm
                 $dismiss_url = wp_nonce_url( add_query_arg( 'wprg_dismiss_plugin', urlencode($path) ), 'wprg_dismiss_notice' );
-                
                 echo '<div class="notice notice-info" style="padding-bottom: 10px;">';
-                
-                /* translators: %s: Plugin name */
                 echo '<p><strong>' . esc_html__( '🛡️ Security Tip:', 'redirect-gateway-manager' ) . '</strong> ' . sprintf( esc_html__( 'The website is using the %s Firewall.', 'redirect-gateway-manager' ), '<strong>' . esc_html( $name ) . '</strong>' ) . '<br>';
-                
                 echo wp_kses_post( __( 'Make sure to use the <strong>same reCAPTCHA Key set</strong> to avoid conflicts.', 'redirect-gateway-manager' ) ) . '</p>';
-                
-                /* translators: %s: Plugin name */
-                echo '<a href="' . esc_url( $dismiss_url ) . '" class="button button-primary">' . sprintf( esc_html__( 'Understood the note for %s, Hide this!', 'redirect-gateway-manager' ), esc_html( $name ) ) . '</a>';
-                
-                echo '</div>';
+                echo '<a href="' . esc_url( $dismiss_url ) . '" class="button button-primary">' . sprintf( esc_html__( 'Understood the note for %s, Hide this!', 'redirect-gateway-manager' ), esc_html( $name ) ) . '</a></div>';
             }
         }
     }

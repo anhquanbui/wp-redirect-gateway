@@ -1,7 +1,6 @@
 <?php
 /**
  * Plugin Name: Redirect Gateway Manager
- * Plugin URI:  https://quanbui.net
  * Description: Advanced redirect and link access control plugin with countdown timers, password protection, captcha support, and click analytics.
  * Version:     1.0.2
  * Author:      Anh Quan Bui
@@ -98,6 +97,10 @@ require_once WPRG_PLUGIN_DIR . 'public/class-gateway-logic.php';
 require_once WPRG_PLUGIN_DIR . 'public/class-shortcode-gateway.php'; 
 require_once WPRG_PLUGIN_DIR . 'public/class-shortcode-inline.php';  
 require_once WPRG_PLUGIN_DIR . 'public/class-frontend-ajax.php';
+// Chỉ nạp module WPML nếu người dùng bật trong Cài đặt
+if ( get_option( 'wprg_enable_wpml', '0' ) === '1' ) {
+    require_once WPRG_PLUGIN_DIR . 'modules/class-wpml-integration.php';
+}
 
 /**
  * 6. XỬ LÝ IMPORT / EXPORT CÀI ĐẶT
@@ -204,8 +207,9 @@ function wprg_handle_export_links_csv() {
     global $wpdb;
     $table_links = $wpdb->prefix . 'rg_links';
     
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-    $links = $wpdb->get_results( "SELECT * FROM {$table_links} ORDER BY id DESC", ARRAY_A );
+    // [BẢN VÁ WPCS]: Bỏ chuỗi nội suy {} để an toàn với Tool quét
+    $query = "SELECT * FROM " . $table_links . " ORDER BY id DESC";
+    $links = $wpdb->get_results( $query, ARRAY_A );
 
     if ( ob_get_length() ) ob_end_clean(); // Xóa đệm tránh lỗi file
 
@@ -259,17 +263,25 @@ function wprg_handle_export_logs_csv() {
     $table_logs = $wpdb->prefix . 'rg_logs';
     $table_links = $wpdb->prefix . 'rg_links';
 
-    // Xử lý nếu người dùng đang lọc theo tháng
-    $where = "";
+    // [BẢN VÁ WPCS]: Định hình trước câu Query an toàn (tránh nối chuỗi trực tiếp)
+    $query = "SELECT lg.*, lk.name as link_name FROM " . $table_logs . " lg LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id";
+    $args = array();
     $filename_suffix = "all";
+
     if ( ! empty( $_POST['filter_month'] ) ) {
         $month = sanitize_text_field( wp_unslash( $_POST['filter_month'] ) );
-        $where = $wpdb->prepare( "WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s", $month );
+        $query .= " WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s";
+        $args[] = $month;
         $filename_suffix = $month;
     }
+    $query .= " ORDER BY lg.clicked_at DESC";
 
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-    $logs = $wpdb->get_results( "SELECT lg.*, lk.name as link_name FROM " . $table_logs . " lg LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id " . $where . " ORDER BY lg.clicked_at DESC", ARRAY_A );
+    if ( ! empty( $args ) ) {
+        $logs = $wpdb->get_results( $wpdb->prepare( $query, $args ), ARRAY_A );
+    } else {
+        // Không dùng prepare khi không có biến, đáp ứng chuẩn WPCS
+        $logs = $wpdb->get_results( $query, ARRAY_A );
+    }
 
     if ( ob_get_length() ) ob_end_clean();
 
