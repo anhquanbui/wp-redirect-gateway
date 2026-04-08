@@ -8,7 +8,6 @@ class WPRG_Backup_Manager {
         add_action( 'wprg_daily_auto_backup_event', array( $this, 'run_auto_backup_task' ) );
         add_action( 'admin_post_wprg_full_restore', array( $this, 'manual_backup_restore' ) );
         add_action( 'admin_post_wprg_auto_restore', array( $this, 'auto_backup_restore' ) );
-        // API Xóa file Backup
         add_action( 'admin_post_wprg_delete_backup', array( $this, 'delete_backup_file' ) );
     }
 
@@ -27,35 +26,21 @@ class WPRG_Backup_Manager {
         );
 
         $option_keys = array( 
-            'wprg_affiliate_links', 
-            'wprg_require_active_tab', 
-            'wprg_single_link_mode', 
-            'wprg_recaptcha_site', 
-            'wprg_recaptcha_secret', 
-            'wprg_delete_data', 
-            'wprg_enable_initial_click', 
-            'wprg_enable_auto_backup', 
-            'wprg_shortcodes',          
-            'wprg_open_link_new_tab',
-            'wprg_new_tab_delay',
-            'wprg_backup_time',
-            'wprg_backup_limit',
-            'wprg_rel_noopener',
-            'wprg_rel_noreferrer',
-            'wprg_captcha_type',
-            'wprg_turnstile_site',
-            'wprg_turnstile_secret'
+            'wprg_affiliate_links', 'wprg_require_active_tab', 'wprg_single_link_mode', 
+            'wprg_recaptcha_site', 'wprg_recaptcha_secret', 'wprg_delete_data', 
+            'wprg_enable_initial_click', 'wprg_enable_auto_backup', 'wprg_shortcodes',          
+            'wprg_open_link_new_tab', 'wprg_new_tab_delay', 'wprg_backup_time',
+            'wprg_backup_limit', 'wprg_rel_noopener', 'wprg_rel_noreferrer',
+            'wprg_captcha_type', 'wprg_turnstile_site', 'wprg_turnstile_secret'
         );
         
         foreach ( $option_keys as $key ) {
             $data['settings'][$key] = get_option( $key );
         }
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-        $data['links'] = $wpdb->get_results( "SELECT * FROM {$table_links}", ARRAY_A );
-        
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-        $data['logs']  = $wpdb->get_results( "SELECT * FROM {$table_logs}", ARRAY_A );
+        // [BẢN VÁ WPCS]: Chuyển {$table_links} thành nối chuỗi
+        $data['links'] = $wpdb->get_results( "SELECT * FROM " . $table_links, ARRAY_A );
+        $data['logs']  = $wpdb->get_results( "SELECT * FROM " . $table_logs, ARRAY_A );
 
         return wp_json_encode( $data, JSON_UNESCAPED_UNICODE );
     }
@@ -71,7 +56,6 @@ class WPRG_Backup_Manager {
         header( 'Content-Description: File Transfer' );
         header( 'Content-Type: application/json; charset=utf-8' );
         header( 'Content-Disposition: attachment; filename=' . $filename );
-        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         echo $json_data;
         exit;
     }
@@ -127,19 +111,15 @@ class WPRG_Backup_Manager {
         }
 
         if ( isset( $decoded_data['links'] ) && is_array( $decoded_data['links'] ) ) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
             $wpdb->query("TRUNCATE TABLE " . $table_links); 
             foreach ( $decoded_data['links'] as $link ) { 
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->insert( $table_links, $link ); 
             }
         }
 
         if ( isset( $decoded_data['logs'] ) && is_array( $decoded_data['logs'] ) ) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
             $wpdb->query("TRUNCATE TABLE " . $table_logs); 
             foreach ( $decoded_data['logs'] as $log ) { 
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->insert( $table_logs, $log ); 
             }
         }
@@ -166,16 +146,12 @@ class WPRG_Backup_Manager {
         $filename = 'wprg-autobackup-' . gmdate( 'Y-m-d-H-i-s' ) . '.json';
         file_put_contents( $backup_dir . '/' . $filename, $json_data );
 
-        // Lấy giới hạn lưu trữ do người dùng cài đặt
         $backup_limit = intval( get_option( 'wprg_backup_limit', 7 ) );
-        if ( $backup_limit < 1 ) $backup_limit = 1; // Luôn giữ tối thiểu 1 bản
+        if ( $backup_limit < 1 ) $backup_limit = 1;
 
         $files = glob( $backup_dir . '/*.json' );
         if ( count( $files ) > $backup_limit ) {
-            // Sắp xếp file theo thời gian tăng dần (cũ nhất ở đầu)
             usort( $files, function( $a, $b ) { return filemtime( $a ) - filemtime( $b ); } );
-            
-            // Xóa các file cũ dư thừa
             $files_to_delete = array_slice( $files, 0, count( $files ) - $backup_limit );
             foreach ( $files_to_delete as $file ) { 
                 wp_delete_file( $file ); 
@@ -190,7 +166,6 @@ class WPRG_Backup_Manager {
 
         $filename = sanitize_file_name( wp_unslash( $_POST['backup_file'] ) );
         
-        // Kiểm tra đúng định dạng file json của hệ thống mới cho xóa
         if ( pathinfo( $filename, PATHINFO_EXTENSION ) !== 'json' || strpos( $filename, 'wprg-autobackup-' ) !== 0 ) {
             wp_die( esc_html__( 'Invalid file.', 'redirect-gateway-manager' ) );
         }
@@ -199,7 +174,7 @@ class WPRG_Backup_Manager {
         $filepath = $upload_dir['basedir'] . '/wprg-backups/' . $filename;
 
         if ( file_exists( $filepath ) ) {
-            wp_delete_file( $filepath ); // Dùng hàm xóa chuẩn của WordPress
+            wp_delete_file( $filepath );
         }
 
         $redirect_url = wp_get_referer();

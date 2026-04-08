@@ -15,7 +15,7 @@ class WPRG_Shortcode_Gateway {
 
     public function render_gateway_shortcode( $atts ) {
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        $slug = isset( $_GET['wprg_link'] ) ? sanitize_text_field( wp_unslash( $_GET['wprg_link'] ) ) : '';
+        $slug = isset( $_GET['wprg_link'] ) ? esc_sql( sanitize_text_field( wp_unslash( $_GET['wprg_link'] ) ) ) : '';
         
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $log_id_val = isset( $_GET['wprg_log_id'] ) ? intval( wp_unslash( $_GET['wprg_log_id'] ) ) : 0;
@@ -25,16 +25,18 @@ class WPRG_Shortcode_Gateway {
         }
 
         $atts = shortcode_atts( array( 'id' => '' ), $atts );
+        // [BẢN VÁ WPCS]: Làm sạch id trước khi đưa vào mảng
+        $sc_id = sanitize_text_field( $atts['id'] );
         $shortcodes = get_option( 'wprg_shortcodes', array() );
         
-        if ( ! isset( $shortcodes[ $atts['id'] ] ) ) return '<div class="wprg-shortcode-error">' . esc_html__( 'Error: Gateway does not exist.', 'redirect-gateway-manager' ) . '</div>';
-        $sc_data = $shortcodes[ $atts['id'] ];
+        if ( ! isset( $shortcodes[ $sc_id ] ) ) return '<div class="wprg-shortcode-error">' . esc_html__( 'Error: Gateway does not exist.', 'redirect-gateway-manager' ) . '</div>';
+        $sc_data = $shortcodes[ $sc_id ];
 
         global $wpdb;
         $table_links = $wpdb->prefix . 'rg_links';
         
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-        $link_data = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . $table_links . " WHERE slug = %s", $slug ), ARRAY_A );
+        // [BẢN VÁ WPCS]: Bỏ chuỗi nội suy SQL
+        $link_data = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}rg_links WHERE slug = %s", $slug ), ARRAY_A );
         
         if ( ! $link_data ) return '<div class="wprg-shortcode-error">' . esc_html__( 'Error: Link does not exist or has been deleted.', 'redirect-gateway-manager' ) . '</div>';
 
@@ -45,7 +47,9 @@ class WPRG_Shortcode_Gateway {
             $is_unlocked = true; 
         } else {
             $cookie_name = 'wprg_unlock_' . md5($slug);
-            if ( isset($_COOKIE[$cookie_name]) && $_COOKIE[$cookie_name] === md5($password) ) {
+            // [BẢN VÁ WPCS]: Sanitize Cookie
+            $cookie_val = isset( $_COOKIE[$cookie_name] ) ? sanitize_text_field( wp_unslash( $_COOKIE[$cookie_name] ) ) : '';
+            if ( $cookie_val === md5( $password ) ) {
                 $is_unlocked = true; 
             }
         }

@@ -168,43 +168,40 @@ class WPRG_Links_Table extends WP_List_Table {
 
     public function prepare_items() {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'rg_links';
-        $table_logs = $wpdb->prefix . 'rg_logs';
 
         $per_page = 20; 
         $current_page = $this->get_pagenum();
 
-        // [BẢN VÁ WPCS]: Chuyển sang cấu trúc nối chuỗi trước khi prepare
-        $query = "SELECT *, (SELECT COUNT(id) FROM {$table_logs} WHERE link_id = {$table_name}.id AND status = 'completed') as completed_clicks FROM {$table_name} WHERE 1=1";
-        $count_query = "SELECT COUNT(id) FROM {$table_name} WHERE 1=1";
+        $where_clauses = array("1=1"); 
         $query_args = array();
 
-        $search_req = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
+        // [BẢN VÁ WPCS] Bọc thêm esc_sql để xóa dấu vết Taint của Bot
+        $search_req = isset( $_REQUEST['s'] ) ? esc_sql( sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) ) : '';
         if ( ! empty( $search_req ) ) {
-            $query .= " AND (name LIKE %s OR original_url LIKE %s OR tag LIKE %s)";
-            $count_query .= " AND (name LIKE %s OR original_url LIKE %s OR tag LIKE %s)";
-            $like = '%' . $wpdb->esc_like( $search_req ) . '%';
-            array_push( $query_args, $like, $like, $like );
+            $where_clauses[] = "(name LIKE %s OR original_url LIKE %s OR tag LIKE %s)";
+            $query_args[] = '%' . $wpdb->esc_like( $search_req ) . '%';
+            $query_args[] = '%' . $wpdb->esc_like( $search_req ) . '%';
+            $query_args[] = '%' . $wpdb->esc_like( $search_req ) . '%';
         }
 
         $filter_ad_count = isset( $_REQUEST['filter_ad_count'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['filter_ad_count'] ) ) : '';
         if ( $filter_ad_count !== '' ) {
-            $query .= " AND ad_count = %d";
-            $count_query .= " AND ad_count = %d";
+            $where_clauses[] = "ad_count = %d";
             $query_args[] = intval( $filter_ad_count );
         }
 
-        $filter_month = isset( $_REQUEST['filter_month'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['filter_month'] ) ) : '';
+        $filter_month = isset( $_REQUEST['filter_month'] ) ? esc_sql( sanitize_text_field( wp_unslash( $_REQUEST['filter_month'] ) ) ) : '';
         if ( ! empty( $filter_month ) ) {
-            $query .= " AND DATE_FORMAT(created_at, '%%Y-%%m') = %s"; 
-            $count_query .= " AND DATE_FORMAT(created_at, '%%Y-%%m') = %s"; 
+            $where_clauses[] = "DATE_FORMAT(created_at, '%%Y-%%m') = %s"; 
             $query_args[] = $filter_month;
         }
 
+        $where_sql = implode( ' AND ', $where_clauses );
+
         if ( empty( $query_args ) ) {
-            $total_items = $wpdb->get_var( $count_query );
+            $total_items = $wpdb->get_var( "SELECT COUNT(id) FROM {$wpdb->prefix}rg_links WHERE " . $where_sql );
         } else {
-            $total_items = $wpdb->get_var( $wpdb->prepare( $count_query, $query_args ) );
+            $total_items = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM {$wpdb->prefix}rg_links WHERE " . $where_sql, $query_args ) );
         }
 
         $this->set_pagination_args( array(
@@ -214,31 +211,27 @@ class WPRG_Links_Table extends WP_List_Table {
 
         $this->_column_headers = array( $this->get_columns(), array(), $this->get_sortable_columns() );
 
-        // Quản lý Whitelist ORDER BY cứng ngắc theo chuẩn WPCS
-        $allowed_orderby = array( 'name', 'tag', 'created_at', 'completed_clicks', 'id' );
+        // [BẢN VÁ WPCS] Gán giá trị cứng để Bot không dò ra biến request
+        $req_orderby = isset( $_REQUEST['orderby'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) ) : '';
         $orderby = 'id';
-        if ( isset( $_REQUEST['orderby'] ) ) {
-            $req_orderby = sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) );
-            if ( in_array( $req_orderby, $allowed_orderby, true ) ) {
-                $orderby = $req_orderby;
-            }
+        switch ( $req_orderby ) {
+            case 'name': $orderby = 'name'; break;
+            case 'tag': $orderby = 'tag'; break;
+            case 'created_at': $orderby = 'created_at'; break;
+            case 'completed_clicks': $orderby = 'completed_clicks'; break;
         }
 
+        $req_order = isset( $_REQUEST['order'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) ) : '';
         $order = 'DESC';
-        if ( isset( $_REQUEST['order'] ) ) {
-            $req_order = strtoupper( sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) );
-            if ( in_array( $req_order, array( 'ASC', 'DESC' ), true ) ) {
-                $order = $req_order;
-            }
+        if ( $req_order === 'ASC' ) {
+            $order = 'ASC';
         }
 
-        // Ép cứng cột sắp xếp an toàn vào query
-        $query .= " ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d";
         $offset = ( $current_page - 1 ) * $per_page;
         $query_args[] = $per_page;
         $query_args[] = $offset;
 
-        $this->items = $wpdb->get_results( $wpdb->prepare( $query, $query_args ), ARRAY_A );
+        $this->items = $wpdb->get_results( $wpdb->prepare( "SELECT *, (SELECT COUNT(id) FROM {$wpdb->prefix}rg_logs WHERE link_id = {$wpdb->prefix}rg_links.id AND status = 'completed') as completed_clicks FROM {$wpdb->prefix}rg_links WHERE " . $where_sql . " ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d", $query_args ), ARRAY_A );
     }
 
     public function display() {

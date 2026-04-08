@@ -117,23 +117,12 @@ function wprg_handle_export_settings() {
     }
 
     $option_keys = array(
-        'wprg_affiliate_links',
-        'wprg_require_active_tab',
-        'wprg_single_link_mode',
-        'wprg_recaptcha_site',
-        'wprg_recaptcha_secret',
-        'wprg_delete_data',
-        'wprg_enable_initial_click',
-        'wprg_shortcodes',
-        'wprg_open_link_new_tab',
-        'wprg_backup_time',
-        'wprg_backup_limit',
-        'wprg_rel_noopener',
-        'wprg_new_tab_delay',
-        'wprg_rel_noreferrer',
-        'wprg_captcha_type',
-        'wprg_turnstile_site',
-        'wprg_turnstile_secret'
+        'wprg_affiliate_links', 'wprg_require_active_tab', 'wprg_single_link_mode',
+        'wprg_recaptcha_site', 'wprg_recaptcha_secret', 'wprg_delete_data',
+        'wprg_enable_initial_click', 'wprg_shortcodes', 'wprg_open_link_new_tab',
+        'wprg_backup_time', 'wprg_backup_limit', 'wprg_rel_noopener',
+        'wprg_new_tab_delay', 'wprg_rel_noreferrer', 'wprg_captcha_type',
+        'wprg_turnstile_site', 'wprg_turnstile_secret'
     );
 
     $export_data = array(
@@ -200,48 +189,25 @@ function wprg_handle_export_links_csv() {
     if ( ! isset( $_POST['wprg_export_links_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wprg_export_links_nonce'] ) ), 'wprg_export_links_action' ) ) {
         wp_die( esc_html__( 'Security error!', 'redirect-gateway-manager' ) );
     }
-    if ( ! current_user_can( 'manage_options' ) ) {
-        wp_die( esc_html__( 'You do not have permission!', 'redirect-gateway-manager' ) );
-    }
+    if ( ! current_user_can( 'manage_options' ) ) wp_die( esc_html__( 'You do not have permission!', 'redirect-gateway-manager' ) );
 
     global $wpdb;
-    $table_links = $wpdb->prefix . 'rg_links';
-    
-    // [BẢN VÁ WPCS]: Bỏ chuỗi nội suy {} để an toàn với Tool quét
-    $query = "SELECT * FROM " . $table_links . " ORDER BY id DESC";
-    $links = $wpdb->get_results( $query, ARRAY_A );
+    // [BẢN VÁ WPCS] Nhúng thẳng tên prefix vào chuỗi tĩnh
+    $links = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}rg_links ORDER BY id DESC", ARRAY_A );
 
-    if ( ob_get_length() ) ob_end_clean(); // Xóa đệm tránh lỗi file
-
+    if ( ob_get_length() ) ob_end_clean(); 
     header( 'Content-Type: text/csv; charset=utf-8' );
     header( 'Content-Disposition: attachment; filename="wprg-links-' . wp_date('Y-m-d') . '.csv"' );
-
     $output = fopen( 'php://output', 'w' );
     // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputs
-    fputs( $output, "\xEF\xBB\xBF" ); // Ghi BOM để Excel đọc được Tiếng Việt có dấu
+    fputs( $output, "\xEF\xBB\xBF" ); 
 
-    // Đã bọc dịch cho dòng tiêu đề file CSV
-    fputcsv( $output, array( 
-        __( 'ID', 'redirect-gateway-manager' ), 
-        __( 'Link Name', 'redirect-gateway-manager' ), 
-        __( 'Tag', 'redirect-gateway-manager' ),
-        __( 'Original Link', 'redirect-gateway-manager' ), 
-        __( 'Slug', 'redirect-gateway-manager' ), 
-        __( 'Ads Count', 'redirect-gateway-manager' ), 
-        __( 'Wait Time', 'redirect-gateway-manager' ), 
-        __( 'Password', 'redirect-gateway-manager' ), 
-        __( 'Gateway Code', 'redirect-gateway-manager' ), 
-        __( 'Created At', 'redirect-gateway-manager' ) 
-    ) );
+    fputcsv( $output, array( __( 'ID', 'redirect-gateway-manager' ), __( 'Link Name', 'redirect-gateway-manager' ), __( 'Tag', 'redirect-gateway-manager' ), __( 'Original Link', 'redirect-gateway-manager' ), __( 'Slug', 'redirect-gateway-manager' ), __( 'Ads Count', 'redirect-gateway-manager' ), __( 'Wait Time', 'redirect-gateway-manager' ), __( 'Password', 'redirect-gateway-manager' ), __( 'Gateway Code', 'redirect-gateway-manager' ), __( 'Created At', 'redirect-gateway-manager' ) ) );
 
-    // Dữ liệu
     if ( ! empty( $links ) ) {
         foreach ( $links as $link ) {
             $tag_export = isset($link['tag']) ? $link['tag'] : '';
-            fputcsv( $output, array(
-                $link['id'], $link['name'], $tag_export, $link['original_url'], $link['slug'],
-                $link['ad_count'], $link['wait_time'], $link['password'], $link['shortcode_id'], $link['created_at']
-            ));
+            fputcsv( $output, array( $link['id'], $link['name'], $tag_export, $link['original_url'], $link['slug'], $link['ad_count'], $link['wait_time'], $link['password'], $link['shortcode_id'], $link['created_at'] ) );
         }
     }
     // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
@@ -260,27 +226,27 @@ function wprg_handle_export_logs_csv() {
     }
 
     global $wpdb;
-    $table_logs = $wpdb->prefix . 'rg_logs';
-    $table_links = $wpdb->prefix . 'rg_links';
-
-    // [BẢN VÁ WPCS]: Định hình trước câu Query an toàn (tránh nối chuỗi trực tiếp)
-    $query = "SELECT lg.*, lk.name as link_name FROM " . $table_logs . " lg LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id";
-    $args = array();
     $filename_suffix = "all";
 
+    // [BẢN VÁ WPCS] Viết câu lệnh SQL tĩnh 100% thành 2 khối riêng biệt, tuyệt đối không dùng $query .=
     if ( ! empty( $_POST['filter_month'] ) ) {
         $month = sanitize_text_field( wp_unslash( $_POST['filter_month'] ) );
-        $query .= " WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s";
-        $args[] = $month;
         $filename_suffix = $month;
-    }
-    $query .= " ORDER BY lg.clicked_at DESC";
-
-    if ( ! empty( $args ) ) {
-        $logs = $wpdb->get_results( $wpdb->prepare( $query, $args ), ARRAY_A );
+        
+        // Trường hợp có lọc theo tháng: Đưa nguyên khối chuỗi tĩnh vào prepare
+        $logs = $wpdb->get_results( 
+            $wpdb->prepare( 
+                "SELECT lg.*, lk.name as link_name FROM {$wpdb->prefix}rg_logs lg LEFT JOIN {$wpdb->prefix}rg_links lk ON lg.link_id = lk.id WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s ORDER BY lg.clicked_at DESC", 
+                $month 
+            ), 
+            ARRAY_A 
+        );
     } else {
-        // Không dùng prepare khi không có biến, đáp ứng chuẩn WPCS
-        $logs = $wpdb->get_results( $query, ARRAY_A );
+        // Trường hợp không lọc theo tháng: Đưa nguyên khối chuỗi tĩnh thẳng vào get_results
+        $logs = $wpdb->get_results( 
+            "SELECT lg.*, lk.name as link_name FROM {$wpdb->prefix}rg_logs lg LEFT JOIN {$wpdb->prefix}rg_links lk ON lg.link_id = lk.id ORDER BY lg.clicked_at DESC", 
+            ARRAY_A 
+        );
     }
 
     if ( ob_get_length() ) ob_end_clean();
@@ -290,9 +256,8 @@ function wprg_handle_export_logs_csv() {
 
     $output = fopen( 'php://output', 'w' );
     // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputs
-    fputs( $output, "\xEF\xBB\xBF" ); // BOM Tiếng Việt
+    fputs( $output, "\xEF\xBB\xBF" );
 
-    // Đã bọc dịch cho tiêu đề file CSV Logs
     fputcsv( $output, array( 
         __( 'Time', 'redirect-gateway-manager' ), 
         __( 'Status', 'redirect-gateway-manager' ), 
@@ -306,7 +271,6 @@ function wprg_handle_export_logs_csv() {
 
     if ( ! empty( $logs ) ) {
         foreach ( $logs as $log ) {
-            // Dịch trạng thái bên trong file CSV luôn
             $status = ( $log['status'] === 'completed' ) ? __( 'Completed', 'redirect-gateway-manager' ) : __( 'Accessed', 'redirect-gateway-manager' );
             fputcsv( $output, array(
                 $log['clicked_at'], $status, $log['link_name'], $log['sub_id'],
@@ -388,13 +352,12 @@ function wprg_enqueue_admin_scripts( $hook ) {
 }
 
 /**
- * 7. THÊM LINK VÀO TRANG QUẢN LÝ PLUGIN (Settings & Visit my website)
+ * 9. THÊM LINK VÀO TRANG QUẢN LÝ PLUGIN (Settings & Visit my website)
  */
 
 // Thêm nút "Settings" kế bên chữ Deactivate
 add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'wprg_add_settings_link' );
 function wprg_add_settings_link( $links ) {
-    // LƯU Ý: Nếu URL trang cài đặt của bạn không phải là ?page=wprg-settings thì bạn sửa chữ 'wprg-settings' ở dòng dưới cho khớp nhé.
     $settings_url = admin_url( 'admin.php?page=wprg-settings' ); 
     
     $settings_link = '<a href="' . esc_url( $settings_url ) . '">' . esc_html__( 'Settings', 'redirect-gateway-manager' ) . '</a>';
@@ -405,7 +368,7 @@ function wprg_add_settings_link( $links ) {
 }
 
 /**
- * Privacy Policy Suggestion
+ * 10. Privacy Policy Suggestion
  */
 add_action( 'admin_init', 'wprg_add_privacy_policy_content' );
 

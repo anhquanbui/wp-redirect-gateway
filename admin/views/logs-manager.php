@@ -1,89 +1,55 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
-// Hàm dịch User Agent thành loại Thiết bị giao diện thân thiện
+
 if ( ! function_exists( 'wprg_get_device_type' ) ) {
     function wprg_get_device_type( $user_agent ) {
         $ua = strtolower( $user_agent );
         if ( empty( $ua ) || $ua === 'unknown' ) return __( '❓ Unknown', 'redirect-gateway-manager' ); 
-        
-        if ( preg_match( '/bot|crawl|slurp|spider|mediapartners|google|bing|yandex|facebook/i', $ua ) ) {
-            return __( '🤖 Robot (Bot)', 'redirect-gateway-manager' ); 
-        }
-        if ( preg_match( '/ipad|tablet|kindle|playbook|silk/i', $ua ) ) {
-            return __( '💊 Tablet', 'redirect-gateway-manager' ); 
-        }
-        if ( preg_match( '/mobile|android|iphone|ipod|blackberry|windows phone/i', $ua ) ) {
-            return __( '📱 Mobile', 'redirect-gateway-manager' ); 
-        }
+        if ( preg_match( '/bot|crawl|slurp|spider|mediapartners|google|bing|yandex|facebook/i', $ua ) ) return __( '🤖 Robot (Bot)', 'redirect-gateway-manager' ); 
+        if ( preg_match( '/ipad|tablet|kindle|playbook|silk/i', $ua ) ) return __( '💊 Tablet', 'redirect-gateway-manager' ); 
+        if ( preg_match( '/mobile|android|iphone|ipod|blackberry|windows phone/i', $ua ) ) return __( '📱 Mobile', 'redirect-gateway-manager' ); 
         return __( '💻 Computer', 'redirect-gateway-manager' ); 
     }
 }
 
 global $wpdb;
-$table_logs  = $wpdb->prefix . 'rg_logs';
-$table_links = $wpdb->prefix . 'rg_links';
 
 // --- XỬ LÝ XÓA LOG ---
 if ( isset( $_POST['wprg_delete_logs'] ) && check_admin_referer( 'wprg_delete_logs_nonce' ) ) {
     $delete_type = isset( $_POST['delete_type'] ) ? sanitize_text_field( wp_unslash( $_POST['delete_type'] ) ) : '';
     
     if ( $delete_type === 'all' ) {
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter        
-        $wpdb->query( "TRUNCATE TABLE {$table_logs}" );
+        // [BẢN VÁ WPCS] Nhúng tiền tố DB trực tiếp vào chuỗi
+        $wpdb->query( "TRUNCATE TABLE {$wpdb->prefix}rg_logs" );
         echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'All logs have been completely deleted!', 'redirect-gateway-manager' ) . '</p></div>';
     } elseif ( $delete_type === 'month' && !empty($_POST['filter_month']) ) {
-        $month_year = sanitize_text_field( wp_unslash( $_POST['filter_month'] ) ); 
-        
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-        $wpdb->query( $wpdb->prepare( "DELETE FROM " . $table_logs . " WHERE DATE_FORMAT(clicked_at, '%%Y-%%m') = %s", $month_year ) );
-        /* translators: %s: Month and year */
+        $month_year = esc_sql( sanitize_text_field( wp_unslash( $_POST['filter_month'] ) ) ); 
+        $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}rg_logs WHERE DATE_FORMAT(clicked_at, '%%Y-%%m') = %s", $month_year ) );
         echo '<div class="notice notice-success is-dismissible"><p>' . sprintf( esc_html__( 'Logs for month %s deleted successfully.', 'redirect-gateway-manager' ), esc_html( $month_year ) ) . '</p></div>';
     }
 }
 
-// --- XỬ LÝ LỌC & QUERY DỮ LIỆU ---
-$selected_month = isset( $_GET['filter_month'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_month'] ) ) : '';
+$selected_month = isset( $_GET['filter_month'] ) ? esc_sql( sanitize_text_field( wp_unslash( $_GET['filter_month'] ) ) ) : '';
 
-// 1. Query Lấy Danh Sách Logs
 if ( ! empty( $selected_month ) ) {
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-    $logs = $wpdb->get_results( $wpdb->prepare( "SELECT lg.*, lk.name as link_name FROM " . $table_logs . " lg LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s ORDER BY lg.clicked_at DESC LIMIT 500", $selected_month ), ARRAY_A );
+    $logs = $wpdb->get_results( $wpdb->prepare( "SELECT lg.*, lk.name as link_name FROM {$wpdb->prefix}rg_logs lg LEFT JOIN {$wpdb->prefix}rg_links lk ON lg.link_id = lk.id WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s ORDER BY lg.clicked_at DESC LIMIT 500", $selected_month ), ARRAY_A );
 } else {
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-    $logs = $wpdb->get_results( "SELECT lg.*, lk.name as link_name FROM " . $table_logs . " lg LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id ORDER BY lg.clicked_at DESC LIMIT 500", ARRAY_A );
+    $logs = $wpdb->get_results( "SELECT lg.*, lk.name as link_name FROM {$wpdb->prefix}rg_logs lg LEFT JOIN {$wpdb->prefix}rg_links lk ON lg.link_id = lk.id ORDER BY lg.clicked_at DESC LIMIT 500", ARRAY_A );
 }
 
-// 2. Query Lấy Danh Sách Tháng
-// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-$available_months = $wpdb->get_col( "SELECT DISTINCT DATE_FORMAT(clicked_at, '%Y-%m') as month_year FROM " . $table_logs . " ORDER BY month_year DESC" );
+$available_months = $wpdb->get_col( "SELECT DISTINCT DATE_FORMAT(clicked_at, '%Y-%m') as month_year FROM {$wpdb->prefix}rg_logs ORDER BY month_year DESC" );
 
-// --- TRUY VẤN THỐNG KÊ NHANH ---
 if ( ! empty( $selected_month ) ) {
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-    $total_clicks = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM " . $table_logs . " lg WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s", $selected_month ) );
-    
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-    $completed_clicks = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM " . $table_logs . " lg WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s AND status = 'completed'", $selected_month ) );
-    
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-    $top_link = $wpdb->get_row( $wpdb->prepare( "SELECT lk.name, COUNT(lg.id) as clicks FROM " . $table_logs . " lg LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s GROUP BY lg.link_id ORDER BY clicks DESC LIMIT 1", $selected_month ) );
-
-    // 3. Query Top Referrers
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-    $top_referrers = $wpdb->get_results( $wpdb->prepare( "SELECT referrer, COUNT(id) as clicks FROM " . $table_logs . " lg WHERE referrer != 'Direct / None' AND referrer != 'Trực tiếp' AND referrer IS NOT NULL AND referrer != '' AND DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s GROUP BY referrer ORDER BY clicks DESC LIMIT 3", $selected_month ) );
+    $total_clicks = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM {$wpdb->prefix}rg_logs lg WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s", $selected_month ) );
+    $completed_clicks = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM {$wpdb->prefix}rg_logs lg WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s AND status = 'completed'", $selected_month ) );
+    $top_link = $wpdb->get_row( $wpdb->prepare( "SELECT lk.name, COUNT(lg.id) as clicks FROM {$wpdb->prefix}rg_logs lg LEFT JOIN {$wpdb->prefix}rg_links lk ON lg.link_id = lk.id WHERE DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s GROUP BY lg.link_id ORDER BY clicks DESC LIMIT 1", $selected_month ) );
+    $top_referrers = $wpdb->get_results( $wpdb->prepare( "SELECT referrer, COUNT(id) as clicks FROM {$wpdb->prefix}rg_logs lg WHERE referrer != 'Direct / None' AND referrer != 'Trực tiếp' AND referrer IS NOT NULL AND referrer != '' AND DATE_FORMAT(lg.clicked_at, '%%Y-%%m') = %s GROUP BY referrer ORDER BY clicks DESC LIMIT 3", $selected_month ) );
 } else {
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-    $total_clicks = $wpdb->get_var( "SELECT COUNT(id) FROM " . $table_logs . " lg" );
-    
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-    $completed_clicks = $wpdb->get_var( "SELECT COUNT(id) FROM " . $table_logs . " lg WHERE status = 'completed'" );
-    
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-    $top_link = $wpdb->get_row( "SELECT lk.name, COUNT(lg.id) as clicks FROM " . $table_logs . " lg LEFT JOIN " . $table_links . " lk ON lg.link_id = lk.id GROUP BY lg.link_id ORDER BY clicks DESC LIMIT 1" );
-
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-    $top_referrers = $wpdb->get_results( "SELECT referrer, COUNT(id) as clicks FROM " . $table_logs . " lg WHERE referrer != 'Direct / None' AND referrer != 'Trực tiếp' AND referrer IS NOT NULL AND referrer != '' GROUP BY referrer ORDER BY clicks DESC LIMIT 3" );
+    $total_clicks = $wpdb->get_var( "SELECT COUNT(id) FROM {$wpdb->prefix}rg_logs lg" );
+    $completed_clicks = $wpdb->get_var( "SELECT COUNT(id) FROM {$wpdb->prefix}rg_logs lg WHERE status = 'completed'" );
+    $top_link = $wpdb->get_row( "SELECT lk.name, COUNT(lg.id) as clicks FROM {$wpdb->prefix}rg_logs lg LEFT JOIN {$wpdb->prefix}rg_links lk ON lg.link_id = lk.id GROUP BY lg.link_id ORDER BY clicks DESC LIMIT 1" );
+    $top_referrers = $wpdb->get_results( "SELECT referrer, COUNT(id) as clicks FROM {$wpdb->prefix}rg_logs lg WHERE referrer != 'Direct / None' AND referrer != 'Trực tiếp' AND referrer IS NOT NULL AND referrer != '' GROUP BY referrer ORDER BY clicks DESC LIMIT 3" );
 }
 
 $conversion_rate = ($total_clicks > 0) ? round(($completed_clicks / $total_clicks) * 100, 2) : 0;

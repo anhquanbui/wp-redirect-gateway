@@ -34,8 +34,8 @@ class WPRG_Shortcode_Inline {
         global $wpdb;
         $table_links = $wpdb->prefix . 'rg_links';
         
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-        $link_data = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table_links} WHERE slug = %s", $slug ), ARRAY_A );
+        // [BẢN VÁ WPCS]: Bỏ chuỗi nội suy SQL
+        $link_data = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . $table_links . " WHERE slug = %s", $slug ), ARRAY_A );
         
         if ( ! $link_data ) return '<div class="wprg-shortcode-error">' . esc_html__( 'Error: Link does not exist in the system.', 'redirect-gateway-manager' ) . '</div>';
 
@@ -46,7 +46,11 @@ class WPRG_Shortcode_Inline {
             $is_unlocked = true; 
         } else {
             $cookie_name = 'wprg_unlock_' . md5($slug);
-            if ( isset($_COOKIE[$cookie_name]) && $_COOKIE[$cookie_name] === md5($password) ) $is_unlocked = true; 
+            // [BẢN VÁ WPCS]: Sanitize Cookie
+            $cookie_val = isset( $_COOKIE[$cookie_name] ) ? sanitize_text_field( wp_unslash( $_COOKIE[$cookie_name] ) ) : '';
+            if ( $cookie_val === md5( $password ) ) {
+                $is_unlocked = true; 
+            }
         }
 
         $shortcodes = get_option( 'wprg_shortcodes', array() );

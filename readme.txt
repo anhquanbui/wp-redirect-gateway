@@ -1,5 +1,5 @@
 === Redirect Gateway Manager ===
-Contributors: quanbui
+Contributors: darkshala321
 Donate link: https://quanbui.net
 Tags: redirect, gateway, ads, monetization, captcha
 Requires at least: 5.6
